@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout android:id="@+id/LinearLayout01" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent" 
+	xmlns:android="http://schemas.android.com/apk/res/android" 
+	xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads">
+	
+	<com.google.ads.AdView  
+	    android:id="@+id/ad" 
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content" 
+		ads:adUnitId="a14cc88802a11a9"
+		ads:adSize="BANNER"
+	    ads:keywords="Android game"
+	    ads:loadAdOnCreate="true"/>
+</FrameLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/relativeLayoutRoot" android:background="@color/bg_color" android:gravity="center_vertical">
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/TableLayoutDashBoard" android:layout_width="wrap_content" android:layout_marginLeft="4dp" android:gravity="center_vertical" android:layout_height="wrap_content">
+    
+
+
+
+
+
+<TableRow android:layout_height="wrap_content" android:id="@+id/TableRowDashBoard1" android:gravity="center" android:layout_width="wrap_content"><ImageButton android:layout_height="wrap_content" android:id="@+id/ImageButtonBackPack" android:layout_width="wrap_content" android:background="@drawable/backpack_cell" android:layout_marginRight="2dp" android:src="@drawable/backpack_large"></ImageButton><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ImageButtonMyFriends" android:background="@drawable/backpack_cell" android:layout_marginLeft="2dp" android:src="@drawable/friends"></ImageButton></TableRow>
+<TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TableRowDashBoard2" android:gravity="center" android:layout_marginTop="4dp"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/backpack_cell" android:layout_marginRight="2dp" android:id="@+id/ImageButtonCatalouge" android:src="@drawable/catalog_book_96x96"></ImageButton><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ImageButtonSettings" android:background="@drawable/backpack_cell" android:layout_marginLeft="2dp" android:src="@drawable/glyph_options_96x96"></ImageButton>
+
+</TableRow>
+
+
+
+
+
+
+
+</TableLayout>
+<LinearLayout android:id="@+id/LinearLayoutNews" android:layout_height="wrap_content" android:layout_marginLeft="6dp" android:orientation="vertical" android:layout_marginTop="4dp" android:layout_marginRight="6dp" android:background="@drawable/cell_button_plain" android:layout_toRightOf="@+id/TableLayoutDashBoard" android:layout_width="fill_parent" android:layout_alignTop="@+id/ImageButtonSettings">
+    <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="wrap_content" android:text="@string/recent_news" android:layout_height="wrap_content" android:id="@+id/TextViewNewsHeader"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:text="@string/loading" android:layout_height="wrap_content" android:id="@+id/TextViewNewsTitle"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewNewsDate"></TextView>
+</LinearLayout>
+</RelativeLayout>

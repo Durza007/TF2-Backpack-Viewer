@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:id="@+id/RelativeLayoutItem" 
+	android:layout_height="wrap_content" android:layout_width="wrap_content">
+	
+	<TextView android:id="@+id/text1"
+	    android:layout_height="wrap_content"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
+	    android:gravity="center_vertical"
+	    android:paddingLeft="6dip"
+	    android:minHeight="?android:attr/listPreferredItemHeight" android:layout_width="wrap_content" android:layout_toRightOf="@+id/imageViewProfile" android:layout_toLeftOf="@+id/text2" android:text="Loading..." android:layout_alignParentLeft="true">
+		
+	</TextView>
+	<ImageView android:src="@drawable/avatar_border_offline" android:id="@+id/imageViewState" android:scaleType="fitXY" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignTop="@+id/text1" android:layout_alignBottom="@+id/text1" android:background="@drawable/avatar_64blank" android:visibility="gone"></ImageView>
+	<ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/imageViewProfile" android:src="@drawable/avatar_64blank" android:scaleType="fitXY" android:layout_alignLeft="@+id/imageViewState" android:layout_alignBottom="@+id/imageViewState" android:layout_alignRight="@+id/imageViewState" android:layout_alignTop="@+id/imageViewState" android:padding="6dp" android:visibility="gone"></ImageView>
+
+	<TextView android:layout_height="wrap_content" 
+		android:layout_width="wrap_content"
+		android:id="@+id/text2"
+    	android:textAppearance="?android:attr/textAppearanceLarge"
+    	android:gravity="center_vertical"
+    	android:paddingLeft="6dip"
+    	android:minHeight="?android:attr/listPreferredItemHeight" android:layout_alignParentRight="true">
+		
+	</TextView>
+</RelativeLayout>

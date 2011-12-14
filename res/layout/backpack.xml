@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/RelativeLayoutBackpack" android:background="@color/bg_color">
+	<HorizontalScrollView android:id="@+id/HorizontalScrollViewBackpack" android:layout_height="wrap_content" android:layout_above="@+id/linearLayoutControls" android:layout_alignParentTop="true" android:layout_width="fill_parent">
+		
+	<com.minder.app.tf2backpack.BackpackView android:id="@+id/TableLayoutBackPack" android:layout_height="fill_parent" android:layout_width="fill_parent" android:fadeScrollbars="true"></com.minder.app.tf2backpack.BackpackView></HorizontalScrollView>
+<LinearLayout android:layout_height="wrap_content" android:id="@+id/linearLayoutControls" android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:gravity="right|center_vertical">
+    <Button android:layout_width="wrap_content" android:layout_marginRight="6dp" android:layout_height="wrap_content" android:id="@+id/buttonNew" style="@style/Button" android:text="@string/new_ungiven_item" android:layout_weight="1" android:visibility="gone"></Button>
+    <include android:layout_height="wrap_content" layout="@layout/ad" android:id="@+id/adview" android:layout_width="0dp" android:layout_weight="1"></include>
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ButtonPrevious" style="@style/Button" android:text="&lt;" android:width="50dp"></Button>
+    <TextView android:layout_width="wrap_content" android:text="1/6" android:gravity="center" android:textSize="34dp" android:id="@+id/TextViewPageNumber" android:width="110dp" android:textColor="@color/backpack_text" android:layout_height="45dp"></TextView>
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ButtonNext" style="@style/Button" android:text="&gt;" android:width="50dp"></Button>
+</LinearLayout>
+
+</RelativeLayout>

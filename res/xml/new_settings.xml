@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceCategory android:title="User">
+
+
+<PreferenceScreen android:title="Change User">
+	<intent android:action="com.minder.app.tf2backpack.SET_STEAMID" />
+</PreferenceScreen>
+<Preference android:title="How To: Community ID" android:summary="Explains how to set a community id" android:key="communityId"></Preference>
+
+</PreferenceCategory><PreferenceCategory android:title="Backpack"><CheckBoxPreference android:key="backpackrarity" android:summaryOn="@string/backpack_rarity_on" android:summaryOff="@string/backpack_rarity_off" android:persistent="true" android:defaultValue="true" android:title="@string/show_backpack_rarity"></CheckBoxPreference>
+<CheckBoxPreference android:key="hidelargecraftnumber" android:persistent="true" android:defaultValue="false" android:summaryOff="@string/hidelargecraftnumber_off" android:summaryOn="@string/hidelargecraftnumber_on" android:title="@string/hide_large_craft_number"></CheckBoxPreference>
+</PreferenceCategory>
+<PreferenceCategory android:title="News">
+	<EditTextPreference 
+		android:key="newscount" 
+		android:persistent="true"
+		android:defaultValue="10" android:title="@string/newscount" android:summary="@string/newscount_info" android:hint="@string/newscount_hint" android:maxLength="2" android:inputType="number">
+	
+	</EditTextPreference>
+</PreferenceCategory><PreferenceCategory android:title="Advanced">
+	<Preference android:title="Refresh TF2 Game Files" android:summary="Will redownload all the tf2 game files for all the items" android:key="refreshfiles">
+		
+	</Preference>
+	<Preference android:key="clearcache" android:summary="@string/clear_cache_info" android:title="@string/clear_cache"></Preference>
+</PreferenceCategory>
+
+<PreferenceCategory android:title="About"><Preference android:title="Changelog" android:summary="Whats new">
+<intent android:action="com.minder.app.tf2backpack.CHANGELOG" />
+</Preference>
+<Preference 
+	android:summary="by Patrik Minder" 
+	android:title="TF2 Backpack Viewer">
+</Preference>
+
+
+</PreferenceCategory>
+
+
+</PreferenceScreen>

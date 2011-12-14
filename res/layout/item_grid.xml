@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/linearLayoutRoot" android:background="@color/bg_color">
+    <GridView android:id="@+id/gridViewItems" android:layout_height="wrap_content" android:layout_width="fill_parent" android:numColumns="3" android:cacheColorHint="@color/bg_color" android:layout_above="@+id/includeAd" android:layout_alignParentTop="true"></GridView>
+    <include android:layout_width="fill_parent" android:layout_height="wrap_content" layout="@layout/ad" android:id="@+id/includeAd" android:layout_alignParentBottom="true"></include>
+</RelativeLayout>
+

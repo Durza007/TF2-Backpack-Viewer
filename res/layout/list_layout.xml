@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout 
+	android:id="@+id/LinearLayout01" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent" 
+	xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+	xmlns:app="http://schemas.android.com/apk/res/com.minder.app.tf2backpack">
+	
+	<LinearLayout 
+		android:layout_width="fill_parent" 
+		android:id="@+id/LinearLayoutList" 
+		android:layout_gravity="top" 
+		android:orientation="vertical" 
+		android:layout_height="wrap_content" 
+		android:layout_alignParentTop="true" 
+		android:layout_above="@+id/includeAd">
+		
+		<ListView 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:layout_below="@+id/LinearLayoutList" 
+			android:id="@id/android:list">
+		</ListView>
+		
+	</LinearLayout>
+	
+	
+		
+
+<include android:layout_width="fill_parent" android:layout_height="wrap_content" layout="@layout/ad" android:id="@+id/includeAd" android:layout_alignParentBottom="true"></include>
+</RelativeLayout>

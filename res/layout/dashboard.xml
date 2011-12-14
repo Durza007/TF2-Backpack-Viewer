@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<TableLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:background="@color/bg_color" android:id="@+id/TableLayoutDashBoard">
+
+
+
+
+
+<TableRow android:layout_height="wrap_content" android:id="@+id/TableRowDashBoard1" android:gravity="center" android:layout_width="wrap_content"><ImageButton android:layout_height="wrap_content" android:id="@+id/ImageButtonBackPack" android:layout_width="wrap_content" android:background="@drawable/backpack_cell" android:src="@drawable/backpack" android:layout_marginRight="2dp"></ImageButton><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ImageButtonMyFriends" android:background="@drawable/backpack_cell" android:layout_marginLeft="2dp" android:src="@drawable/friends2"></ImageButton></TableRow>
+<TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TableRowDashBoard2" android:gravity="center" android:layout_marginTop="4dp"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/backpack_cell" android:layout_marginRight="2dp" android:src="@drawable/catalog_book" android:id="@+id/ImageButtonCatalouge"></ImageButton><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ImageButtonSettings" android:background="@drawable/backpack_cell" android:src="@drawable/glyph_options" android:layout_marginLeft="2dp"></ImageButton>
+
+</TableRow><LinearLayout android:layout_height="wrap_content" android:id="@+id/LinearLayoutNews" android:orientation="vertical" android:layout_width="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/cell_button_plain" android:layout_marginRight="6dp" android:layout_marginLeft="6dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewNewsHeader" android:textAppearance="?android:attr/textAppearanceLarge" android:text="@string/recent_news"></TextView><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewNewsTitle" android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/loading"></TextView>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewNewsDate" android:textAppearance="?android:attr/textAppearanceSmall"></TextView>
+</LinearLayout>
+
+
+
+
+
+
+
+</TableLayout>

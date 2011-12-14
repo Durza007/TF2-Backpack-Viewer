@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" android:orientation="vertical">
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ButtonMyBackpack" android:text="@string/my_backpack" android:width="@dimen/select_backpack_width" android:layout_marginLeft="@dimen/button_padding" android:layout_marginRight="@dimen/button_padding" style="@style/Button" android:height="@dimen/select_backpack_height"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ButtonUserId" android:text="@string/userid_backpack" android:width="@dimen/select_backpack_width" android:layout_marginLeft="@dimen/button_padding" android:layout_marginRight="@dimen/button_padding" style="@style/Button" android:height="@dimen/select_backpack_height"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ButtonFriends" android:text="@string/friendlist" android:width="@dimen/select_backpack_width" android:layout_marginLeft="@dimen/button_padding" android:layout_marginRight="@dimen/button_padding" style="@style/Button" android:height="@dimen/select_backpack_height"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ButtonCancel" android:text="@string/alert_dialog_cancel" android:width="@dimen/select_backpack_width" android:layout_marginTop="20dp" android:layout_marginLeft="@dimen/button_padding" android:layout_marginRight="@dimen/button_padding" style="@style/Button" android:height="@dimen/select_backpack_height"></Button>
+</LinearLayout>

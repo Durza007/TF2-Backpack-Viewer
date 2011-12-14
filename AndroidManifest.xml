@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.minder.app.tf2backpack"
+      android:installLocation="auto" android:versionCode="40" android:versionName="1.4.8">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <uses-sdk android:minSdkVersion="4"/>
+    
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="com.minder.app.tf2backpack.App">
+        <activity android:name=".Main"
+                  android:label="@string/app_name" android:launchMode="standard">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    <activity android:name=".DashBoard">
+	    <intent-filter>
+		   <action android:name="com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES" />
+			<category android:name="android.intent.category.DEFAULT" />
+		</intent-filter>
+    </activity>
+	<activity android:name=".Backpack">
+		<intent-filter>
+			<action android:name="com.minder.app.tf2backpack.VIEW_BACKPACK" />
+			<category android:name="android.intent.category.DEFAULT" />
+		</intent-filter>
+	</activity>
+	
+	<activity android:name=".Settings"></activity>
+	<activity android:name=".GetPlayer" android:windowSoftInputMode="adjustResize" android:configChanges="orientation">
+		<intent-filter>
+		   <action android:name="com.minder.app.tf2backpack.GET_STEAMID" />
+		   <action android:name="com.minder.app.tf2backpack.SET_STEAMID" />
+		   <category android:name="android.intent.category.DEFAULT" />
+		</intent-filter>
+	</activity>
+	<activity android:theme="@android:style/Theme.Dialog" android:name=".SelectBackpack"></activity>
+	<activity android:theme="@style/InfoDialog" android:name=".WeaponInfo"></activity>
+	<activity android:name=".PlayerList" android:configChanges="orientation">
+		<intent-filter>
+			<!--  <action android:name="android.intent.action.SEARCH" />-->
+			<action android:name="com.minder.app.tf2backpack.SEARCH" />
+        </intent-filter>
+        <meta-data android:name="android.app.searchable"
+                   android:resource="@xml/searchable"/>
+	</activity>
+	<activity android:name=".NewsList" android:configChanges="orientation"></activity>
+	
+	    <!-- declare the default searchable Activity for the whole app -->
+    <!--  <meta-data android:name="android.app.default_searchable"
+               android:value=".PlayerList" /> -->
+	
+	
+	<!-- ADMOB -->
+	 <!-- The application's publisher ID assigned by AdMob -->
+	    
+    <!--  <activity android:name="com.google.ads.AdActivity"
+             android:configChanges="keyboard|keyboardHidden|orientation"/>-->
+    <activity android:name="com.google.ads.AdActivity"
+             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
+
+	<!-- ADMOB END -->
+	
+<activity android:name=".Changelog" android:theme="@android:style/Theme.NoDisplay" android:excludeFromRecents="true" android:stateNotNeeded="true" android:alwaysRetainTaskState="false">
+	<intent-filter>
+			<action android:name="com.minder.app.tf2backpack.CHANGELOG" />
+			<category android:name="android.intent.category.DEFAULT" />
+	</intent-filter>
+</activity>
+
+<activity android:name=".ItemGridViewer"> 
+	<intent-filter>
+		<action android:name="com.minder.app.tf2backpack.VIEW_ITEM_LIST" />
+		<category android:name="android.intent.category.DEFAULT" />
+	</intent-filter>
+</activity>
+</application>
+     
+</manifest> 
