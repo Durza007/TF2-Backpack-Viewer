@@ -108,7 +108,7 @@ public class GameSchemeParser {
 		}
 		
 		public void setItemDescription(String itemDescription) {
-			this.itemDescription = itemDescription;
+			this.itemDescription = itemDescription.replace("\"", "");
 		}
 
 		public String getItemDescription() {

@@ -248,7 +248,7 @@ public class ItemGridViewer extends Activity {
     
     @Override
     public void onPause() {
-    	
+    	super.onPause();
     }
 	
     @Override
