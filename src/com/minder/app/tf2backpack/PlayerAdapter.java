@@ -1,6 +1,8 @@
 package com.minder.app.tf2backpack;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,16 +26,17 @@ public class PlayerAdapter extends BaseAdapter {
 		TextView text2;
 	}
 	
-    public ArrayList<SteamUser> mPlayers = new ArrayList<SteamUser>();
+    private ArrayList<SteamUser> playerList = new ArrayList<SteamUser>();
     
     private LayoutInflater mInflater;        
-    private Activity activity;
     private ImageLoader imageLoader;
     private Bitmap defaultImage;
     private int imageSize;
     
+    private boolean sort;
+    private Comparator<SteamUser> comparator;
+    
     public PlayerAdapter(Activity activity) {
-        this.activity = activity;
         mInflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);    
         
         TypedArray typedArray = activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.listPreferredItemHeight});
@@ -52,14 +55,17 @@ public class PlayerAdapter extends BaseAdapter {
 			defaultImage.recycle();
 			defaultImage = newImage;
 		}
+		
+		sort = false;
+		comparator = null;
     }
 
     public int getCount() {
-        return mPlayers.size();
+        return playerList.size();
     }
 
     public Object getItem(int position) {
-        return mPlayers.get(position);
+        return playerList.get(position);
     }
 
     public long getItemId(int position) {
@@ -83,13 +89,13 @@ public class PlayerAdapter extends BaseAdapter {
         	holder = (ViewHolder)convertView.getTag();
         }
         
-        SteamUser player = mPlayers.get(position);
+        SteamUser player = playerList.get(position);
         
-        if (player.avatarUrl != null) {
+        /*if (player.avatarUrl != null) {
         	if (player.avatarUrl.length() > 0) {
         		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
         	}
-        }
+        }*/
         
         boolean statusUpdated = false;
         if (player.gameId != null) {
@@ -135,18 +141,32 @@ public class PlayerAdapter extends BaseAdapter {
     }
 
     public void clearPlayers() {
-    	mPlayers.clear();
+    	playerList.clear();
         notifyDataSetChanged();
     }
     
     public void addPlayer(SteamUser p) {
-    	mPlayers.add(p);
+    	playerList.add(p);
+    	sort();
     	notifyDataSetChanged();
+    }
+    
+    public void setPlayers(ArrayList<SteamUser> data) {
+    	playerList.addAll(data);
+		notifyDataSetChanged();
+    }
+    
+    /**
+     * Get the list of players
+     * @return The internal list of players/steam users
+     */
+    public ArrayList<SteamUser> getPlayers() {
+    	return this.playerList;
     }
     
     public boolean addPlayerInfo(SteamUser p){
     	if (p != null){
-        	for (SteamUser baseP : mPlayers) {
+        	for (SteamUser baseP : playerList) {
         		if (baseP.steamdId64 == p.steamdId64){
         			/*int index = mPlayers.indexOf(baseP);
         			mPlayers.remove(index);
@@ -167,4 +187,25 @@ public class PlayerAdapter extends BaseAdapter {
     	}
     	return true;
     }
+    
+    /**
+     * Sorts the list if sorting is enabled
+     */
+    private void sort() {
+    	if (sort && comparator != null) {
+    		Collections.sort(this.playerList, comparator);
+    	}
+    }
+    
+    /**
+     * Sets if list should be sorted - Works only if comparator has been set
+     * @param shouldSort
+     */
+    public void SetSort(boolean shouldSort) {
+    	this.sort = shouldSort;
+    }
+
+	public void setComparator(Comparator<SteamUser> comparator) {
+		this.comparator = comparator;
+	}
 }

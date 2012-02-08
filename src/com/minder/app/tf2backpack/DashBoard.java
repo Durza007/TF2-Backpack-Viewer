@@ -193,7 +193,7 @@ public class DashBoard extends Activity {
     
     OnClickListener onButtonFriendsClick = new OnClickListener(){
 		public void onClick(View v) {
-			startActivity(new Intent(DashBoard.this, PlayerListNew.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
+			startActivity(new Intent(DashBoard.this, PlayerList.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
 		}
     };
     
