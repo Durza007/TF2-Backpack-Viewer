@@ -5,5 +5,5 @@
 
 
 <ImageView android:paddingRight="5dp" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="right" android:id="@+id/ImageViewItemColor" android:paddingTop="5dp" android:visibility="gone"></ImageView>
-<TextView android:layout_height="wrap_content" android:id="@+id/TextViewEquipped" android:text="Equipped" android:layout_width="wrap_content" android:layout_marginBottom="5dp" android:textSize="@dimen/backpack_text" android:textColor="@color/backpack_text" android:layout_gravity="bottom|right" android:layout_marginRight="5dp" android:visibility="gone" android:background="@drawable/bg_black"></TextView>
+<TextView android:layout_height="wrap_content" android:id="@+id/TextViewEquipped" android:text="@string/equipped" android:layout_width="wrap_content" android:layout_marginBottom="5dp" android:textSize="@dimen/backpack_text" android:textColor="@color/backpack_text" android:layout_gravity="bottom|right" android:layout_marginRight="5dp" android:visibility="gone" android:background="@drawable/bg_black"></TextView>
 </FrameLayout>

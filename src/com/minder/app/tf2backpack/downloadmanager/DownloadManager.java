@@ -1,6 +1,8 @@
 package com.minder.app.tf2backpack.downloadmanager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
@@ -37,7 +39,7 @@ public class DownloadManager {
 		
 		if (f != null) {
 			if (f.exists()) {
-				// TODO Load file
+				return loadStringFromFile(f);
 			}
 		} 
 		else 
@@ -46,6 +48,21 @@ public class DownloadManager {
 		}
 		
 		return null;	
+	}
+	
+	private String loadStringFromFile(File f) throws IOException {
+		int len;
+		char[] chr = new char[4096];
+		final StringBuffer buffer = new StringBuffer();
+		final FileReader reader = new FileReader(f);
+		try {
+			while ((len = reader.read(chr)) > 0) {
+				buffer.append(chr, 0, len);
+			}
+		} finally {
+			reader.close();
+		}
+		return buffer.toString();
 	}
 	
 	public static DownloadManager getInstance() {

@@ -64,7 +64,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	public String searchQuery;
 	
 	private ListView mList;
-	private PlayerAdapter mAdapter;
+	private PlayerAdapter adapter;
 	private View footerView;
 	private View noResultFooterView;
 	private int totalInfoDownloads;
@@ -98,11 +98,11 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         mList.setOnScrollListener(this);
         
         // Set up our adapter
-        mAdapter = new PlayerAdapter(this);
+        adapter = new PlayerAdapter(this);
         footerView = getLayoutInflater().inflate(R.layout.loading_footer, null);
         noResultFooterView = getLayoutInflater().inflate(R.layout.noresult_footer, null);
         mList.addFooterView(footerView, null, false);
-        mList.setAdapter(mAdapter);
+        mList.setAdapter(adapter);
         mList.removeFooterView(footerView);
         
         mList.setBackgroundResource(R.color.bg_color);
@@ -112,7 +112,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO This is NOT a good solution
-				final SteamUser player = (SteamUser)mAdapter.getItem(arg2);
+				final SteamUser player = (SteamUser)adapter.getItem(arg2);
 				if (player.steamdId64 == 0){
 					Handler handler = new Handler() {
 						public void handleMessage(Message message) {
@@ -197,7 +197,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	   	final Object data = getLastNonConfigurationInstance();
     	
     	if (data != null){
-    		mAdapter.setPlayers((ArrayList<SteamUser>)data);
+    		adapter.setPlayers((ArrayList<SteamUser>)data);
 	        if (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
 	        	friendList = true;
 	        } else if (action.equals("com.minder.app.tf2backpack.VIEW_WRENCH")){
@@ -211,7 +211,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	        	searchList = true;
 	        	friendList = true;
 	        	this.setTitle(R.string.search_result);
-	        	if (mAdapter.getCount() == 0){
+	        	if (adapter.getCount() == 0){
         			mList.addFooterView(noResultFooterView, null, false);
 	        	}
 	        }
@@ -264,7 +264,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     			SteamUser p = new SteamUser();
     			p.steamdId64 = sp.getLong(String.valueOf(index) + "-id", 0);
     			p.steamName = sp.getString(String.valueOf(index) + "-name", "");
-    			mAdapter.addPlayer(p);
+    			adapter.addPlayer(p);
     		}
     		return true;
     	}
@@ -377,12 +377,10 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         // Handle item selection
         switch (item.getItemId()) {
         case R.id.menu_sort_number:
-        	mAdapter.SetSort(true);
-        	mAdapter.setComparator(new byWrenchNumber());
+        	adapter.setComparator(new byWrenchNumber());
             return true;
         case R.id.menu_sort_name:
-        	mAdapter.SetSort(true);
-        	mAdapter.setComparator(new byWrenchNumber());
+        	adapter.setComparator(new byPlayerName());
         	return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -396,12 +394,12 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	    	case CONTEXTMENU_VIEW_BACKPACK:{
 	    		/* Get the selected item out of the Adapter by its position. */
 	    		//Favorite favContexted = (Favorite) mFavList.getAdapter().getItem(menuInfo.position);
-	    		SteamUser player = (SteamUser)mAdapter.getItem(info.position);
+	    		SteamUser player = (SteamUser)adapter.getItem(info.position);
 	    		//TODO startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
 	    		return true; /* true means: "we handled the event". */
 	    	}
 	    	case CONTEXTMENU_VIEW_STEAMPAGE: {
-	    		SteamUser player = (SteamUser)mAdapter.getItem(info.position);
+	    		SteamUser player = (SteamUser)adapter.getItem(info.position);
 	    		Intent browser = new Intent();
 	    		browser.setAction("android.intent.action.VIEW");
 	    		browser.setData(Uri.parse("http://steamcommunity.com/profiles/" + player.steamdId64));
@@ -503,7 +501,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
             	}
         		
         		for(SteamUser p : result){
-        			mAdapter.addPlayerInfo(p);
+        			adapter.addPlayerInfo(p);
         		}
         	}
         	workingThreads--;
@@ -585,7 +583,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         		if (result.size() > 0)
         		{
 	        		for(SteamUser p : result){
-	        			if (mAdapter.addPlayerInfo(p)){
+	        			if (adapter.addPlayerInfo(p)){
 	        				nothingMoreToLoad = false;
 	        			}
 	        		}
@@ -819,7 +817,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     
     @Override
     public Object onRetainNonConfigurationInstance() { 	
-        return mAdapter.getPlayers();
+        return adapter.getPlayers();
     } 
     
     private class DownloadFilesTask extends AsyncTask<Object[], SteamUser, Void> {
@@ -904,7 +902,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		
 		@Override
 		protected void onProgressUpdate(SteamUser... users) {
-			mAdapter.notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		}
 		
     }

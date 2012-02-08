@@ -71,7 +71,7 @@ public class CacheManager {
     }
     
     public void clear(){
-    	Log.d("TF2Backpack", "CacheManager: Cache cleared");
+    	Log.v("TF2Backpack", "CacheManager: Cache cleared");
         File[] files = cacheDir.listFiles();
         for(File f : files)
             f.delete();

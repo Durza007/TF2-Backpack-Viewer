@@ -33,7 +33,6 @@ public class PlayerAdapter extends BaseAdapter {
     private Bitmap defaultImage;
     private int imageSize;
     
-    private boolean sort;
     private Comparator<SteamUser> comparator;
     
     public PlayerAdapter(Activity activity) {
@@ -56,7 +55,6 @@ public class PlayerAdapter extends BaseAdapter {
 			defaultImage = newImage;
 		}
 		
-		sort = false;
 		comparator = null;
     }
 
@@ -192,20 +190,14 @@ public class PlayerAdapter extends BaseAdapter {
      * Sorts the list if sorting is enabled
      */
     private void sort() {
-    	if (sort && comparator != null) {
+    	if (comparator != null) {
     		Collections.sort(this.playerList, comparator);
     	}
-    }
-    
-    /**
-     * Sets if list should be sorted - Works only if comparator has been set
-     * @param shouldSort
-     */
-    public void SetSort(boolean shouldSort) {
-    	this.sort = shouldSort;
     }
 
 	public void setComparator(Comparator<SteamUser> comparator) {
 		this.comparator = comparator;
+		sort();
+		notifyDataSetChanged();
 	}
 }
