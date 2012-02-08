@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
 public class ImageLoader {
@@ -111,7 +112,7 @@ public class ImageLoader {
             HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
             conn.setConnectTimeout(30000);
             conn.setReadTimeout(30000);
-            InputStream is=conn.getInputStream();
+            InputStream is = conn.getInputStream();
             OutputStream os = new FileOutputStream(f);
             Util.CopyStream(is, os);
             os.close();
@@ -162,7 +163,7 @@ public class ImageLoader {
         }
     }
     
-    PhotosQueue photosQueue=new PhotosQueue();
+    PhotosQueue photosQueue = new PhotosQueue();
     
     public void stopThread()
     {
@@ -205,7 +206,8 @@ public class ImageLoader {
                         synchronized(photosQueue.photosToLoad){
                             photoToLoad = photosQueue.photosToLoad.pop();
                         }
-                        Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.imageView.getContext(),photoToLoad.isLocal);
+                        Log.d("PhotoLoader", "Started loading bitmap");
+                        Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.imageView.getContext(), photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
                         String tag = imageViews.get(photoToLoad.imageView);
                         if(tag != null && tag.equals(photoToLoad.url)){
@@ -237,7 +239,8 @@ public class ImageLoader {
         
         public void run()
         {
-            if(bitmap != null)
+        	Log.d("BitmapDisplayer", "Setting bitmap");
+            if (bitmap != null)
                 imageView.setImageBitmap(bitmap);
             else
                 imageView.setImageResource(stub_id);

@@ -1,17 +1,16 @@
 package com.minder.app.tf2backpack.downloadmanager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.Util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
+
+import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.Util;
 
 public class CacheManager {
 	private static CacheManager instance;

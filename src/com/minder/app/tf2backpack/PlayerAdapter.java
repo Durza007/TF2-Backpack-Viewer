@@ -73,7 +73,7 @@ public class PlayerAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
-            holder.avatar = (ImageView) convertView.findViewById(R.id.imageViewProfile);
+            holder.avatar = (ImageView) convertView.findViewById(R.id.imageViewAvatar);
             holder.state = (ImageView) convertView.findViewById(R.id.imageViewState);
             holder.text = (TextView) convertView.findViewById(R.id.text1);
             holder.text2 = (TextView) convertView.findViewById(R.id.text2);
@@ -87,7 +87,7 @@ public class PlayerAdapter extends BaseAdapter {
         
         if (player.avatarUrl != null) {
         	if (player.avatarUrl.length() > 0) {
-        		//imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
+        		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
         	}
         }
         

@@ -1,10 +1,5 @@
 package com.minder.app.tf2backpack;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,7 +17,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -48,7 +42,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
-//import com.minder.app.tf2backpack.downloadmanager.HttpConnection;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{
 	Handler mHandler = new Handler();

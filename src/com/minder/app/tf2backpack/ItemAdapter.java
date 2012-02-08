@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import android.app.Activity;

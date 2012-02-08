@@ -27,7 +27,7 @@ public class DownloadManager {
 	/**
 	 * Returns the file data for a file synchronized
 	 * @param url The url of the file
-	 * @param cacheTime How long the file will be cached and for old a cached file to load can be
+	 * @param cacheTime How long the file will be cached and for how old a cached file to load can be
 	 * @return An InputStream pointing to the file
 	 * @throws IOException If the file cant be opened
 	 * @throws MalformedURLException If the url is malformed
