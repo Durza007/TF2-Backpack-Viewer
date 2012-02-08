@@ -149,7 +149,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 											startActivity(new Intent(PlayerList.this, Main.class));*/
 											finish();
 										} else {
-											//TODO startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", textId.substring(idStartIndex + 11, idEndIndex)));
+											startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", textId.substring(idStartIndex + 11, idEndIndex)));
 										}
 									}
 									break;
@@ -178,7 +178,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 						editor.commit();
 						startActivity(new Intent(PlayerList.this, Main.class));*/
 					} else {
-						//TODO startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
+						startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
 					}
 				}
 			}
