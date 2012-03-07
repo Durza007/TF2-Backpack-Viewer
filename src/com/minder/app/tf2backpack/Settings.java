@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.downloadmanager.CacheManager;
 
 public class Settings extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
@@ -47,6 +48,14 @@ public class Settings extends PreferenceActivity {
 				intent.setAction("com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES");
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
+				return true;
+			}
+		});
+        
+        Preference clearCache = (Preference)findPreference("clearcache");
+        clearCache.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+			public boolean onPreferenceClick(Preference preference) {
+				CacheManager.getInstance().clear();			
 				return true;
 			}
 		});

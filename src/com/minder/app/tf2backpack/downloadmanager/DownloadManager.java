@@ -4,11 +4,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.MemoryCache;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
 /**
  * A simple download manager that handles downloads and caching
@@ -19,11 +25,12 @@ public class DownloadManager {
 	private static DownloadManager instance;
 	
 	private CacheManager cacheManager;
+	private MemoryCache memoryCache;
 	private Context context;
 	
 	private DownloadManager(Context context) {
 		this.context = context;
-		//cacheManager = new CacheManager(context);
+		this.memoryCache = new MemoryCache();
 	}
 	
 	/**
@@ -47,7 +54,37 @@ public class DownloadManager {
 			// TODO download file
 		}
 		
-		return null;	
+		return null;
+	}
+	
+	public Bitmap getBitmap(String url, int cacheTimeSeconds) throws MalformedURLException, IOException {
+		Bitmap bm = memoryCache.get(url);
+		if (bm != null) {
+			Log.d("DownloadManager", "Loaded bitmap from memory");
+			return bm;
+		}
+		
+		File f = CacheManager.getInstance().getFile(url, cacheTimeSeconds);
+		
+		if (f != null) {
+			if (f.exists()) {
+				Log.d("DownloadManager", "Loaded bitmap from file");
+				bm = loadBitmapFromFile(f);
+				memoryCache.put(url, bm);
+				
+				return bm;
+			}
+		}
+		
+		Log.d("DownloadManager", "Loaded bitmap from http");
+		InputStream is = (InputStream) new URL(url).getContent();
+		bm = BitmapFactory.decodeStream(is);
+		is.close();
+		
+		memoryCache.put(url, bm);
+		
+		CacheManager.getInstance().cacheBitmap(bm, url);
+		return bm;
 	}
 	
 	private String loadStringFromFile(File f) throws IOException {
@@ -63,6 +100,14 @@ public class DownloadManager {
 			reader.close();
 		}
 		return buffer.toString();
+	}
+	
+	private Bitmap loadBitmapFromFile(File f) {
+		return BitmapFactory.decodeFile(f.getAbsolutePath());
+	}
+	
+	public void clearMemory() {
+		memoryCache.clear();
 	}
 	
 	public static DownloadManager getInstance() {

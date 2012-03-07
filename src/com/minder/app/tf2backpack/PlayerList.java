@@ -41,6 +41,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.downloadmanager.DownloadManager;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{
 	Handler mHandler = new Handler();
@@ -301,6 +302,12 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     }
     
     @Override
+    public void onStop() {
+    	super.onStop();
+    	DownloadManager.getInstance().clearMemory();
+    }
+    
+    @Override
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
@@ -500,9 +507,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         			}
             	}
         		
-        		for(SteamUser p : result){
-        			adapter.addPlayerInfo(p);
-        		}
+            	adapter.addPlayerInfoList(result);
         	}
         	workingThreads--;
         	//GetPlayerInfoRange(0, 10);

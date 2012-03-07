@@ -22,8 +22,8 @@
 	<Preference android:title="Refresh TF2 Game Files" android:summary="Will redownload all the tf2 game files for all the items" android:key="refreshfiles">
 		
 	</Preference>
-	<Preference android:key="clearhistory" android:title="Clear History" android:summary="Clear name history"/>
-</PreferenceCategory>
+	<Preference android:title="Clear Cache" android:summary="Clears the file cache" android:key="clearcache"></Preference><Preference android:key="clearhistory" android:title="Clear History" android:summary="Clear name history"/>
+	</PreferenceCategory>
 
 <PreferenceCategory android:title="About"><Preference android:title="Changelog" android:summary="Whats new">
 <intent android:action="com.minder.app.tf2backpack.CHANGELOG" />

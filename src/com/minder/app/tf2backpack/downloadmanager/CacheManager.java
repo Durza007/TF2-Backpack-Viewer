@@ -10,6 +10,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.MemoryCache;
 import com.minder.app.tf2backpack.Util;
 
 public class CacheManager {
@@ -38,7 +39,12 @@ public class CacheManager {
     }
     
     public File getFile(String url, long cacheTimeSeconds) {
-    	File f = getFile(url);
+    	String filename = Util.md5Hash(url);
+    	File f = getFile(filename);
+    	
+    	if (cacheTimeSeconds == -1) {
+    		return f;
+    	}
     	
     	if (f.lastModified() + (cacheTimeSeconds * 1000) > System.currentTimeMillis()) {
     		return f;

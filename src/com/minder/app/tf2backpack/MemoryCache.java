@@ -8,15 +8,14 @@ public class MemoryCache {
     private HashMap<String, SoftReference<Bitmap>> cache = new HashMap<String, SoftReference<Bitmap>>();
     
     public Bitmap get(String id){
-    	return null;
-        /*if(!cache.containsKey(id))
+        if(!cache.containsKey(id))
             return null;
         SoftReference<Bitmap> ref = cache.get(id);
-        return ref.get();*/
+        return ref.get();
     }
     
     public void put(String id, Bitmap bitmap){
-        //cache.put(id, new SoftReference<Bitmap>(bitmap));
+        cache.put(id, new SoftReference<Bitmap>(bitmap));
     }
 
     public void clear() {

@@ -1,8 +1,12 @@
 package com.minder.app.tf2backpack;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import com.minder.app.tf2backpack.downloadmanager.DownloadManager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,6 +30,7 @@ public class PlayerAdapter extends BaseAdapter {
 		TextView text2;
 	}
 	
+	private Activity activity;
     private ArrayList<SteamUser> playerList = new ArrayList<SteamUser>();
     
     private LayoutInflater mInflater;        
@@ -36,6 +41,8 @@ public class PlayerAdapter extends BaseAdapter {
     private Comparator<SteamUser> comparator;
     
     public PlayerAdapter(Activity activity) {
+    	this.activity = activity;
+    	
         mInflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);    
         
         TypedArray typedArray = activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.listPreferredItemHeight});
@@ -89,11 +96,18 @@ public class PlayerAdapter extends BaseAdapter {
         
         SteamUser player = playerList.get(position);
         
-        /*if (player.avatarUrl != null) {
+        if (player.avatarUrl != null) {
         	if (player.avatarUrl.length() > 0) {
         		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
+        		/*try {
+					holder.avatar.setImageBitmap(DownloadManager.getInstance().getBitmap(player.avatarUrl, -1));
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}*/
         	}
-        }*/
+        }
         
         boolean statusUpdated = false;
         if (player.gameId != null) {
@@ -122,20 +136,6 @@ public class PlayerAdapter extends BaseAdapter {
         }
         
         return convertView;
-        
-        /*if (convertView == null) {
-            text = (TextView)mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-        } else {
-            text = (TextView)convertView;
-        }
-        
-        if (mPlayers.get(position).steamName != null){
-            text.setText(mPlayers.get(position).steamName);
-        } else {
-        	text.setText(R.string.loading);
-        }          
-
-        return text;*/
     }
 
     public void clearPlayers() {
@@ -174,16 +174,30 @@ public class PlayerAdapter extends BaseAdapter {
         				baseP.steamName = p.steamName;
             			notifyDataSetChanged();
         			}
-        			if (p.wrenchNumber != 0){
-	        			baseP.wrenchNumber = p.wrenchNumber;
-	        			notifyDataSetChanged();
-        			}
         			return false;
         		}
         	}
         	addPlayer(p);
     	}
     	return true;
+    }
+    
+    public void addPlayerInfoList(ArrayList<SteamUser> players) {
+		for(SteamUser p : players){
+	    	boolean changed = false;
+        	for (SteamUser baseP : playerList) {
+        		if (baseP.steamdId64 == p.steamdId64){
+        			if (p.steamName != null){
+        				baseP.steamName = p.steamName;
+        				changed = true;
+        			}
+        		}
+        	}
+        	if (!changed) {
+        		addPlayer(p);
+        	}
+		}
+		notifyDataSetChanged();
     }
     
     /**
