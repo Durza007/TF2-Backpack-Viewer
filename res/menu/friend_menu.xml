@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:icon="@android:drawable/ic_menu_sort_by_size" android:title="@string/menu_sort_by_name" android:id="@+id/menu_sort_name"/>
+    <item android:id="@+id/menu_sort_persona_state" android:icon="@android:drawable/ic_menu_my_calendar" android:title="@string/menu_sort_by_persona_state"></item>
 </menu>

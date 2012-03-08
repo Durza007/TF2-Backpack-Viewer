@@ -50,6 +50,11 @@
 	</activity>
 	<activity android:name=".NewsList" android:configChanges="orientation"></activity>
 	
+	<!-- fix for memory problem in admob -->
+	<activity android:name="com.minder.app.tf2backpack.AdMobActivity"
+    android:launchMode="singleInstance" />
+	
+	
 	    <!-- declare the default searchable Activity for the whole app -->
     <!--  <meta-data android:name="android.app.default_searchable"
                android:value=".PlayerList" /> -->

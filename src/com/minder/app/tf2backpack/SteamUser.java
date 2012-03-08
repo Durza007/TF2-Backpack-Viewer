@@ -16,9 +16,11 @@ public class SteamUser {
 		this.steamdId64 = id64;
 		this.steamName = name;
 		this.personaState = personaState;
+		this.gameId = "";
 	}
 
 	public SteamUser() {
 		this.personaState = PersonaState.Offline;
+		this.gameId = "";
 	}
 }

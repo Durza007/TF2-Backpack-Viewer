@@ -1,16 +1,11 @@
 package com.minder.app.tf2backpack;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.minder.app.tf2backpack.downloadmanager.DownloadManager;
-
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -64,6 +59,12 @@ public class PlayerAdapter extends BaseAdapter {
 		
 		comparator = null;
     }
+    
+    private OnImageDownloaded onBitmapLoaded = new OnImageDownloaded() {
+		public void onBitmapLoaded(Bitmap bitmap) {
+			notifyDataSetChanged();
+		}
+	};
 
     public int getCount() {
         return playerList.size();
@@ -96,6 +97,9 @@ public class PlayerAdapter extends BaseAdapter {
         
         SteamUser player = playerList.get(position);
         
+        // set default image
+        holder.avatar.setImageBitmap(defaultImage);
+        
         if (player.avatarUrl != null) {
         	if (player.avatarUrl.length() > 0) {
         		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
@@ -125,12 +129,12 @@ public class PlayerAdapter extends BaseAdapter {
 	        }
         }
         
-        if (player.steamName != null){
+        if (player.steamName != null && !player.steamName.isEmpty()){
         	holder.text.setText(player.steamName);
         } else {
-        	holder.text.setTag(this);
         	holder.text.setText(R.string.loading);
         }
+        
         if (player.wrenchNumber != 0){
         	holder.text2.setText("#" + player.wrenchNumber);
         }

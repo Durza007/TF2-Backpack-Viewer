@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ads.AdView;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
 //import com.minder.app.tf2backpack.downloadmanager.HttpConnection;
 
@@ -72,23 +73,31 @@ public class Backpack extends Activity {
 		}
 	}
 	
-	static class Holder {
+	public static class Holder {
 		public static TextView textCount;
 		public static TextView textEquipped;
 		public static ImageButton imageButton;
 		public static ImageView colorSplat;
 		
-		public static void SetView(View v){
+		public static void setView(View v){
 			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
 			textCount = (TextView)v.findViewById(R.id.TextViewCount);
 			textEquipped = (TextView)v.findViewById(R.id.TextViewEquipped);
 			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
+		}
+		
+		public static void clear() {
+			colorSplat = null;
+			textCount = null;
+			textEquipped = null;
+			imageButton = null;
 		}
 	}
 	
 	private final int DIALOG_UNKNOWN_ITEM = 0;
 	private final int DIALOG_STATS = 1;
 	
+	private AdView adView;
 	private BackpackView backpack;
 	private boolean addPlayerDataToView;
 	private Button newButton;
@@ -118,6 +127,8 @@ public class Backpack extends Activity {
         }
         setContentView(R.layout.backpack);
         
+        adView = (AdView)findViewById(R.id.ad);
+        
         Bundle extras = getIntent().getExtras();
         playerId = "";
         if(extras != null){
@@ -130,24 +141,6 @@ public class Backpack extends Activity {
         
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         coloredCells = sp.getBoolean("backpackrarity", true);
-        
-        /*//Check whether SD card is available
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
-        String state = Environment.getExternalStorageState();
-
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        } else {
-            // Something else is wrong. It may be one of many other states, but all we need
-            //  to know is we can neither read nor write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }*/
         
         // Create the backpack grid
         backpack = (BackpackView)findViewById(R.id.TableLayoutBackPack);
@@ -182,10 +175,18 @@ public class Backpack extends Activity {
         DownloadPlayerData(playerId);
     }
     
+    @Override
     public void onStop(){
     	super.onStop();
     	
     	if (myProgressDialog != null) myProgressDialog.dismiss();
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	
+    	adView.destroy();
     }
     
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -332,7 +333,7 @@ public class Backpack extends Activity {
     			int imageIndex = -1;
 				int buttonIndex = backPackPos - (onPageNumber - 1) * 50;
 				
-				Holder.SetView(backpack.buttonList[buttonIndex]);
+				Holder.setView(backpack.buttonList[buttonIndex]);
 				buttonChanged[buttonIndex] = true;
     			try {
     				if (imageIndex != -1){
@@ -407,6 +408,7 @@ public class Backpack extends Activity {
 						showDialog(DIALOG_UNKNOWN_ITEM);
 					}
 				}
+				Holder.clear();
     		}
     	}
     	
@@ -414,7 +416,7 @@ public class Backpack extends Activity {
     	final int count = buttonChanged.length;
     	for(int index = 0; index < count; index++){
     		if (buttonChanged[index] == false){
-        		Holder.SetView(backpack.buttonList[index]);
+        		Holder.setView(backpack.buttonList[index]);
         		Holder.imageButton.setImageBitmap(null);
         		if (coloredCells){
         			Holder.imageButton.getBackground().clearColorFilter();
@@ -424,6 +426,8 @@ public class Backpack extends Activity {
         		Holder.textEquipped.setVisibility(View.GONE);
         		Holder.colorSplat.setVisibility(View.GONE);
         		Holder.imageButton.setTag(null);
+        		
+        		Holder.clear();
     		}
     		buttonChanged[index] = false;
     	}

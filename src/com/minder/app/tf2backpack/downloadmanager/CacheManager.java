@@ -16,14 +16,12 @@ import com.minder.app.tf2backpack.Util;
 public class CacheManager {
 	private static CacheManager instance;
 	
-	private Context context;
     private File cacheDir;
     
     private CacheManager(Context context){
-    	this.context = context;
         //Find the dir to save cached images
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
-            cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TF2BackpackViewer/Cache");
+            cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TF2BackpackViewer/Cache/");
         else
             cacheDir = context.getCacheDir();
         
@@ -60,18 +58,6 @@ public class CacheManager {
 		
 		FileOutputStream fos = new FileOutputStream(f);
 		fos.write(data.getBytes("UTF-8"));
-		fos.flush();
-		fos.close();
-    }
-    
-    public void cacheBitmap(Bitmap bm, String url) throws IOException {
-    	String filename = Util.md5Hash(url);
-    	
-		File f = new File(cacheDir, filename);
-		
-		FileOutputStream fos = new FileOutputStream(f);
-		
-		boolean saved = bm.compress(CompressFormat.PNG, 100, fos);
 		fos.flush();
 		fos.close();
     }

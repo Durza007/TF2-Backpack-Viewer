@@ -60,4 +60,5 @@
 <string name="reset_images">Refresh Images</string>
 <string name="equipped">Equipped</string>
 <string name="starting_download">Starting download…</string>
+<string name="menu_sort_by_persona_state">Sort by status</string>
 </resources>

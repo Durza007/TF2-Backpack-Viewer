@@ -249,14 +249,25 @@ public class WeaponInfo extends Activity {
 		        				long id = (long) value;
 		        				id +=     1197960265728L;
 		        				id += 76560000000000000L;
-		        				description = description.replace("%s1", String.valueOf(id)) + "\n";
-		        				startIndex = description.indexOf(String.valueOf(id));
-		        				endIndex = String.valueOf(id).length();
-		        				startIndex += textIndex;
-		        				
-			        			final DownloadFilesTask task = new DownloadFilesTask();
-			        			task.setStringToReplace(String.valueOf(id));
-		        				task.execute(id);
+
+		        				// fetch player name is it exists in cache
+		        				String name = DataBaseHelper.getSteamUserName(sqlDb, id);
+		        				if (!name.isEmpty()) {
+			        				description = description.replace("%s1", name) + "\n";
+			        				startIndex = description.indexOf(name);
+			        				endIndex = name.length();
+			        				startIndex += textIndex;
+		        				} else {
+		        					// fetch player name from internet
+			        				description = description.replace("%s1", String.valueOf(id)) + "\n";
+			        				startIndex = description.indexOf(String.valueOf(id));
+			        				endIndex = String.valueOf(id).length();
+			        				startIndex += textIndex;
+		        					
+				        			final DownloadFilesTask task = new DownloadFilesTask();
+				        			task.setStringToReplace(String.valueOf(id));
+			        				task.execute(id);
+		        				}
 		        				break;
 		        				
 		        			default:
@@ -345,9 +356,17 @@ public class WeaponInfo extends Activity {
 		        	        value +=     1197960265728L;
 		        	        value += 76560000000000000L;
 		        	        
-	        				String description = "Crafted by " + value + "\n";
-	        				startIndex = description.indexOf(String.valueOf(value));
-	        				endIndex = String.valueOf(value).length();
+		        	        String stringValue = String.valueOf(value);
+		        	        
+	        				// fetch player name is it exists in cache
+	        				String name = DataBaseHelper.getSteamUserName(sqlDb, value);
+	        				if (!name.isEmpty()) {
+	        					stringValue = name;
+	        				}
+		        	        
+	        				String description = "Crafted by " + stringValue + "\n";
+	        				startIndex = description.indexOf(String.valueOf(stringValue));
+	        				endIndex = String.valueOf(stringValue).length();
 	        				startIndex += textIndex;
 	        				
 		        			attributeText.append(description);
@@ -355,9 +374,12 @@ public class WeaponInfo extends Activity {
 	        			
 		        			textIndex += description.length();
 	        				
-		        			final DownloadFilesTask task = new DownloadFilesTask();
-		        			task.setStringToReplace(String.valueOf(value));
-	        				task.execute(value);
+		        			if (name.isEmpty()) {
+		        				Log.d("WeaponInfo", "no crafted name existed");
+			        			final DownloadFilesTask task = new DownloadFilesTask();
+			        			task.setStringToReplace(String.valueOf(value));
+		        				task.execute(value);
+		        			}
 		        		}
 		        	}
 		        	
@@ -404,9 +426,21 @@ public class WeaponInfo extends Activity {
     		"",
     		"",
     		"",
-    		"Genteel Pipe Smoke"
+    		"Genteel Pipe Smoke",
+    		"Stormy Storm",
+    		"Blizzardy Storm",
+    		"Nuts n' Bolts",
+    		"Orbiting Planets",
+    		"Orbiting Fire",
+    		"Bubbling",
+    		"Smoking",
+    		"Steaming",
+    		"Flaming Lantern",
+    		"Cloudy Moon",
+    		"Cauldron Bubbles",
+    		"Eerie Orbiting Fire"
     	};
-    	if (particleEffect >= 2 && particleEffect <= 20 || particleEffect == 28){
+    	if ((particleEffect >= 2 && particleEffect <= 20) || (particleEffect >= 28 && particleEffect <= 40)){
     		return particleEffects[particleEffect - 2];
     	}
     	return String.valueOf(particleEffect);
@@ -439,10 +473,10 @@ public class WeaponInfo extends Activity {
     	
     	final int[] rankKills = new int[] {
     			0, 10, 25, 45, 70, 
-    			100, 135, 175, 225, 275, 
-    			350, 500, 750, 999, 1000, 
-    			1500, 2500, 5000, 7500, 7616, 
-    			8500
+				100, 135, 175, 225, 275, 
+				350, 500, 750, 999, 1000, 
+				1500, 2500, 5000, 7500, 7616, 
+				8500
     	};
     	int index = 0;
     	
@@ -483,7 +517,7 @@ public class WeaponInfo extends Activity {
 			// TODO Auto-generated method stub
 	        XmlPullParserFactory pullMaker;
 	        try {
-	        	URL url = new URL("http://steamcommunity.com/profiles/" + params[0] + "/?xml=1");
+	        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + params[0] + "&format=xml");
 	        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + params[0] + "&format=xml", 86400);
 	        	
 	            pullMaker = XmlPullParserFactory.newInstance();
@@ -494,7 +528,7 @@ public class WeaponInfo extends Activity {
 
 	            parser.setInput(fis, null);
 
-	        	boolean steamID = false;
+	        	boolean personaName = false;
 	        	
 	            int eventType = parser.getEventType();
 	            while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -502,17 +536,17 @@ public class WeaponInfo extends Activity {
 	                case XmlPullParser.START_DOCUMENT:
 	                    break;
 	                case XmlPullParser.START_TAG:
-	                    if (parser.getName().equals("steamID")) {
-	                    	steamID = true;
+	                    if (parser.getName().equals("personaname")) {
+	                    	personaName = true;
 	                    }
 	                    break;
 	                case XmlPullParser.END_TAG:
-	                    if (parser.getName().equals("steamID")) {
-	                    	steamID = false;
+	                    if (parser.getName().equals("personaname")) {
+	                    	personaName = false;
 	                    }
 	                    break;
 	                case XmlPullParser.TEXT:
-	                    if (steamID) {
+	                    if (personaName) {
 	                    	return parser.getText();
 	                    }
 	                    break;
@@ -529,6 +563,8 @@ public class WeaponInfo extends Activity {
 		
         protected void onPostExecute(String result) {
         	if (result != null){
+            	DataBaseHelper.cacheSteamUserName(Long.parseLong(stringToReplace), result);
+        		
         		int index = attributeText.toString().indexOf(stringToReplace);
         		if (index != -1) {
 		        	attributeText.replace(index, index + stringToReplace.length(), result);

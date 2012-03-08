@@ -19,6 +19,7 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.downloadmanager.DownloadManager;
@@ -389,6 +391,9 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         case R.id.menu_sort_name:
         	adapter.setComparator(new byPlayerName());
         	return true;
+        case R.id.menu_sort_persona_state:
+        	adapter.setComparator(new byPersonaState());
+        	return true;
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -423,11 +428,15 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     	}
     	
 		@Override
-		protected ArrayList<SteamUser> doInBackground(String... params) {
-	    	
+		protected ArrayList<SteamUser> doInBackground(String... params) {	
 	    	totalInfoDownloads = 0;
 	        XmlPullParserFactory pullMaker;
+	        InputStream fis = null;
+	        
         	ArrayList<SteamUser> players = new ArrayList<SteamUser>();
+        	
+            DataBaseHelper db = new DataBaseHelper(PlayerList.this.getApplicationContext());
+            SQLiteDatabase sqlDb = db.getReadableDatabase();
 	        try {
 	        	//String xml = (String) new HttpConnection().getDirect("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1", 86400);
                 URL url = new URL("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1");
@@ -435,7 +444,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	            pullMaker = XmlPullParserFactory.newInstance();
 
 	            XmlPullParser parser = pullMaker.newPullParser();
-	            InputStream fis = url.openStream();
+	            fis = url.openStream();
 
 	            parser.setInput(fis, null);
 
@@ -462,6 +471,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	                    if (friend) {
 	                    	newPlayer = new SteamUser();
 	                    	newPlayer.steamdId64 = Long.parseLong(parser.getText());
+	                    	newPlayer.steamName = DataBaseHelper.getSteamUserName(sqlDb, newPlayer.steamdId64);
 	                    	players.add(newPlayer);
 	                    	//GetPlayerName(newPlayer.steamdId64);
 	                    }
@@ -474,7 +484,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	            Log.e("xml_perf", "Pull parser failed", e);
                 mHandler.post(new Runnable() {
                     public void run() {
-                        //TODO Toast.makeText(PlayerList.this, "Connection to Steam API failed", Toast.LENGTH_LONG).show();
+                        Toast.makeText(PlayerList.this, R.string.no_steam_api, Toast.LENGTH_LONG).show();
                     }
                 });
                 finish();
@@ -484,14 +494,14 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
+			}
+			db.close();
 			return players;
 		}
     	
         protected void onPostExecute(ArrayList<SteamUser> result) {
         	if (result != null){
         		if (totalInfoDownloads == 0){
-    	    		setProgressBarIndeterminateVisibility(false);
     	    		setAdVisibility(View.VISIBLE);
             		System.gc();
         		}
@@ -643,8 +653,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         }
         
         private InputStream OpenHttpConnection(String urlString) 
-        throws IOException
-        {
+        throws IOException {
             InputStream in = null;
             int response = -1;
                    
@@ -672,153 +681,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
             }
             return in;     
         }
-
-
     }
-    
-    /*private class DownloadWrenchListTask extends AsyncTask<String, Void, ArrayList<Player>> {
-    	protected void onPreExecute(){
-    		workingThreads++;
-    	}
-    	
-		@Override
-		protected ArrayList<Player> doInBackground(String... params) {	    	
-	    	totalInfoDownloads = 0;
-	        XmlPullParserFactory pullMaker;
-        	ArrayList<Player> players = new ArrayList<Player>();
-	        try {
-	        	URL url = new URL("http://api.steampowered.com/ITFItems_440/GetGoldenWrenches/v0001/?key=" + Util.GetAPIKey() + "&format=xml");
-	        	
-	        	boolean downloadFile = true;
-	        	FileInputStream fileIn = null;
-	        	try {
-	        		fileIn = openFileInput("wrenchlist.xml");
-	        		
-		        	if (fileIn.available() == 0){
-		        		downloadFile = true;
-		        		fileIn.close();
-		        	} else {
-		        		downloadFile = false;
-		        	}
-	        	} catch (FileNotFoundException e){
-	        		downloadFile = true;
-	        	}
-	        	
-	            pullMaker = XmlPullParserFactory.newInstance();
-
-	            XmlPullParser parser = pullMaker.newPullParser();
-	            
-	            if (downloadFile == true){
-	            	Log.v(Util.GetTag(), "loading list from http stream");
-		            InputStream fis = url.openStream();
-		            
-		            FileOutputStream fos = openFileOutput("wrenchlist.xml", Context.MODE_PRIVATE);
-		            while (fis.available()>0){
-		            	fos.write(fis.read());
-		            }
-		            fos.close();
-		            fis.close();
-		            fis = openFileInput("wrenchlist.xml");
-		            
-		            parser.setInput(fis, null);
-	            } else {
-	            	Log.v(Util.GetTag(), "loading list from file");
-	            	parser.setInput(fileIn, null);
-	            }
-
-
-	        	boolean wrench = false;
-	        	boolean steamID = false;
-	        	boolean wrenchNumber = false;
-	        	
-	        	Player newPlayer = mAdapter.new Player();
-
-	            int eventType = parser.getEventType();
-	            while (eventType != XmlPullParser.END_DOCUMENT) {
-	                switch (eventType) {
-	                case XmlPullParser.START_DOCUMENT:
-	                    break;
-	                case XmlPullParser.START_TAG:
-	                    if (parser.getName().equals("wrench")) {
-	                    	wrench = true;
-	                    } else if (parser.getName().equals("steamID")) {
-	                    	steamID = true;
-	                    } else if (parser.getName().equals("wrenchNumber")) {
-	                    	wrenchNumber = true;
-	                    }
-	                    break;
-	                case XmlPullParser.END_TAG:
-	                    if (parser.getName().equals("wrench")) {
-	                    	wrench = false;
-	                    } else if (parser.getName().equals("steamID")) {
-	                    	steamID = false;
-	                    } else if (parser.getName().equals("wrenchNumber")) {
-	                    	wrenchNumber = false;
-	                    }
-	                    break;
-	                case XmlPullParser.TEXT:
-	                    if (wrench) {
-	                    	if (steamID) {
-		                    	newPlayer = mAdapter.new Player();
-		                    	newPlayer.steamdId64 = Long.parseLong(parser.getText());
-	                    	} else if (wrenchNumber){
-	                    		newPlayer.wrenchNumber = Integer.parseInt(parser.getText());
-		                    	players.add(newPlayer);
-	                    	}
-	                    }
-	                    break;
-
-	                }
-	                eventType = parser.next();
-	            }
-	        } catch (UnknownHostException e) {
-	            Log.e("xml_perf", "Pull parser failed", e);
-                mHandler.post(new Runnable() {
-                    public void run() {
-                        Toast.makeText(PlayerList.this, "Connection to Steam API failed", Toast.LENGTH_LONG).show();
-                    }
-                });
-                finish();
-	        } catch (XmlPullParserException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-                mHandler.post(new Runnable() {
-                    public void run() {
-                        Toast.makeText(PlayerList.this, "Not available - Issue lies on Steam", Toast.LENGTH_LONG).show();
-                    }
-                });
-				e.printStackTrace();
-				
-                finish();
-			} 
-			return players;
-		}
-    	
-        protected void onPostExecute(ArrayList<Player> result) {
-        	if (result != null){
-        		if (result.size() < 100){
-        			// something is wrong delete local file
-        			File file = new File(PlayerList.this.getFilesDir(), "wrenchlist.xml");
-        			try {
-						file.delete();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-        		}
-        		if (totalInfoDownloads == 0){
-    	    		setProgressBarIndeterminateVisibility(false);
-    	    		setAdVisibility(View.VISIBLE);
-            		System.gc();
-        		}
-        		for(Player p : result){
-        			mAdapter.addPlayerInfo(p);
-        		}
-        	}
-        	workingThreads--;
-        	GetPlayerInfoRange(0, 10);
-        }
-    } */
     
     @Override
     public Object onRetainNonConfigurationInstance() { 	
@@ -828,18 +691,31 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     private class DownloadFilesTask extends AsyncTask<Object[], SteamUser, Void> {
     	protected void onPreExecute(){
     		workingThreads++;
+			setProgressBarIndeterminateVisibility(true);
     	}
     	
 		@Override
 		protected Void doInBackground(final Object[]... params) {
 	        XmlPullParserFactory pullMaker;
+	        StringBuilder sb = new StringBuilder();
 	        
 	        final int length = params[0].length;
-	        for (int index = 0; index < length; index++) {
-	        	final SteamUser player = (SteamUser)params[0][index];
+	        int index = 0;
+	        
+	        while (index < length) {       
+	        	for (int stringIndex = 0; stringIndex < 50; stringIndex++) {
+	        		if (stringIndex + index >= length) break;
+	        		
+	        		sb.append(((SteamUser)params[0][stringIndex + index]).steamdId64);
+	        		sb.append(",");
+	        	}
+	        	
+	        	// removes the last comma
+	        	sb.deleteCharAt(sb.length() - 1);
+	        	
 		        try {
 		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + player.steamdId64 + "&format=xml", 0);
-		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + player.steamdId64 + "&format=xml");
+		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + sb.toString() + "&format=xml");
 		        	
 		            pullMaker = XmlPullParserFactory.newInstance();
 	
@@ -848,10 +724,13 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	
 		            parser.setInput(fis, null);
 	
+		            boolean playerTag = false;
 		        	boolean personaName = false;
 		        	boolean personaState = false;
 		        	boolean avatar = false;
 		        	boolean gameId = false;
+		        	
+		        	SteamUser player = null;
 	
 		            int eventType = parser.getEventType();
 		            while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -859,7 +738,10 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                case XmlPullParser.START_DOCUMENT:
 		                    break;
 		                case XmlPullParser.START_TAG:
-		                    if (parser.getName().equals("personaname")) {
+		                	if (parser.getName().equals("player")) {
+		                		playerTag = true;
+		                		player = (SteamUser)params[0][index++];
+		                	} else if (parser.getName().equals("personaname")) {
 		                    	personaName = true;
 		                    } else if (parser.getName().equals("personastate")) {
 		                    	personaState = true;
@@ -870,7 +752,14 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                    }
 		                    break;
 		                case XmlPullParser.END_TAG:
-		                    if (parser.getName().equals("personaname")) {
+		                	if (parser.getName().equals("player")) {
+		                		playerTag = false;
+		        		        publishProgress(player);
+		        		        // for safety - if something goes wrong and we start writing
+		        		        // to the wrong object then we will get a nullpointer exception
+		        		        // instead
+		        		        player = null;
+		                	} else if (parser.getName().equals("personaname")) {
 		                    	personaName = false;
 		                    } else if (parser.getName().equals("personastate")) {
 		                    	personaState = false;
@@ -881,26 +770,31 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                    }
 		                    break;
 		                case XmlPullParser.TEXT:
-		                    if (personaName) {
-		                    	player.steamName = parser.getText();
-		                    } else if (personaState) {
-		                    	int state = Integer.parseInt(parser.getText());
-		                    	player.personaState = PersonaState.values()[state];
-		                    } else if (avatar) {
-		                    	player.avatarUrl = parser.getText();
-		                    } else if (gameId) {
-		                    	player.gameId = parser.getText();
-		                    }
+		                	if (playerTag) {
+			                    if (personaName) {
+			                    	player.steamName = parser.getText();
+			                    	DataBaseHelper.cacheSteamUserName(player.steamdId64, player.steamName);
+			                    } else if (personaState) {
+			                    	int state = Integer.parseInt(parser.getText());
+			                    	player.personaState = PersonaState.values()[state];
+			                    } else if (avatar) {
+			                    	player.avatarUrl = parser.getText();
+			                    } else if (gameId) {
+			                    	player.gameId = parser.getText();
+			                    }
+		                	}
 		                    break;
 	
 		                }
 		                eventType = parser.next();
 		            }
 	
-		        } catch (Exception e) {
-		            Log.e("xml_perf", "Pull parser failed", e);
-		        }
-		        publishProgress(player);
+		        } catch (XmlPullParserException e) {
+		        	e.printStackTrace();
+		        } catch (IOException e) {
+					e.printStackTrace();
+				}
+	        	sb.delete(0, sb.length());
 	        }
 			return null;
 		}
@@ -910,24 +804,52 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 			adapter.notifyDataSetChanged();
 		}
 		
+		@Override
+		protected void onPostExecute(Void voids) {
+			setProgressBarIndeterminateVisibility(false);
+		}
     }
     
     // obsolete
     public static class byWrenchNumber implements java.util.Comparator<SteamUser> {
     	public int compare(SteamUser boy, SteamUser girl) {
-    		return ((SteamUser)boy).wrenchNumber - ((SteamUser)girl).wrenchNumber;
+    		return boy.wrenchNumber - girl.wrenchNumber;
     	}
     }
     
     public static class byPlayerName implements java.util.Comparator<SteamUser> {
     	public int compare(SteamUser boy, SteamUser girl) {
-    		if (((SteamUser)boy).steamName != null && ((SteamUser)girl).steamName != null){
-    			return ((SteamUser)boy).steamName.compareToIgnoreCase(((SteamUser)girl).steamName);
+    		if (boy.steamName != null && girl.steamName != null){
+    			return boy.steamName.compareToIgnoreCase(girl.steamName);
     		} else {
     			return 0;
     		}
     	}
-   } 
+	}
+    
+    public static class byPersonaState implements java.util.Comparator<SteamUser> {
+    	public int compare(SteamUser boy, SteamUser girl) {
+    		int boyState = boy.personaState.value;
+    		int girlState = girl.personaState.value;
+    		
+    		if (boyState > 1) boyState = 1;
+    		if (girlState > 1) girlState = 1;
+    		
+    		if (boy.gameId.length() > 0) boyState = 2;
+    		if (girl.gameId.length() > 0) girlState = 2;
+    		
+    		// sort by name secondly
+    		if (boyState == girlState) {
+        		if (boy.steamName != null && girl.steamName != null){
+        			return boy.steamName.compareToIgnoreCase(girl.steamName);
+        		} else {
+        			return 0;
+        		}
+    		}
+    		
+    		return girlState - boyState;
+    	}
+	} 
     
     private void setAdVisibility(int visibility){
         if (adView != null){

@@ -55,7 +55,10 @@ public class Settings extends PreferenceActivity {
         Preference clearCache = (Preference)findPreference("clearcache");
         clearCache.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
-				CacheManager.getInstance().clear();			
+				ImageLoader il = new ImageLoader(Settings.this.getApplicationContext(), 128);
+				il.clearCache();
+				
+				Toast.makeText(Settings.this, "Cache cleared", Toast.LENGTH_SHORT).show();
 				return true;
 			}
 		});
@@ -63,13 +66,15 @@ public class Settings extends PreferenceActivity {
         Preference clearHistory = (Preference)findPreference("clearhistory");
         clearHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-            	DataBaseHelper db = new DataBaseHelper(Settings.this.getApplicationContext());
+            	/*DataBaseHelper db = new DataBaseHelper(Settings.this.getApplicationContext());
         		SQLiteDatabase sqlDb =  db.getReadableDatabase();
         		
         		sqlDb.execSQL("DELETE FROM name_history");
         		
         		sqlDb.close();
-        		db.close();
+        		db.close();*/
+        		
+        		Util.dbHandler.ExecSql("DELETE FROM name_history");
         		
         		Toast.makeText(Settings.this, "History cleared", Toast.LENGTH_SHORT).show();
             	return true;

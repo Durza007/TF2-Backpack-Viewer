@@ -24,10 +24,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -202,8 +201,7 @@ public class ItemGridViewer extends Activity {
 		itemAdapter.setOnClickListener(clickListener);
 
 		@SuppressWarnings("unchecked")
-		final ArrayList<Item> oldIitemList = (ArrayList<Item>)getLastNonConfigurationInstance();
-		
+		final ArrayList<Item> oldIitemList = (ArrayList<Item>)getLastNonConfigurationInstance();	
 		
 		if (oldIitemList != null) {
 			itemAdapter.setList(oldIitemList);

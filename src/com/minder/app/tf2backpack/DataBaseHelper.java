@@ -1,12 +1,13 @@
 package com.minder.app.tf2backpack;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
-	private static final int DB_VERSION = 4;
+	private static final int DB_VERSION = 5;
 
     private static String DB_NAME = "items";
 
@@ -17,6 +18,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String DICTIONARY_TABLE_CREATE_ATTRIBUTES = "CREATE TABLE attributes (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, description_string TEXT, description_format NUMERIC, effect_type NUMERIC, hidden NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ITEM_ATTRIBUTES = "CREATE TABLE item_attributes (_id INTEGER PRIMARY KEY, itemdefindex NUMERIC, attributedefindex NUMERIC, value REAL);";
     private static final String DICTIONARY_TABLE_CREATE_NAME_HISTORY = "CREATE TABLE name_history (_id INTEGER PRIMARY KEY, name TEXT);";
+    private static final String DICTIONARY_TABLE_CREATE_ID_CACHE = "CREATE TABLE steamid_cache (steamid INTEGER PRIMARY KEY, name TEXT);";
     
     /**
      * Constructor
@@ -35,6 +37,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		db.execSQL(DICTIONARY_TABLE_CREATE_ATTRIBUTES);
 		db.execSQL(DICTIONARY_TABLE_CREATE_ITEM_ATTRIBUTES);
 		db.execSQL(DICTIONARY_TABLE_CREATE_NAME_HISTORY);
+		db.execSQL(DICTIONARY_TABLE_CREATE_ID_CACHE);
 	}
 
 	@Override
@@ -55,7 +58,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		if (oldVersion <= 3) {
 			db.execSQL(DICTIONARY_TABLE_CREATE_NAME_HISTORY);
 		}
+		if (oldVersion <= 4) {
+			db.execSQL(DICTIONARY_TABLE_CREATE_ID_CACHE);
+		}
 	}
 
-
+	public static String getSteamUserName(SQLiteDatabase db, long steamId) {
+        Cursor c = db.rawQuery("SELECT * FROM steamid_cache WHERE steamid=" + steamId, null);
+        
+        if (c != null) {
+        	if (c.getCount() > 0) {
+	        	c.moveToFirst();
+	        	return c.getString(1);
+        	}
+        }
+		
+		return "";
+	}
+	
+	public static void cacheSteamUserName(long steamid, String name) {
+		Util.dbHandler.ExecSql("REPLACE INTO steamid_cache (steamid, name) VALUES ('" + steamid + "', '" + name.replace("'", "''") + "');");
+	}
 }

@@ -46,7 +46,7 @@ public class BackpackView extends TableLayout {
             for (int c = 0; c < 10; c++) {
                 View b = mInflater.inflate(R.layout.backpack_cell, null);
                 b.setId(f * 10 + c);
-                Holder.SetView(b);
+                Holder.setView(b);
                 //b.setImageBitmap(gw);
                 //b.setBackgroundResource(R.drawable.backpack_cell);
                 Holder.imageButton.setOnClickListener(onButtonBackpackClick);
@@ -56,6 +56,9 @@ public class BackpackView extends TableLayout {
             }
             this.addView(tr);
         }
+        
+        Holder.clear();
+        
         isTableCreated = true;
         if (onReady != null){
         	onReady.onReady();
@@ -100,7 +103,6 @@ public class BackpackView extends TableLayout {
     protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec)
     {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
     }
     
     OnClickListener onButtonBackpackClick = new OnClickListener(){
@@ -110,5 +112,4 @@ public class BackpackView extends TableLayout {
 			}
 		}
     };
-
 }

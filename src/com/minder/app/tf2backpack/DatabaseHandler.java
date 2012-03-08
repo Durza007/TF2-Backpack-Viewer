@@ -5,9 +5,8 @@ import java.util.Queue;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-public class DatabaseHandler implements Runnable{
+public class DatabaseHandler implements Runnable {
 	private DataBaseHelper db;
 	private SQLiteDatabase sqlDb;
 	
@@ -16,7 +15,6 @@ public class DatabaseHandler implements Runnable{
 	private Queue<String> sqlQueryQueue;
 	private Object mLock;
 	private boolean mRunning;
-	private long start;
 	
 	public DatabaseHandler(Context context){
 		db = new DataBaseHelper(context);
@@ -31,7 +29,6 @@ public class DatabaseHandler implements Runnable{
 			sqlThread.setDaemon(true);
 			sqlThread.setName("dbThread");
 			sqlThread.start();
-			start = System.currentTimeMillis();
 		}
 		
 		synchronized (mLock){
@@ -54,7 +51,6 @@ public class DatabaseHandler implements Runnable{
                 // if no messages available - wait
                 while (sqlQueryQueue.isEmpty())
                 {
-                	Log.i(Util.GetTag(), "Empty queue - Time: " + (System.currentTimeMillis() - start));
 					try {
 						mLock.wait();
 					} catch (InterruptedException e) {

@@ -255,8 +255,6 @@ public class HttpConnection implements Runnable {
 	private Object processBitmapEntity(HttpEntity entity) throws IOException {
 		BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
 		Bitmap bm = BitmapFactory.decodeStream(bufHttpEntity.getContent());
-
-		CacheManager.getInstance().cacheBitmap(bm, url);
 		
 		if (handler != null) {
 			if (this.id > -1){

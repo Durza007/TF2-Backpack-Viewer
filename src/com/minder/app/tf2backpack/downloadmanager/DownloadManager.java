@@ -57,36 +57,6 @@ public class DownloadManager {
 		return null;
 	}
 	
-	public Bitmap getBitmap(String url, int cacheTimeSeconds) throws MalformedURLException, IOException {
-		Bitmap bm = memoryCache.get(url);
-		if (bm != null) {
-			Log.d("DownloadManager", "Loaded bitmap from memory");
-			return bm;
-		}
-		
-		File f = CacheManager.getInstance().getFile(url, cacheTimeSeconds);
-		
-		if (f != null) {
-			if (f.exists()) {
-				Log.d("DownloadManager", "Loaded bitmap from file");
-				bm = loadBitmapFromFile(f);
-				memoryCache.put(url, bm);
-				
-				return bm;
-			}
-		}
-		
-		Log.d("DownloadManager", "Loaded bitmap from http");
-		InputStream is = (InputStream) new URL(url).getContent();
-		bm = BitmapFactory.decodeStream(is);
-		is.close();
-		
-		memoryCache.put(url, bm);
-		
-		CacheManager.getInstance().cacheBitmap(bm, url);
-		return bm;
-	}
-	
 	private String loadStringFromFile(File f) throws IOException {
 		int len;
 		char[] chr = new char[4096];
@@ -100,10 +70,6 @@ public class DownloadManager {
 			reader.close();
 		}
 		return buffer.toString();
-	}
-	
-	private Bitmap loadBitmapFromFile(File f) {
-		return BitmapFactory.decodeFile(f.getAbsolutePath());
 	}
 	
 	public void clearMemory() {

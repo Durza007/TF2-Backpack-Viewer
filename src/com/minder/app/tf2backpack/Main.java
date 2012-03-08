@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 public class Main extends Activity {
 	private SharedPreferences playerPrefs;
@@ -12,6 +13,13 @@ public class Main extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Start the dummy admob activity.  Don't try to start it twice or an exception will be thrown
+        if (AdMobActivity.AdMobMemoryLeakWorkAroundActivity == null) {
+            Log.i("TF2Backpack", "starting the AdMobActivity");
+            AdMobActivity.startAdMobActivity(this);
+        }
+
         
         Util.dbHandler = new DatabaseHandler(this.getApplicationContext());
         

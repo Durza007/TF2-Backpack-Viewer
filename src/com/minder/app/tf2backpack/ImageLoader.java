@@ -34,21 +34,7 @@ public class ImageLoader {
         fileCache = new FileCache(context);
     }
     
-    final int stub_id = R.drawable.unknown;
-    public void DisplayImage(String url, Activity activity, ImageView imageView, boolean isLocal, boolean setAsBackground)
-    {
-        imageViews.put(imageView, url);
-        Bitmap bitmap = memoryCache.get(url);
-        if (bitmap != null) {
-        	if (setAsBackground) {
-        	} else {
-        		imageView.setImageBitmap(bitmap);
-        	}
-        } else {
-            queuePhoto(url, activity, imageView, isLocal);
-            imageView.setImageResource(stub_id);
-        }    
-    }
+    final static int stub_id = R.drawable.unknown;
     
     public void DisplayImage(String url, Activity activity, ImageView imageView, boolean isLocal, Bitmap defaultImage)
     {
@@ -240,10 +226,11 @@ public class ImageLoader {
         public void run()
         {
         	Log.d("BitmapDisplayer", "Setting bitmap");
-            if (bitmap != null)
+            if (bitmap != null) {
                 imageView.setImageBitmap(bitmap);
-            else
-                imageView.setImageResource(stub_id);
+            } else {
+            	imageView.setImageResource(stub_id);
+            }
         }
     }
 
