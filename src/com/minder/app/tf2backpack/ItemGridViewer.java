@@ -194,7 +194,7 @@ public class ItemGridViewer extends Activity {
 		
 		setContentView(R.layout.item_grid);
 		
-		adView = (AdView)findViewById(R.id.ad);
+		adView = AdMobActivity.createAdView(adView, this);
 		
 		GridView grid = (GridView)findViewById(R.id.gridViewItems);
 		itemAdapter = new com.minder.app.tf2backpack.ItemAdapter(this, true);

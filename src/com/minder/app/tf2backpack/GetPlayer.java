@@ -33,9 +33,7 @@ import android.widget.Toast;
 import com.google.ads.AdView;
 
 public class GetPlayer extends Activity {
-    class ItemAutoTextAdapter extends CursorAdapter implements AdapterView.OnItemClickListener {
-        private DataBaseHelper db;
-        private SQLiteDatabase sqlDb;
+    private class ItemAutoTextAdapter extends CursorAdapter implements AdapterView.OnItemClickListener {
     	
     	/**
 		 * Constructor. Note that no cursor is needed when we create the
@@ -50,8 +48,6 @@ public class GetPlayer extends Activity {
 		public ItemAutoTextAdapter(Context context) {
 		    // Call the CursorAdapter constructor with a null Cursor.
 		    super(context, null);
-	        db = new DataBaseHelper(context);
-	        sqlDb = db.getReadableDatabase();
 		}
 		
 		/**
@@ -81,7 +77,7 @@ public class GetPlayer extends Activity {
 		    	params = null;
 		    }
 
-		    Cursor cursor = sqlDb.rawQuery("SELECT * FROM name_history WHERE name LIKE ?", params);	  
+		    Cursor cursor = Util.dbHandler.querySql("SELECT * FROM name_history WHERE name LIKE ?", params);	  
 		    return cursor;
 		}
 		
@@ -217,7 +213,7 @@ public class GetPlayer extends Activity {
         
         editTextPlayer = (AutoCompleteTextView)findViewById(R.id.EditTextSteamId);
         
-        ItemAutoTextAdapter adapter = this.new ItemAutoTextAdapter(this);
+        ItemAutoTextAdapter adapter = new ItemAutoTextAdapter(this);
         editTextPlayer.setAdapter(adapter);
         editTextPlayer.setOnItemClickListener(adapter);
         editTextPlayer.setThreshold(1);
@@ -229,7 +225,7 @@ public class GetPlayer extends Activity {
         buttonSearch.setOnClickListener(onButtonSearchClick);
         
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)this.findViewById(R.id.ad);
+        adView = AdMobActivity.createAdView(adView, this);
         /*if (adView != null) {
         	adView.loadAd(new AdRequest());
         }*/

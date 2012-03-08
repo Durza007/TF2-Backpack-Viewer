@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout android:id="@+id/LinearLayoutAd" 
+<LinearLayout android:id="@+id/LinearLayoutAd"
+    xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" 
 	android:layout_height="fill_parent" 
-	xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:layout_centerHorizontal="true"/>
+	
+	<!--  xmlns:android="http://schemas.android.com/apk/res/android" 
 	xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads">
 	
 	<com.google.ads.AdView  
@@ -13,5 +16,5 @@
 		ads:adUnitId="a14cc88802a11a9"
 		ads:adSize="BANNER"
 	    ads:keywords="Android game tf2 valve steam team fortress 2"
-	    ads:loadAdOnCreate="true" android:layout_gravity="center_horizontal"/>
-</FrameLayout>
+	    ads:loadAdOnCreate="true" android:layout_gravity="center_horizontal"/>-->
+

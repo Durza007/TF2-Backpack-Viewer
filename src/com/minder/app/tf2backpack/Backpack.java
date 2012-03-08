@@ -127,8 +127,6 @@ public class Backpack extends Activity {
         }
         setContentView(R.layout.backpack);
         
-        adView = (AdView)findViewById(R.id.ad);
-        
         Bundle extras = getIntent().getExtras();
         playerId = "";
         if(extras != null){
@@ -173,6 +171,8 @@ public class Backpack extends Activity {
         ungivenList = new ArrayList<Item>();
         
         DownloadPlayerData(playerId);
+        
+        adView = AdMobActivity.createAdView(adView, this);
     }
     
     @Override
@@ -183,10 +183,14 @@ public class Backpack extends Activity {
     }
     
     @Override
-    public void onDestroy() {
+    public void onDestroy() { 	
     	super.onDestroy();
     	
-    	adView.destroy();
+    	if (adView != null) {
+    		AdMobActivity.removeAdView(this);
+    		Log.d("Backpack", "destroying admob");
+    		adView.destroy();
+    	}
     }
     
     public boolean onCreateOptionsMenu(Menu menu) {

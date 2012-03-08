@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseHandler implements Runnable {
@@ -35,6 +36,16 @@ public class DatabaseHandler implements Runnable {
 			sqlQueryQueue.add(sql);
 			mLock.notify();
 		}
+	}
+	
+	public Cursor querySql(String sql, String params[]) {
+		Cursor c = null;
+        synchronized (mLock)
+        {
+        	OpenDB();
+        	c = sqlDb.rawQuery(sql, params);
+        }
+        return c;
 	}
 	
 	public SQLiteDatabase getReadableDatabase(){

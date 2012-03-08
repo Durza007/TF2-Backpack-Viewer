@@ -89,7 +89,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         }
         
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)this.findViewById(R.id.ad);
+        adView = AdMobActivity.createAdView(adView, this);
         /*if (adView != null) {
             AdRequest r = new AdRequest();
             r.setTesting(true);
@@ -689,6 +689,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     } 
     
     private class DownloadFilesTask extends AsyncTask<Object[], SteamUser, Void> {
+    	private final static int ID_CHUNK_SIZE = 50;
+    	
     	protected void onPreExecute(){
     		workingThreads++;
 			setProgressBarIndeterminateVisibility(true);
@@ -697,13 +699,25 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		@Override
 		protected Void doInBackground(final Object[]... params) {
 	        XmlPullParserFactory pullMaker;
+	        XmlPullParser parser;
 	        StringBuilder sb = new StringBuilder();
 	        
 	        final int length = params[0].length;
 	        int index = 0;
 	        
+        	
+            try {
+				pullMaker = XmlPullParserFactory.newInstance();
+				
+				parser = pullMaker.newPullParser();
+			} catch (XmlPullParserException e1) {
+				e1.printStackTrace();
+				return null;
+			}
+			
+	        
 	        while (index < length) {       
-	        	for (int stringIndex = 0; stringIndex < 50; stringIndex++) {
+	        	for (int stringIndex = 0; stringIndex < ID_CHUNK_SIZE; stringIndex++) {
 	        		if (stringIndex + index >= length) break;
 	        		
 	        		sb.append(((SteamUser)params[0][stringIndex + index]).steamdId64);
@@ -715,15 +729,13 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	        	
 		        try {
 		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + player.steamdId64 + "&format=xml", 0);
-		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + sb.toString() + "&format=xml");
-		        	
-		            pullMaker = XmlPullParserFactory.newInstance();
+		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&format=xml&steamids=" + sb.toString());
 	
-		            XmlPullParser parser = pullMaker.newPullParser();
 		            InputStream fis = url.openStream();
 	
 		            parser.setInput(fis, null);
 	
+		            boolean steamid = false;
 		            boolean playerTag = false;
 		        	boolean personaName = false;
 		        	boolean personaState = false;
@@ -740,7 +752,9 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                case XmlPullParser.START_TAG:
 		                	if (parser.getName().equals("player")) {
 		                		playerTag = true;
-		                		player = (SteamUser)params[0][index++];
+		                		index++;
+		                	} else if (parser.getName().equals("steamid")) {
+		                		steamid = true;
 		                	} else if (parser.getName().equals("personaname")) {
 		                    	personaName = true;
 		                    } else if (parser.getName().equals("personastate")) {
@@ -759,6 +773,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		        		        // to the wrong object then we will get a nullpointer exception
 		        		        // instead
 		        		        player = null;
+		                	} else if (parser.getName().equals("steamid")) {
+		                		steamid = false;
 		                	} else if (parser.getName().equals("personaname")) {
 		                    	personaName = false;
 		                    } else if (parser.getName().equals("personastate")) {
@@ -771,7 +787,20 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                    break;
 		                case XmlPullParser.TEXT:
 		                	if (playerTag) {
-			                    if (personaName) {
+		                		if (steamid) {
+		                			long id = Long.parseLong(parser.getText());
+		                			
+		                			// need to find the right player - SLOW
+		                			// TODO come up with better solution to this
+		                			for (Object o : params[0]) {
+		                				SteamUser s = (SteamUser)o;
+		                				if (id == s.steamdId64) {
+		                					player = s;
+		                					break;
+		                				}
+ 		                			}
+		                			
+		                		} else if (personaName) {
 			                    	player.steamName = parser.getText();
 			                    	DataBaseHelper.cacheSteamUserName(player.steamdId64, player.steamName);
 			                    } else if (personaState) {
@@ -788,7 +817,6 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                }
 		                eventType = parser.next();
 		            }
-	
 		        } catch (XmlPullParserException e) {
 		        	e.printStackTrace();
 		        } catch (IOException e) {

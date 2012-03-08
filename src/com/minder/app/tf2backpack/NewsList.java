@@ -230,7 +230,7 @@ public class NewsList extends Activity{
     	}
     	
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)this.findViewById(R.id.ad);
+    	adView = AdMobActivity.createAdView(adView, this);
         /*if (adView != null) {
         	adView.loadAd(new AdRequest());
         }*/

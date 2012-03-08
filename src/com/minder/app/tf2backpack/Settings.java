@@ -18,6 +18,8 @@ import com.minder.app.tf2backpack.downloadmanager.CacheManager;
 public class Settings extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
 	
+	private AdView adView;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,10 +27,7 @@ public class Settings extends PreferenceActivity {
         setContentView(R.layout.list_layout);
         
         // Look up the AdView as a resource and load a request.
-        AdView adView = (AdView)this.findViewById(R.id.ad);
-        if (adView != null) {
-        	adView.loadAd(new AdRequest());
-        }
+        adView = AdMobActivity.createAdView(adView, this);
         
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.settings);
@@ -89,6 +88,14 @@ public class Settings extends PreferenceActivity {
 				return true;
 			}     	
         });*/
+    }
+    
+    @Override
+    public void onDestroy(){
+    	super.onDestroy();
+    	if (adView != null) {
+    		adView.destroy();
+    	}
     }
     
     @Override

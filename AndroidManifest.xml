@@ -66,24 +66,24 @@
     <!--  <activity android:name="com.google.ads.AdActivity"
              android:configChanges="keyboard|keyboardHidden|orientation"/>-->
     <activity android:name="com.google.ads.AdActivity"
-             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
-
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
+	
 	<!-- ADMOB END -->
 	
-<activity android:name=".Changelog" android:theme="@android:style/Theme.NoDisplay" android:excludeFromRecents="true" android:stateNotNeeded="true" android:alwaysRetainTaskState="false">
-	<intent-filter>
-			<action android:name="com.minder.app.tf2backpack.CHANGELOG" />
-			<category android:name="android.intent.category.DEFAULT" />
-	</intent-filter>
-</activity>
+	<activity android:name=".Changelog" android:theme="@android:style/Theme.NoDisplay" android:excludeFromRecents="true" android:stateNotNeeded="true" android:alwaysRetainTaskState="false">
+		<intent-filter>
+				<action android:name="com.minder.app.tf2backpack.CHANGELOG" />
+				<category android:name="android.intent.category.DEFAULT" />
+		</intent-filter>
+	</activity>
 
-<activity android:name=".ItemGridViewer"> 
-	<intent-filter>
-		<action android:name="com.minder.app.tf2backpack.VIEW_ITEM_LIST" />
-		<category android:name="android.intent.category.DEFAULT" />
-	</intent-filter>
-</activity>
-<activity android:name=".PlayerList"></activity>
+	<activity android:name=".ItemGridViewer"> 
+		<intent-filter>
+			<action android:name="com.minder.app.tf2backpack.VIEW_ITEM_LIST" />
+			<category android:name="android.intent.category.DEFAULT" />
+		</intent-filter>
+	</activity>
+	<activity android:name=".PlayerList"></activity>
 </application>
      
 </manifest> 

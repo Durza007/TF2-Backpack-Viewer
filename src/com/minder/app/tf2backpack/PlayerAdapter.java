@@ -85,10 +85,10 @@ public class PlayerAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
-            holder.avatar = (ImageView) convertView.findViewById(R.id.imageViewAvatar);
-            holder.state = (ImageView) convertView.findViewById(R.id.imageViewState);
-            holder.text = (TextView) convertView.findViewById(R.id.text1);
-            holder.text2 = (TextView) convertView.findViewById(R.id.text2);
+            holder.avatar = (ImageView)convertView.findViewById(R.id.imageViewAvatar);
+            holder.state = (ImageView)convertView.findViewById(R.id.imageViewState);
+            holder.text = (TextView)convertView.findViewById(R.id.text1);
+            holder.text2 = (TextView)convertView.findViewById(R.id.text2);
 
             convertView.setTag(holder);
         } else {
@@ -97,20 +97,12 @@ public class PlayerAdapter extends BaseAdapter {
         
         SteamUser player = playerList.get(position);
         
-        // set default image
-        holder.avatar.setImageBitmap(defaultImage);
-        
-        if (player.avatarUrl != null) {
-        	if (player.avatarUrl.length() > 0) {
-        		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
-        		/*try {
-					holder.avatar.setImageBitmap(DownloadManager.getInstance().getBitmap(player.avatarUrl, -1));
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}*/
-        	}
+        // set player avatar
+        if (player.avatarUrl != null && player.avatarUrl.length() > 0) {
+    		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
+        } else {
+            // set default image
+            holder.avatar.setImageBitmap(defaultImage);
         }
         
         boolean statusUpdated = false;
@@ -129,7 +121,7 @@ public class PlayerAdapter extends BaseAdapter {
 	        }
         }
         
-        if (player.steamName != null && !player.steamName.isEmpty()){
+        if (player.steamName != null && player.steamName.length() > 0){
         	holder.text.setText(player.steamName);
         } else {
         	holder.text.setText(R.string.loading);

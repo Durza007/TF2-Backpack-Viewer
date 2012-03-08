@@ -65,15 +65,17 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 	public static String getSteamUserName(SQLiteDatabase db, long steamId) {
         Cursor c = db.rawQuery("SELECT * FROM steamid_cache WHERE steamid=" + steamId, null);
+        String name = "";
         
         if (c != null) {
         	if (c.getCount() > 0) {
 	        	c.moveToFirst();
-	        	return c.getString(1);
+	        	name = c.getString(1);
         	}
+        	c.close();
         }
 		
-		return "";
+		return name;
 	}
 	
 	public static void cacheSteamUserName(long steamid, String name) {
