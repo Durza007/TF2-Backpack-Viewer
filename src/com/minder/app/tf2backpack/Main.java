@@ -14,12 +14,7 @@ public class Main extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Start the dummy admob activity.  Don't try to start it twice or an exception will be thrown
-        if (AdMobActivity.AdMobMemoryLeakWorkAroundActivity == null) {
-            Log.i("TF2Backpack", "starting the AdMobActivity");
-            AdMobActivity.startAdMobActivity(this);
-        }
-
+        AdMobActivity.createAdmobActivity(this);
         
         Util.dbHandler = new DatabaseHandler(this.getApplicationContext());
         

@@ -120,7 +120,10 @@ public class Backpack extends Activity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); 
+        super.onCreate(savedInstanceState);
+        
+        AdMobActivity.createAdmobActivity(this);
+        
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
