@@ -32,6 +32,7 @@ public class PlayerAdapter extends BaseAdapter {
     private ImageLoader imageLoader;
     private Bitmap defaultImage;
     private int imageSize;
+    private boolean showAvatars = false;
     
     private Comparator<SteamUser> comparator;
     
@@ -97,12 +98,20 @@ public class PlayerAdapter extends BaseAdapter {
         
         SteamUser player = playerList.get(position);
         
-        // set player avatar
-        if (player.avatarUrl != null && player.avatarUrl.length() > 0) {
-    		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
+        if (showAvatars) {
+        	//holder.avatar.setVisibility(View.VISIBLE);
+        	//holder.state.setVisibility(View.VISIBLE);
+        	
+	        // set player avatar
+	        if (player.avatarUrl != null && player.avatarUrl.length() > 0) {
+	    		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
+	        } else {
+	            // set default image
+	            holder.avatar.setImageBitmap(defaultImage);
+	        }
         } else {
-            // set default image
-            holder.avatar.setImageBitmap(defaultImage);
+        	//holder.avatar.setVisibility(View.GONE);
+        	//holder.state.setVisibility(View.GONE);
         }
         
         boolean statusUpdated = false;
@@ -209,5 +218,9 @@ public class PlayerAdapter extends BaseAdapter {
 		this.comparator = comparator;
 		sort();
 		notifyDataSetChanged();
+	}
+	
+	public void setShowAvatars(Boolean showAvatars) {
+		this.showAvatars = showAvatars;
 	}
 }
