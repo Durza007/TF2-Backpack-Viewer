@@ -24,10 +24,12 @@ public class ImageLoader {
     FileCache fileCache;
     private Map<ImageView, String> imageViews = Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     private int requiredSize;
+    private PhotosLoader photoLoaderThread;
     
     public ImageLoader(Context context, int requiredSize){
-        //Make the background thead low priority. This way it will not affect the UI performance
-        photoLoaderThread.setPriority(Thread.NORM_PRIORITY - 1);
+    	createThread();
+    	// TODO lazy start on this thread?
+    	photoLoaderThread.start();
         
         this.requiredSize = requiredSize;
         
@@ -58,10 +60,6 @@ public class ImageLoader {
             photosQueue.photosToLoad.push(p);
             photosQueue.photosToLoad.notifyAll();
         }
-        
-        //start thread if it's not started yet
-        if(photoLoaderThread.getState() == Thread.State.NEW)
-            photoLoaderThread.start();
     }
     
     private Bitmap getBitmap(String url, Context context, boolean isLocal) 
@@ -153,7 +151,22 @@ public class ImageLoader {
     
     public void stopThread()
     {
-        photoLoaderThread.interrupt();
+    	if (photoLoaderThread != null) {
+    		photoLoaderThread.interrupt();
+    	}
+    }
+    
+    public void startThread() {
+    	createThread();
+    	photoLoaderThread.start();
+    }
+    
+    private void createThread() {
+    	if (photoLoaderThread == null || !photoLoaderThread.isAlive()) {
+        	photoLoaderThread = new PhotosLoader();
+        	photoLoaderThread.setName("PhotoLoader");
+            photoLoaderThread.setPriority(Thread.NORM_PRIORITY - 1);
+    	}
     }
     
     //stores list of photos to download
@@ -210,8 +223,6 @@ public class ImageLoader {
             }
         }
     }
-    
-    PhotosLoader photoLoaderThread = new PhotosLoader();
     
     //Used to display bitmap in the UI thread
     class BitmapDisplayer implements Runnable

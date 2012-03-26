@@ -210,4 +210,12 @@ public class PlayerAdapter extends BaseAdapter {
 		sort();
 		notifyDataSetChanged();
 	}
+	
+	public void stopBackgroundLoading() {
+		imageLoader.stopThread();
+	}
+	
+	public void startBackgroundLoading() {
+		imageLoader.startThread();
+	}
 }

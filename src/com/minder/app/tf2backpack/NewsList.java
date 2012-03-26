@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -190,6 +191,9 @@ public class NewsList extends Activity{
         
         setContentView(R.layout.list_layout);
         
+        // Look up the AdView as a resource and load a request.
+    	adView = AdMobActivity.createAdView(adView, this);
+        
         mList = (ListView)findViewById(android.R.id.list);
         
         // Set up our adapter
@@ -208,15 +212,6 @@ public class NewsList extends Activity{
 			}
 		});
         
-        /*mList.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v,
-					ContextMenuInfo menuInfo) {
-				menu.setHeaderTitle(R.string.player_options);
-				//menu.add(0, CONTEXTMENU_VIEW_BACKPACK, 0, R.string.view_backpack);
-				//menu.add(0, CONTEXTMENU_VIEW_STEAMPAGE, 0, R.string.view_steampage);
-			}
-       	
-        });*/
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         	//this.getSharedPreferences("com.minder.app.tf2backpack.preferences", MODE_PRIVATE);
         
@@ -229,8 +224,6 @@ public class NewsList extends Activity{
     		new DownloadNewsTask().execute(sp.getString("newscount", "10"));
     	}
     	
-        // Look up the AdView as a resource and load a request.
-    	adView = AdMobActivity.createAdView(adView, this);
         /*if (adView != null) {
         	adView.loadAd(new AdRequest());
         }*/

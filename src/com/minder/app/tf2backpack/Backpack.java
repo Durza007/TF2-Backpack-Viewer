@@ -120,7 +120,8 @@ public class Backpack extends Activity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); 
+        super.onCreate(savedInstanceState);
+        
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -143,7 +144,7 @@ public class Backpack extends Activity {
         // Create the backpack grid
         backpack = (BackpackView)findViewById(R.id.TableLayoutBackPack);
         //layout.setLayoutParams( new TableLayout.LayoutParams(4,5) );
-        backpack.setStretchAllColumns(true);    
+        //backpack.setStretchAllColumns(true);    
         backpack.setOnClickListener(onButtonBackpackClick);
         backpack.setOnReadyListener(onLayoutReadyListener);
         
@@ -188,7 +189,6 @@ public class Backpack extends Activity {
     	
     	if (adView != null) {
     		AdMobActivity.removeAdView(this);
-    		Log.d("Backpack", "destroying admob");
     		adView.destroy();
     	}
     }

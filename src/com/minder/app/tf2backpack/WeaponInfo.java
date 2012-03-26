@@ -252,7 +252,7 @@ public class WeaponInfo extends Activity {
 
 		        				// fetch player name is it exists in cache
 		        				String name = DataBaseHelper.getSteamUserName(sqlDb, id);
-		        				if (!name.isEmpty()) {
+		        				if (name.length() > 0) {
 			        				description = description.replace("%s1", name) + "\n";
 			        				startIndex = description.indexOf(name);
 			        				endIndex = name.length();
@@ -360,7 +360,7 @@ public class WeaponInfo extends Activity {
 		        	        
 	        				// fetch player name is it exists in cache
 	        				String name = DataBaseHelper.getSteamUserName(sqlDb, value);
-	        				if (!name.isEmpty()) {
+	        				if (name.length() > 0) {
 	        					stringValue = name;
 	        				}
 		        	        
@@ -374,8 +374,7 @@ public class WeaponInfo extends Activity {
 	        			
 		        			textIndex += description.length();
 	        				
-		        			if (name.isEmpty()) {
-		        				Log.d("WeaponInfo", "no crafted name existed");
+		        			if (name.length() > 0) {
 			        			final DownloadFilesTask task = new DownloadFilesTask();
 			        			task.setStringToReplace(String.valueOf(value));
 		        				task.execute(value);

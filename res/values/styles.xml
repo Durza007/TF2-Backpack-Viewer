@@ -18,4 +18,9 @@
     	<item name="android:windowBackground">@drawable/bg_info</item>
     	<item name="android:backgroundDimEnabled">false</item>
     </style>
+    <style name="dash_board_button_style" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/backpack_cell</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+    </style>
 </resources>

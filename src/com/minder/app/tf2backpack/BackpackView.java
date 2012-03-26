@@ -30,10 +30,12 @@ public class BackpackView extends TableLayout {
 
 	public BackpackView(Context context) {
 		super(context);
+		this.setStretchAllColumns(true);
 	}
 	
 	public BackpackView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		this.setStretchAllColumns(true);
 	}
 	
 	private void createTable() {

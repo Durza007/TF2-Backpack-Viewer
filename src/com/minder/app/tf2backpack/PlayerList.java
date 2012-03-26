@@ -304,9 +304,19 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     }
     
     @Override
+    public void onRestart() {
+    	super.onRestart();
+    	
+    	Log.d("PlayerList", "restart");
+    	adapter.startBackgroundLoading();
+    }
+    
+    @Override
     public void onStop() {
     	super.onStop();
     	DownloadManager.getInstance().clearMemory();
+    	adapter.stopBackgroundLoading();
+    	Log.d("PlayerList", "stop");
     }
     
     @Override

@@ -51,7 +51,7 @@
 	<activity android:name=".NewsList" android:configChanges="orientation"></activity>
 	
 	<!-- fix for memory problem in admob -->
-	<activity android:name="com.minder.app.tf2backpack.AdMobActivity"
+	<activity android:name=".AdMobActivity"
     android:launchMode="singleInstance" />
 	
 	

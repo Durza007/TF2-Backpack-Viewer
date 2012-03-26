@@ -40,24 +40,29 @@ public final class AdMobActivity extends Activity {
         // DYNAMICALLY CREATE AD START
         LinearLayout adviewLayout = (LinearLayout)activity.findViewById(R.id.includeAd);
         // Create an ad.
-        if (adView == null) {
-            adView = new AdView(AdMobActivity.AdMobMemoryLeakWorkAroundActivity, AdSize.BANNER, "a14cc88802a11a9");
-            // Create an ad request.
-            AdRequest adRequest = new AdRequest();
-            // Start loading the ad in the background.
-            adView.loadAd(adRequest);
-            // Add the AdView to the view hierarchy. The view will have no size until the ad is loaded.
-            adviewLayout.addView(adView);
-        }
-        else {
-            ((LinearLayout) adView.getParent()).removeAllViews();
-            adviewLayout.addView(adView);
-            // Reload Ad if necessary.  Loaded ads are lost when the activity is paused.
-            if (!adView.isReady() || !adView.isRefreshing()) {
-                AdRequest adRequest = new AdRequest();
-                // Start loading the ad in the background.
-                adView.loadAd(adRequest);
-            }
+        if (adviewLayout != null) {
+	        if (adView == null) {
+	            adView = new AdView(AdMobActivity.AdMobMemoryLeakWorkAroundActivity, AdSize.BANNER, "a14cc88802a11a9");
+	            // Create an ad request.
+	            AdRequest adRequest = new AdRequest();
+	            adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
+
+	            // Start loading the ad in the background.
+	            adView.loadAd(adRequest);
+	            // Add the AdView to the view hierarchy. The view will have no size until the ad is loaded.
+	            adviewLayout.addView(adView);
+	        }
+	        else {
+	            ((LinearLayout)adView.getParent()).removeAllViews();
+	            adviewLayout.addView(adView);
+	            // Reload Ad if necessary.  Loaded ads are lost when the activity is paused.
+	            if (!adView.isReady() || !adView.isRefreshing()) {
+	                AdRequest adRequest = new AdRequest();
+		            adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
+	                // Start loading the ad in the background.
+	                adView.loadAd(adRequest);
+	            }
+	        }
         }
         return adView;
     }
