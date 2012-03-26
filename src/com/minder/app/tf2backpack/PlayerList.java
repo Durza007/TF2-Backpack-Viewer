@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -52,6 +53,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	private boolean ready = false;
 	private boolean loadingMore = false;
 	private boolean nothingMoreToLoad = false;
+	private boolean loadAvatars = false;
 	
 	private final String SHARED_PREF_FRIENDS = "friendlist";
 	private final int CONTEXTMENU_VIEW_BACKPACK = 0;
@@ -88,6 +90,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         	return;
         }
         
+        getSettings();
+        
         // Look up the AdView as a resource and load a request.
         adView = AdMobActivity.createAdView(adView, this);
         /*if (adView != null) {
@@ -102,6 +106,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         
         // Set up our adapter
         adapter = new PlayerAdapter(this);
+        adapter.setShowAvatars(loadAvatars);
         footerView = getLayoutInflater().inflate(R.layout.loading_footer, null);
         noResultFooterView = getLayoutInflater().inflate(R.layout.noresult_footer, null);
         mList.addFooterView(footerView, null, false);
@@ -251,6 +256,11 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
                 setProgressBarIndeterminateVisibility(true);
 	        }
     	}
+    }
+    
+    private void getSettings() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        loadAvatars = sp.getBoolean("showavatars", true);
     }
     
     private boolean LoadPlayers(){

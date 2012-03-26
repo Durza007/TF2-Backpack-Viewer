@@ -36,6 +36,14 @@ public final class AdMobActivity extends Activity {
         activity.startActivity(i);
     }
     
+    public static final void createAdmobActivity(Activity activity) {
+        // Start the dummy admob activity.  Don't try to start it twice or an exception will be thrown
+        if (AdMobActivity.AdMobMemoryLeakWorkAroundActivity == null) {
+            Log.i("TF2Backpack", "starting the AdMobActivity");
+            AdMobActivity.startAdMobActivity(activity);
+        }
+    }
+    
     public static final AdView createAdView(AdView adView, Activity activity) {
         // DYNAMICALLY CREATE AD START
         LinearLayout adviewLayout = (LinearLayout)activity.findViewById(R.id.includeAd);

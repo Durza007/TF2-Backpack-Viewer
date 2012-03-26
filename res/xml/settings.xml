@@ -11,7 +11,9 @@
 </PreferenceCategory><PreferenceCategory android:title="Backpack"><CheckBoxPreference android:key="backpackrarity" android:summaryOn="@string/backpack_rarity_on" android:summaryOff="@string/backpack_rarity_off" android:persistent="true" android:defaultValue="true" android:title="@string/show_backpack_rarity"></CheckBoxPreference>
 <CheckBoxPreference android:key="hidelargecraftnumber" android:persistent="true" android:defaultValue="false" android:summaryOff="@string/hidelargecraftnumber_off" android:summaryOn="@string/hidelargecraftnumber_on" android:title="@string/hide_large_craft_number"></CheckBoxPreference>
 </PreferenceCategory>
-<PreferenceCategory android:title="News">
+<PreferenceCategory android:title="Friends">
+    <CheckBoxPreference android:key="showavatars" android:title="Show Avatars" android:summaryOff="Player avatars will not be displayed" android:summaryOn="Player avatars will be displayed" android:defaultValue="true" android:persistent="true"/>
+</PreferenceCategory><PreferenceCategory android:title="News">
 	<EditTextPreference 
 		android:key="newscount" 
 		android:persistent="true"
@@ -35,6 +37,7 @@
 
 
 </PreferenceCategory>
+
 
 
 </PreferenceScreen>
