@@ -17,6 +17,8 @@ import com.minder.app.tf2backpack.downloadmanager.CacheManager;
 
 public class Settings extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
+	private final static int CONFIRMATION_DIALOG_CACHE = 2;
+	private final static int CONFIRMATION_DIALOG_HISTORY = 3;
 	
 	private AdView adView;
 	
@@ -54,10 +56,7 @@ public class Settings extends PreferenceActivity {
         Preference clearCache = (Preference)findPreference("clearcache");
         clearCache.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
-				ImageLoader il = new ImageLoader(Settings.this.getApplicationContext(), 128);
-				il.clearCache();
-				
-				Toast.makeText(Settings.this, "Cache cleared", Toast.LENGTH_SHORT).show();
+				showDialog(CONFIRMATION_DIALOG_CACHE);
 				return true;
 			}
 		});
@@ -65,17 +64,7 @@ public class Settings extends PreferenceActivity {
         Preference clearHistory = (Preference)findPreference("clearhistory");
         clearHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-            	/*DataBaseHelper db = new DataBaseHelper(Settings.this.getApplicationContext());
-        		SQLiteDatabase sqlDb =  db.getReadableDatabase();
-        		
-        		sqlDb.execSQL("DELETE FROM name_history");
-        		
-        		sqlDb.close();
-        		db.close();*/
-        		
-        		Util.dbHandler.ExecSql("DELETE FROM name_history");
-        		
-        		Toast.makeText(Settings.this, "History cleared", Toast.LENGTH_SHORT).show();
+				showDialog(CONFIRMATION_DIALOG_HISTORY);
             	return true;
             }
         });
@@ -110,7 +99,40 @@ public class Settings extends PreferenceActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 }).create();
+        case CONFIRMATION_DIALOG_CACHE:
+        	return new AlertDialog.Builder(this)
+    			.setIcon(android.R.drawable.ic_dialog_alert)
+    			.setTitle(R.string.alert_dialog_clear_cache)
+    			.setMessage(R.string.alert_dialog_are_you_sure)
+    			.setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int whichButton) {
+    					ImageLoader il = new ImageLoader(Settings.this.getApplicationContext(), 128);
+    					il.clearCache();
+    					
+    					Toast.makeText(Settings.this, "Cache cleared", Toast.LENGTH_SHORT).show();
+    				}
+    			}).setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int whichButton) {
+    				
+    				}
+    		}).create();
+        case CONFIRMATION_DIALOG_HISTORY:
+        	return new AlertDialog.Builder(this)
+        		.setIcon(android.R.drawable.ic_dialog_alert)
+        		.setTitle(R.string.alert_dialog_clear_history)
+        		.setMessage(R.string.alert_dialog_are_you_sure)
+        		.setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton) {
+                		Util.getDbHandler().ExecSql("DELETE FROM name_history");
+                		
+                		Toast.makeText(Settings.this, "History cleared", Toast.LENGTH_SHORT).show();
+        			}
+        		}).setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton) {
+        				
+        			}
+        	}).create();
         }
         return null;
-        }
+    }
 }

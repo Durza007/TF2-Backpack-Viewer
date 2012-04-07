@@ -79,6 +79,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        AdMobActivity.createAdmobActivity(this);
+        
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         this.setTitle(R.string.friends);
         
@@ -821,6 +823,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
  		                			}
 		                			
 		                		} else if (personaName) {
+		                			// TODO find out why this can be null
 			                    	player.steamName = parser.getText();
 			                    	DataBaseHelper.cacheSteamUserName(player.steamdId64, player.steamName);
 			                    } else if (personaState) {

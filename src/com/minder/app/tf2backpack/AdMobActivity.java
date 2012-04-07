@@ -50,15 +50,18 @@ public final class AdMobActivity extends Activity {
         // Create an ad.
         if (adviewLayout != null) {
 	        if (adView == null) {
-	            adView = new AdView(AdMobActivity.AdMobMemoryLeakWorkAroundActivity, AdSize.BANNER, "a14cc88802a11a9");
-	            // Create an ad request.
-	            AdRequest adRequest = new AdRequest();
-	            adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
-
-	            // Start loading the ad in the background.
-	            adView.loadAd(adRequest);
-	            // Add the AdView to the view hierarchy. The view will have no size until the ad is loaded.
-	            adviewLayout.addView(adView);
+	        	// check if admob activity is null - if it is, dont create an ad
+	        	if (AdMobActivity.AdMobMemoryLeakWorkAroundActivity != null) {
+		            adView = new AdView(AdMobActivity.AdMobMemoryLeakWorkAroundActivity, AdSize.BANNER, "a14cc88802a11a9");
+		            // Create an ad request.
+		            AdRequest adRequest = new AdRequest();
+		            adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
+	
+		            // Start loading the ad in the background.
+		            adView.loadAd(adRequest);
+		            // Add the AdView to the view hierarchy. The view will have no size until the ad is loaded.
+		            adviewLayout.addView(adView);
+	        	}
 	        }
 	        else {
 	            ((LinearLayout)adView.getParent()).removeAllViews();

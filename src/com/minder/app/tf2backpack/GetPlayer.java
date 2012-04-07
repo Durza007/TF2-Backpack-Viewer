@@ -77,7 +77,7 @@ public class GetPlayer extends Activity {
 		    	params = null;
 		    }
 
-		    Cursor cursor = Util.dbHandler.querySql("SELECT * FROM name_history WHERE name LIKE ?", params);	  
+		    Cursor cursor = Util.getDbHandler().querySql("SELECT * FROM name_history WHERE name LIKE ?", params);	  
 		    return cursor;
 		}
 		

@@ -374,7 +374,7 @@ public class WeaponInfo extends Activity {
 	        			
 		        			textIndex += description.length();
 	        				
-		        			if (name.length() > 0) {
+		        			if (name.length() == 0) {
 			        			final DownloadFilesTask task = new DownloadFilesTask();
 			        			task.setStringToReplace(String.valueOf(value));
 		        				task.execute(value);

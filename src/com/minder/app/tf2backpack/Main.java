@@ -16,8 +16,6 @@ public class Main extends Activity {
         
         AdMobActivity.createAdmobActivity(this);
         
-        Util.dbHandler = new DatabaseHandler(this.getApplicationContext());
-        
         playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
         
         String playerId = playerPrefs.getString("id", null);

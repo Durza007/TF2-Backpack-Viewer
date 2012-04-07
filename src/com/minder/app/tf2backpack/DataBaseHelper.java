@@ -79,6 +79,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	}
 	
 	public static void cacheSteamUserName(long steamid, String name) {
-		Util.dbHandler.ExecSql("REPLACE INTO steamid_cache (steamid, name) VALUES ('" + steamid + "', '" + name.replace("'", "''") + "');");
+		// TODO could probably remove this null check...
+		if (name != null) {
+			Util.getDbHandler().ExecSql("REPLACE INTO steamid_cache (steamid, name) VALUES ('" + steamid + "', '" + name.replace("'", "''") + "');");
+		}
 	}
 }

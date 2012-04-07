@@ -15,7 +15,14 @@ import android.net.ConnectivityManager;
 
 public class Util {
 	private static Item tempItem;
-	public static DatabaseHandler dbHandler;
+	private static DatabaseHandler dbHandler;
+	
+	public static DatabaseHandler getDbHandler() {
+		if (dbHandler == null) {
+			dbHandler = new DatabaseHandler(App.getAppContext());
+		}
+		return dbHandler;
+	}
 	
 	/*public static void setTempItem(Item tempItem) {
 		Util.tempItem = tempItem;
