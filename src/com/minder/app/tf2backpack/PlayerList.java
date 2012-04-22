@@ -461,7 +461,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
             SQLiteDatabase sqlDb = db.getReadableDatabase();
 	        try {
 	        	//String xml = (String) new HttpConnection().getDirect("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1", 86400);
-                URL url = new URL("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1");
+                URL url = new URL("http://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=" + Util.GetAPIKey() + 
+                		"&steamid=" + params[0] + "&relationship=all&format=xml");
 	        	
 	            pullMaker = XmlPullParserFactory.newInstance();
 
@@ -470,7 +471,10 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 
 	            parser.setInput(fis, null);
 
+	            boolean friendslist = false;
+	            boolean friends = true;
 	        	boolean friend = false;
+	        	boolean steamid = false;
 	        	
 	        	SteamUser newPlayer;
 
@@ -480,17 +484,29 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	                case XmlPullParser.START_DOCUMENT:
 	                    break;
 	                case XmlPullParser.START_TAG:
-	                    if (parser.getName().equals("friend")) {
+	                    if (parser.getName().equals("friendslist")) {
+	                    	friendslist = true;
+	                    } else if (parser.getName().equals("friends")) {
+	                    	friends = true;
+	                    } else if (parser.getName().equals("friend")) {
 	                    	friend = true;
+	                    } else if (parser.getName().equals("steamid")) {
+	                    	steamid = true;
 	                    }
 	                    break;
 	                case XmlPullParser.END_TAG:
-	                    if (parser.getName().equals("friend")) {
+	                    if (parser.getName().equals("friendslist")) {
+	                    	friendslist = false;
+	                    } else if (parser.getName().equals("friends")) {
+	                    	friends = false;
+	                    } else if (parser.getName().equals("friend")) {
 	                    	friend = false;
+	                    } else if (parser.getName().equals("steamid")) {
+	                    	steamid = false;
 	                    }
 	                    break;
 	                case XmlPullParser.TEXT:
-	                    if (friend) {
+	                    if (friendslist && friends && friend && steamid) {
 	                    	newPlayer = new SteamUser();
 	                    	newPlayer.steamdId64 = Long.parseLong(parser.getText());
 	                    	newPlayer.steamName = DataBaseHelper.getSteamUserName(sqlDb, newPlayer.steamdId64);
