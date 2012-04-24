@@ -69,7 +69,7 @@ public class GetPlayer extends Activity {
 		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 		    String query = constraint != null ? constraint.toString() : null;
 		    if (query != null) {
-		    	query = query + "%";
+		    	query = query + "_%";
 		    }
 		
 		    String params[] = { query };
@@ -160,7 +160,7 @@ public class GetPlayer extends Activity {
 		 */
 		public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
 			// Get the cursor, positioned to the corresponding row in the result set
-		    Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+		    Cursor cursor = (Cursor)listView.getItemAtPosition(position);
 		
 		    // Get the state's capital from this row in the database.
 		    String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
@@ -225,7 +225,7 @@ public class GetPlayer extends Activity {
         buttonSearch.setOnClickListener(onButtonSearchClick);
         
         // Look up the AdView as a resource and load a request.
-        adView = AdMobActivity.createAdView(adView, this);
+        adView = (AdView)this.findViewById(R.id.adView);
         /*if (adView != null) {
         	adView.loadAd(new AdRequest());
         }*/
@@ -258,7 +258,7 @@ public class GetPlayer extends Activity {
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
-    		adView.destroy();
+    		//adView.destroy();
     	}
     }
     

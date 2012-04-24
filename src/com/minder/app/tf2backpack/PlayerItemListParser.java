@@ -25,6 +25,7 @@ public class PlayerItemListParser {
 		private int particleEffect;
 		private boolean equipped;
 		private boolean notTradable;
+		private boolean notCraftable;
 		private ArrayList<ItemAttribute> attributeList;
 		
 		public ArrayList<ItemAttribute> getAttributeList() {
@@ -83,6 +84,10 @@ public class PlayerItemListParser {
 			return notTradable;
 		}
 		
+		public boolean isNotCraftable() {
+			return notCraftable;
+		}
+		
 		public String getCustomDesc() {
 			return customDesc;
 		}
@@ -118,10 +123,11 @@ public class PlayerItemListParser {
 			this.quality = in.readInt();
 			this.itemColor = in.readInt();
 			this.particleEffect = in.readInt();
-			boolean[] bools = new boolean[2];
+			boolean[] bools = new boolean[3];
 			in.readBooleanArray(bools);
 			this.equipped = bools[0];
 			this.notTradable = bools[1];
+			this.notCraftable = bools[2];
 			this.attributeList = new ArrayList<ItemAttribute>();
 			in.readTypedList(this.attributeList, ItemAttribute.CREATOR);
 		}
@@ -160,7 +166,7 @@ public class PlayerItemListParser {
 			dest.writeInt(quality);
 			dest.writeInt(itemColor);
 			dest.writeInt(particleEffect);
-			dest.writeBooleanArray(new boolean[] {equipped, notTradable});
+			dest.writeBooleanArray(new boolean[] {equipped, notTradable, notCraftable});
 			dest.writeTypedList(attributeList);
 		}
 		
@@ -238,6 +244,8 @@ public class PlayerItemListParser {
 								item.backpackPosition = item.ExtractBackpackPosition(valArray.getLong(arrayIndex));
 							} else if (type.equals("flag_cannot_trade")){
 								item.notTradable = valArray.getBoolean(arrayIndex);
+							} else if (type.equals("flag_cannot_craft")){
+								item.notCraftable = valArray.getBoolean(arrayIndex);
 							} else if (type.equals("custom_name")){
 								item.customName = valArray.getString(arrayIndex);
 							} else if (type.equals("custom_desc")){

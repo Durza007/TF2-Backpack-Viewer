@@ -146,8 +146,14 @@ public class WeaponInfo extends Activity {
 		        	tvAttributes.setVisibility(View.VISIBLE);
 		        }
 		        
-		        if (item.isNotTradable()){
+		        if (item.isNotTradable() || item.isNotCraftable()){
 		        	tvTradable.setVisibility(View.VISIBLE);
+		        	
+		        	if (item.isNotTradable() && !item.isNotCraftable()) {
+		        		tvTradable.setText(R.string.not_tradable);
+		        	} else if (!item.isNotTradable() && item.isNotCraftable()) {
+		        		tvTradable.setText(R.string.not_craftable);
+		        	}
 		        }
 		        
 		        tvName.setTextColor(Util.getItemColor(item.getQuality()));
@@ -173,8 +179,7 @@ public class WeaponInfo extends Activity {
 		        			
 		        			// set correct value for unique attributes
 		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){
-		        	        		
+		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){        	        		
 		        	        		// hide duplicate attributes
 		        	        		if (ia.getAttributeDefIndex() == 187) {
 		        	        			if (crateAttrib){

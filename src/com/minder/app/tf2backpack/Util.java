@@ -14,7 +14,6 @@ import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 
 public class Util {
-	private static Item tempItem;
 	private static DatabaseHandler dbHandler;
 	
 	public static DatabaseHandler getDbHandler() {

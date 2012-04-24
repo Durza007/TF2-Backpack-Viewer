@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -192,7 +191,7 @@ public class NewsList extends Activity{
         setContentView(R.layout.list_layout);
         
         // Look up the AdView as a resource and load a request.
-    	adView = AdMobActivity.createAdView(adView, this);
+    	adView = (AdView)this.findViewById(R.id.adView);
         
         mList = (ListView)findViewById(android.R.id.list);
         
@@ -246,7 +245,7 @@ public class NewsList extends Activity{
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
-    		adView.destroy();
+    		//adView.destroy();
     	}
     }
 

@@ -4,32 +4,22 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.widget.Toast;
 
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
-import com.minder.app.tf2backpack.downloadmanager.CacheManager;
-
 public class Settings extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
 	private final static int CONFIRMATION_DIALOG_CACHE = 2;
 	private final static int CONFIRMATION_DIALOG_HISTORY = 3;
-	
-	private AdView adView;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.list_layout);
-        
-        // Look up the AdView as a resource and load a request.
-        adView = AdMobActivity.createAdView(adView, this);
         
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.settings);
@@ -77,14 +67,6 @@ public class Settings extends PreferenceActivity {
 				return true;
 			}     	
         });*/
-    }
-    
-    @Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	if (adView != null) {
-    		adView.destroy();
-    	}
     }
     
     @Override

@@ -30,8 +30,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -90,8 +88,6 @@ public class DashBoard extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        AdMobActivity.createAdmobActivity(this);
         
         this.getWindow().requestFeature(Window.FEATURE_NO_TITLE);       
         setContentView(R.layout.dashboard);

@@ -122,8 +122,6 @@ public class Backpack extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        AdMobActivity.createAdmobActivity(this);
-        
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -175,7 +173,7 @@ public class Backpack extends Activity {
         
         DownloadPlayerData(playerId);
         
-        adView = AdMobActivity.createAdView(adView, this);
+        adView = (AdView)this.findViewById(R.id.adView);
     }
     
     @Override
@@ -190,8 +188,7 @@ public class Backpack extends Activity {
     	super.onDestroy();
     	
     	if (adView != null) {
-    		AdMobActivity.removeAdView(this);
-    		adView.destroy();
+    		//adView.destroy();
     	}
     }
     

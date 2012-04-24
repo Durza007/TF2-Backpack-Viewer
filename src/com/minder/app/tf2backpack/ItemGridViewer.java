@@ -194,7 +194,7 @@ public class ItemGridViewer extends Activity {
 		
 		setContentView(R.layout.item_grid);
 		
-		adView = AdMobActivity.createAdView(adView, this);
+		adView = (AdView)this.findViewById(R.id.adView);
 		
 		GridView grid = (GridView)findViewById(R.id.gridViewItems);
 		itemAdapter = new com.minder.app.tf2backpack.ItemAdapter(this, true);
@@ -253,7 +253,7 @@ public class ItemGridViewer extends Activity {
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
-    		adView.destroy();
+    		//adView.destroy();
     	}
     }
     
