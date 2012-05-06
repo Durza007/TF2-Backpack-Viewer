@@ -187,9 +187,7 @@ public class Backpack extends Activity {
     public void onDestroy() { 	
     	super.onDestroy();
     	
-    	if (adView != null) {
-    		//adView.destroy();
-    	}
+    	adView.destroy();
     }
     
     public boolean onCreateOptionsMenu(Menu menu) {
