@@ -191,7 +191,7 @@ public class NewsList extends Activity{
         setContentView(R.layout.list_layout);
         
         // Look up the AdView as a resource and load a request.
-    	adView = (AdView)this.findViewById(R.id.adView);
+        adView = AdMobActivity.createAdView(adView, this);
         
         mList = (ListView)findViewById(android.R.id.list);
         
@@ -245,7 +245,7 @@ public class NewsList extends Activity{
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
-    		//adView.destroy();
+    		adView.destroy();
     	}
     }
 

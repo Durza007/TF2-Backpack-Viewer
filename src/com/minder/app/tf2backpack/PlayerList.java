@@ -79,6 +79,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        AdMobActivity.createAdmobActivity(this);
+        
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         this.setTitle(R.string.friends);
         
@@ -93,7 +95,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         getSettings();
         
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)this.findViewById(R.id.adView);
+        adView = AdMobActivity.createAdView(adView, this);
 
         /*if (adView != null) {
             AdRequest r = new AdRequest();
@@ -334,7 +336,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
-    		//adView.destroy();
+    		adView.destroy();
     	}
     }
     

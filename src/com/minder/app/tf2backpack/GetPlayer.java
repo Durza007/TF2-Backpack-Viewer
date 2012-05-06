@@ -225,7 +225,7 @@ public class GetPlayer extends Activity {
         buttonSearch.setOnClickListener(onButtonSearchClick);
         
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)this.findViewById(R.id.adView);
+        adView = AdMobActivity.createAdView(adView, this);
         /*if (adView != null) {
         	adView.loadAd(new AdRequest());
         }*/
@@ -258,7 +258,7 @@ public class GetPlayer extends Activity {
     public void onDestroy(){
     	super.onDestroy();
     	if (adView != null) {
-    		//adView.destroy();
+    		adView.destroy();
     	}
     }
     

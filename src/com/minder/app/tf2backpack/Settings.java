@@ -1,5 +1,7 @@
 package com.minder.app.tf2backpack;
 
+import com.google.ads.AdView;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -15,11 +17,15 @@ public class Settings extends PreferenceActivity {
 	private final static int CONFIRMATION_DIALOG_CACHE = 2;
 	private final static int CONFIRMATION_DIALOG_HISTORY = 3;
 	
+	private AdView adView;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.list_layout);
+        
+        adView = AdMobActivity.createAdView(adView, this);
         
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.settings);
@@ -68,6 +74,16 @@ public class Settings extends PreferenceActivity {
 			}     	
         });*/
     }
+    
+    @Override
+    public void onDestroy(){
+    	super.onDestroy();
+    	
+    	if (adView != null) {
+    		adView.destroy();
+    	}
+    }
+
     
     @Override
     protected Dialog onCreateDialog(int id) {

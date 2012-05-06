@@ -89,6 +89,8 @@ public class DashBoard extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        AdMobActivity.createAdmobActivity(this);
+        
         this.getWindow().requestFeature(Window.FEATURE_NO_TITLE);       
         setContentView(R.layout.dashboard);
         

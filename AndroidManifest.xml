@@ -63,6 +63,12 @@
     <activity android:name="com.google.ads.AdActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
 	
+    	<!-- fix for memory problem in admob -->
+
+	<activity android:name=".AdMobActivity"
+	    android:launchMode="singleInstance" />
+    
+    
 	<!-- ADMOB END -->
 	
 	<activity android:name=".Changelog" android:theme="@android:style/Theme.NoDisplay" android:excludeFromRecents="true" android:stateNotNeeded="true" android:alwaysRetainTaskState="false">
