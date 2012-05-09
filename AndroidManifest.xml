@@ -85,6 +85,7 @@
 		</intent-filter>
 	</activity>
 	<activity android:name=".PlayerList"></activity>
+	<activity android:name=".ItemListSelect"></activity>
 </application>
      
 </manifest> 

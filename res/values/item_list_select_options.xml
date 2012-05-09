@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="images">
+        <item>@drawable/backpack</item>
+        <item>@drawable/unknown</item>
+        <item>@drawable/hat</item>
+        <item>@drawable/unknown</item>
+    </array>
+    <array name="list">
+        <item>"VIEW_ALL_ITEMS"</item>
+        <item>"VIEW_ALL_DEFAULT"</item>
+        <item>"VIEW_ALL_HATS"</item>
+        <item>"VIEW_ALL_TOOLS"</item>
+    </array>
+</resources>

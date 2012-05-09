@@ -14,7 +14,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private SQLiteDatabase myDataBase; 
     private final Context myContext;
     
-    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC, attributes TEXT);";
+    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ATTRIBUTES = "CREATE TABLE attributes (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, description_string TEXT, description_format NUMERIC, effect_type NUMERIC, hidden NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ITEM_ATTRIBUTES = "CREATE TABLE item_attributes (_id INTEGER PRIMARY KEY, itemdefindex NUMERIC, attributedefindex NUMERIC, value REAL);";
     private static final String DICTIONARY_TABLE_CREATE_NAME_HISTORY = "CREATE TABLE name_history (_id INTEGER PRIMARY KEY, name TEXT);";
