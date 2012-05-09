@@ -1,13 +1,10 @@
 package com.minder.app.tf2backpack;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,174 +12,22 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
 
 public class ItemGridViewer extends Activity {
-	public class ItemAdapter extends BaseAdapter {
-		private class ViewHolder {
-			public TextView textCount;
-			public ImageButton imageButton;
-			public ImageView colorSplat;
-			public FrameLayout root;
-			
-			public void SetView(View v){
-				root = (FrameLayout)v.findViewById(R.id.FrameLayoutRoot);
-				colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
-				textCount = (TextView)v.findViewById(R.id.TextViewCount);
-				imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
-			}
-		}
-		
-	    private LayoutInflater mInflater;        
-	    private Context mContext;
-		private ArrayList<Item> itemList;
-		private boolean coloredCells;
-		private int imageSize;
-		
-		public ItemAdapter(Context c, boolean coloredCells) {
-			this.mContext = c;
-			this.mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			this.coloredCells = coloredCells;
-			imageSize = c.getResources().getDimensionPixelSize(R.dimen.button_size_itemlist);
-			itemList = new ArrayList<Item>();
-		}
-
-		public int getCount() {
-			return itemList.size();
-		}
-
-		public Object getItem(int position) {
-			return itemList.get(position);
-		}
-
-		public long getItemId(int position) {
-			return position;
-		}
-		
-		public void setList(ArrayList<Item> list) {
-			itemList.clear();
-			itemList.addAll(list);
-			notifyDataSetChanged();
-		}
-		
-		public void addItem(Item item) {
-			itemList.add(item);
-			notifyDataSetChanged();
-		}
-		
-		public ArrayList<Item> getList() {
-			return itemList;
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent) {	        
-	        ViewHolder holder;
-	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.backpack_cell, null);
-	            holder = new ViewHolder();
-	            holder.SetView(convertView);            
-	            holder.imageButton.setOnClickListener(clickListener);
-
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder)convertView.getTag();
-	        }
-	        
-	        Item item = itemList.get(position);
-            holder.imageButton.setTag(position);
-            
-			try {
-				FileInputStream in = openFileInput(item.getDefIndex() + ".png");
-				
-				Bitmap image = BitmapFactory.decodeStream(in);
-				if (image != null){
-					Bitmap newImage = Util.getResizedBitmap(image, imageSize, imageSize);
-					image.recycle();
-					image = newImage;
-				} else {
-					throw new FileNotFoundException();
-				}
-
-				holder.imageButton.setImageBitmap(image);
-				
-				if (coloredCells == true){
-    				final int quality = item.getQuality();
-    				if (quality >= 1 && quality <= 9){
-    					if (quality != 4 || quality != 6 || quality != 2){
-    						holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
-    						holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
-    					}
-    				}
-    				else {
-						holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
-						holder.imageButton.getBackground().clearColorFilter();
-    				}
-				}
-				
-				if (item.getQuantity() > 1){
-					holder.textCount.setVisibility(View.VISIBLE);
-					holder.textCount.setText(String.valueOf(item.getQuantity()));
-				} else {
-					holder.textCount.setVisibility(View.GONE);
-				}
-				
-				int color = item.getColor();
-				if (color != 0){
-					if (color == 1){		
-						holder.colorSplat.setImageBitmap(
-								BitmapFactory.decodeResource(
-										getResources(), R.drawable.color_circle_team_spirit));
-						holder.colorSplat.setVisibility(View.VISIBLE);
-						holder.colorSplat.setColorFilter(null);
-					} else {
-						//ColorFilter filter = new LightingColorFilter((0xFF << 24) | color, 1);
-						holder.colorSplat.setImageBitmap(
-								BitmapFactory.decodeResource(
-										getResources(), R.drawable.color_circle));
-						holder.colorSplat.setVisibility(View.VISIBLE);
-						holder.colorSplat.setColorFilter(null);
-						holder.colorSplat.setColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP);
-					}
-				} else {
-					holder.colorSplat.setVisibility(View.GONE);
-				}
-
-			} catch (FileNotFoundException e) {
-				// no image found - no problem
-				holder.imageButton.setImageBitmap(Util.getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.unknown), imageSize, imageSize));
-				/*SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ItemGridViewer.this);
-				if (!sp.getBoolean("skipunknownitemdialog", false)){
-					showDialog(DIALOG_UNKNOWN_ITEM);
-				}*/
-			}
-	        
-	        return convertView;
-		}
-		
-	}
-	
 	private final int DIALOG_UNKNOWN_ITEM = 0;
 	private AdView adView;
-	private com.minder.app.tf2backpack.ItemAdapter itemAdapter;
+	private ItemAdapter itemAdapter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -197,7 +42,7 @@ public class ItemGridViewer extends Activity {
 		adView = AdMobActivity.createAdView(adView, this);
 		
 		GridView grid = (GridView)findViewById(R.id.gridViewItems);
-		itemAdapter = new com.minder.app.tf2backpack.ItemAdapter(this, true);
+		itemAdapter = new ItemAdapter(this, true);
 		itemAdapter.setOnClickListener(clickListener);
 
 		@SuppressWarnings("unchecked")
