@@ -20,22 +20,19 @@ public class ItemListSelectAdapter extends BaseAdapter {
 	}
 	
 	private class ViewHolder {
-		public TextView textCount;
+		public TextView title;
 		public ImageButton imageButton;
-		public ImageView colorSplat;
-		public FrameLayout root;
 		
 		public void SetView(View v){
-			root = (FrameLayout)v.findViewById(R.id.FrameLayoutRoot);
-			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
-			textCount = (TextView)v.findViewById(R.id.TextViewCount);
-			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
+			title = (TextView)v.findViewById(R.id.textViewTitle);
+			imageButton = (ImageButton)v.findViewById(R.id.imageButtonItem);
 		}
 	}
 	
 	private final ViewHolder holder = new ViewHolder();
 	private LayoutInflater inflater;
 	private OnItemSelectedListener onSelectListener;
+	private TypedArray titles;
 	private TypedArray icons;
 	private TypedArray links;
 	
@@ -43,6 +40,7 @@ public class ItemListSelectAdapter extends BaseAdapter {
 		this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Resources res = context.getResources();
 		
+		this.titles = res.obtainTypedArray(R.array.title);
 		this.icons = res.obtainTypedArray(R.array.images);
 		this.links = res.obtainTypedArray(R.array.list);
 	}
@@ -61,7 +59,7 @@ public class ItemListSelectAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.backpack_cell, null);
+			convertView = inflater.inflate(R.layout.item_list_item, null);
 			holder.SetView(convertView);
 			
 			holder.imageButton.setOnClickListener(onClickListener);
@@ -69,6 +67,7 @@ public class ItemListSelectAdapter extends BaseAdapter {
 			holder.SetView(convertView);
 		}
 		
+		holder.title.setText(titles.getString(position));
 		holder.imageButton.setImageDrawable(icons.getDrawable(position));
 		holder.imageButton.setTag(links.getString(position));
 		

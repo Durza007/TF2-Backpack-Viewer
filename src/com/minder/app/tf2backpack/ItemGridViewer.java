@@ -29,6 +29,10 @@ public class ItemGridViewer extends Activity {
 	private final int ITEM_FILTER_HATS = 1;
 	private final int ITEM_FILTER_DEFAULT = 2;
 	private final int ITEM_FILTER_TOOLS = 3;
+	private final int ITEM_FILTER_MISC = 4;
+	private final int ITEM_FILTER_PRIMARY = 5;
+	private final int ITEM_FILTER_SECONDARY = 6;
+	private final int ITEM_FILTER_MELEE = 7;
 	
 	private final int DIALOG_UNKNOWN_ITEM = 0;
 	private AdView adView;
@@ -75,6 +79,14 @@ public class ItemGridViewer extends Activity {
 					new LoadAllItems().execute(ITEM_FILTER_DEFAULT);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_TOOLS")){
 					new LoadAllItems().execute(ITEM_FILTER_TOOLS);
+				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_MISC")){
+					new LoadAllItems().execute(ITEM_FILTER_MISC);
+				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_PRIMARY")){
+					new LoadAllItems().execute(ITEM_FILTER_PRIMARY);
+				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_SECONDARY")){
+					new LoadAllItems().execute(ITEM_FILTER_SECONDARY);
+				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_MELEE")){
+					new LoadAllItems().execute(ITEM_FILTER_MELEE);
 				}
 			} else {
 				finish();
@@ -132,6 +144,22 @@ public class ItemGridViewer extends Activity {
 		        	
 		        case ITEM_FILTER_TOOLS:
 		        	query = "SELECT defindex, quality, type_name FROM items WHERE type_name = 'Tool'";
+		        	break;
+		        	
+		        case ITEM_FILTER_MISC:
+		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'misc'";
+		        	break;
+		        	
+		        case ITEM_FILTER_PRIMARY:
+		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'primary'";
+		        	break;
+		        	
+		        case ITEM_FILTER_SECONDARY:
+		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'secondary'";
+		        	break;
+		        	
+		        case ITEM_FILTER_MELEE:
+		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'melee'";
 		        	break;
 		        	
 		        // use the same for the default and no filter

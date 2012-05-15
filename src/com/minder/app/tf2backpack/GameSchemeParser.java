@@ -60,12 +60,12 @@ public class GameSchemeParser {
 	
 	public class TF2Weapon {
 		private int defIndex;
+		private String itemSlot;
 		private int quality;
 		private String itemTypeName;
 		private String itemName;
 		private String imageUrl;
 		private String itemDescription;
-		//private ItemAttribute attributes[];
 		
 		public void setQuality(int quality){
 			this.quality = quality;
@@ -75,6 +75,14 @@ public class GameSchemeParser {
 			return this.quality;
 		}
 		
+		public void setItemSlot(String itemSlot) {
+			this.itemSlot = itemSlot;
+		}
+
+		public String getItemSlot() {
+			return itemSlot;
+		}
+
 		public void setDefIndex(int defIndex){
 			this.defIndex = defIndex;
 		}
@@ -121,17 +129,16 @@ public class GameSchemeParser {
 			setImageUrl("");
 		}
 		
-		public TF2Weapon(int defIndex, String itemTypeName, String itemName, String imageName, Attribute attributes[]){
+		public TF2Weapon(int defIndex, String itemTypeName, String itemName, String imageName){
 			this.defIndex = defIndex;
 			this.itemTypeName = itemTypeName;
 			this.itemName = itemName;
 			this.setImageUrl(imageName);
-			//this.attributes = attributes;
 		}
 		
 		public String getSqlInsert(){
-			return "(name, defindex, quality, type_name, description, proper_name) VALUES " + 
-				"(\"" + this.itemName + "\",\"" + this.defIndex + "\",\"" + this.quality + "\",\"" + this.itemTypeName + "\",\"" + this.itemDescription + "\", \"0\")";
+			return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
+				"(\"" + this.itemName + "\",\"" + this.defIndex + "\",\"" + this.itemSlot + "\",\"" + this.quality + "\",\"" + this.itemTypeName + "\",\"" + this.itemDescription + "\", \"0\")";
 		}
 	}
 	
@@ -347,6 +354,8 @@ public class GameSchemeParser {
 							item.setItemDescription(valArray.getString(arrayIndex));
 						} else if (type.equals("item_quality")){
 							item.setQuality(valArray.getInt(arrayIndex));
+						} else if (type.equals("item_slot")){
+							item.setItemSlot(valArray.getString(arrayIndex));
 						}
 					}
 				}

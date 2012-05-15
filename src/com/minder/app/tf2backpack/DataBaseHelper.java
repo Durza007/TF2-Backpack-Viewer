@@ -7,14 +7,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
-	private static final int DB_VERSION = 5;
+	private static final int DB_VERSION = 6;
 
     private static String DB_NAME = "items";
 
     private SQLiteDatabase myDataBase; 
     private final Context myContext;
     
-    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC);";
+    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, item_slot TEXT, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ATTRIBUTES = "CREATE TABLE attributes (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, description_string TEXT, description_format NUMERIC, effect_type NUMERIC, hidden NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ITEM_ATTRIBUTES = "CREATE TABLE item_attributes (_id INTEGER PRIMARY KEY, itemdefindex NUMERIC, attributedefindex NUMERIC, value REAL);";
     private static final String DICTIONARY_TABLE_CREATE_NAME_HISTORY = "CREATE TABLE name_history (_id INTEGER PRIMARY KEY, name TEXT);";
@@ -60,6 +60,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		}
 		if (oldVersion <= 4) {
 			db.execSQL(DICTIONARY_TABLE_CREATE_ID_CACHE);
+		}
+		if (oldVersion <= 5) {
+			db.execSQL("ALTER TABLE items ADD item_slot TEXT");
 		}
 	}
 

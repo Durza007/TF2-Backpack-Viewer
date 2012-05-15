@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <ImageButton
+        android:id="@+id/imageButtonItem"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/hat" style="@style/dash_board_button_style" android:scaleType="fitXY" android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageButtonItem"
+        android:background="@drawable/bg_black"
+        android:gravity="center_vertical"
+        android:padding="3dp"
+        android:text="Default"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/backpack_text" android:layout_centerHorizontal="true" android:layout_marginBottom="2dp"/>
+
+</RelativeLayout>
