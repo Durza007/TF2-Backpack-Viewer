@@ -845,7 +845,13 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 			                    	DataBaseHelper.cacheSteamUserName(player.steamdId64, player.steamName);
 			                    } else if (personaState) {
 			                    	int state = Integer.parseInt(parser.getText());
-			                    	player.personaState = PersonaState.values()[state];
+			                    	
+			                    	// check for handling future persona states that might be added
+			                    	if (state < PersonaState.values().length) {
+			                    		player.personaState = PersonaState.values()[state];
+			                    	} else {
+			                    		player.personaState = PersonaState.Online;
+			                    	}
 			                    } else if (avatar) {
 			                    	player.avatarUrl = parser.getText();
 			                    } else if (gameId) {

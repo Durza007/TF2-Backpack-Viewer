@@ -50,6 +50,7 @@ import com.minder.app.tf2backpack.GameSchemeParser.ImageInfo;
 import com.minder.app.tf2backpack.NewsList.NewsItem;
 
 public class DashBoard extends Activity {
+	private final int CURRENT_DOWNLOAD_VERSION = 1;
 	private final int DIALOG_DOWNLOAD_GAMEFILES = 0;
 	private final int DIALOG_PROGRESS = 1;
 	private final int DIALOG_UPDATE_GAMEFILES = 2;
@@ -71,7 +72,7 @@ public class DashBoard extends Activity {
 	//private View newsView;
 	private boolean newsLoaded = false;
 	
-	private boolean gameFilesDownloaded;
+	private int gameFilesVersion;
 	private int failedDownloads;
 	private int totalDownloads;
 	private int numberOfDownloads;
@@ -147,7 +148,7 @@ public class DashBoard extends Activity {
         newsView.setOnClickListener(onNewsItemClick);
         
         gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
-        gameFilesDownloaded = gamePrefs.getBoolean("downloaded_v3", false);
+        gameFilesVersion = gamePrefs.getInt("download_version", 0);
         
         String action = this.getIntent().getAction();
         if (action != null){
@@ -156,14 +157,14 @@ public class DashBoard extends Activity {
             }
         }
         
-        if (gameFilesDownloaded != true){
-        	gameFilesDownloaded = gamePrefs.getBoolean("downloaded", false);
-        	if (gameFilesDownloaded == true){
+        if (gameFilesVersion > 0){
+        	if (gameFilesVersion < CURRENT_DOWNLOAD_VERSION){
         		showDialog(DIALOG_UPDATE_GAMEFILES);
-        	} else {
-        		showDialog(DIALOG_DOWNLOAD_GAMEFILES);
         	}
+        } else {
+        	showDialog(DIALOG_DOWNLOAD_GAMEFILES);
         }
+        
         new DownloadNewsTask().execute();
     }
     
@@ -246,14 +247,6 @@ public class DashBoard extends Activity {
         		.setView(layout)
         		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                    	/*gameSchemePref = GameSchemeDownloader.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
-                    	GameSchemeDownloader.this.setContentView(R.layout.downloader);
-                    	
-                    	downloadText = (TextView)findViewById(R.id.TextViewDownloadStatus);
-                    	
-                    	imageDownloadProgress = (ProgressBar)findViewById(R.id.ProgressBarImageDownload);
-                    	imageDownloadProgress.setProgress(0);
-                    	Download();*/
                     	if (resetImages) {
                     		DeleteItemImages();
                     	}
@@ -262,7 +255,7 @@ public class DashBoard extends Activity {
                 })
                 .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                    	if (gameFilesDownloaded != true) {
+                    	if (gameFilesVersion == 0) {
                     		finish();
                     	}
                     }
@@ -309,13 +302,7 @@ public class DashBoard extends Activity {
             .setTitle(R.string.download_notice)
             .setMessage(R.string.gamescheme_updateinfo1)
             .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                	// remove old game scheme files
-                	gamePrefs = DashBoard.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
-                	Editor editor = gamePrefs.edit();
-                	editor.clear();
-                	editor.commit();
-                	
+                public void onClick(DialogInterface dialog, int whichButton) {              	
                 	// download new ones
                 	DownloadGameFiles();
                 }
@@ -401,7 +388,7 @@ public class DashBoard extends Activity {
 						
 						gamePrefs = DashBoard.this.getSharedPreferences("gamefiles", MODE_PRIVATE);
 						Editor editor = gamePrefs.edit();
-						editor.putBoolean("downloaded_v3", true);
+						editor.putInt("download_version", CURRENT_DOWNLOAD_VERSION);
 						editor.commit();
 					} else {
 						Toast.makeText(DashBoard.this, gs.error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
