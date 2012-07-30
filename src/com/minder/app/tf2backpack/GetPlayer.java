@@ -449,7 +449,7 @@ public class GetPlayer extends Activity {
                 .setIcon(R.drawable.ic_dialog_info)
                 .setTitle(R.string.community_id)
                 .setMessage(R.string.tutorial_how_to_set_community_id)
-                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     	/*gameSchemePref = GameSchemeDownloader.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
                     	GameSchemeDownloader.this.setContentView(R.layout.downloader);

@@ -125,6 +125,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 				// TODO This is NOT a good solution
 				final SteamUser player = (SteamUser)adapter.getItem(arg2);
 				if (player.steamdId64 == 0){
+					Log.v("PlayerList", "64-bit id missing - fetching");
 					Handler handler = new Handler() {
 						public void handleMessage(Message message) {
 							switch (message.what) {
@@ -229,7 +230,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	        setAdVisibility(View.VISIBLE);
     	} else {      
             setAdVisibility(View.GONE);
-	        mProgress = ProgressDialog.show(this, "Please Wait...", "Downloading player list. This could take a while", true, true);
+	        mProgress = ProgressDialog.show(this, getResources().getText(R.string.please_wait_title), getResources().getText(R.string.downloading_player_list), true, true);
 	        if (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
 	        	friendList = true;
 	        	//this.setTitle(R.string.friends);
@@ -266,43 +267,9 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         loadAvatars = sp.getBoolean("showavatars", true);
     }
     
-    private boolean LoadPlayers(){
-    	SharedPreferences sp = this.getSharedPreferences(SHARED_PREF_FRIENDS, MODE_PRIVATE);
-    	Long startTime = sp.getLong("timesaved", 0);
-    	if (startTime == 0){
-    		return false;
-    	}
-    	Long currentTime = System.currentTimeMillis();
-    	Long timeDelta = currentTime - startTime;
-    	if (timeDelta > 300000 || timeDelta < -300000){
-    		int maxValue = sp.getInt("players", 0);
-    		for(int index = 0; index <= maxValue; index++){
-    			SteamUser p = new SteamUser();
-    			p.steamdId64 = sp.getLong(String.valueOf(index) + "-id", 0);
-    			p.steamName = sp.getString(String.valueOf(index) + "-name", "");
-    			adapter.addPlayer(p);
-    		}
-    		return true;
-    	}
-    	return false;
-    }
-    
     @Override
     public void onPause(){
-    	super.onPause();
-    	// Save friend info
-    	/*SharedPreferences sp = this.getSharedPreferences(SHARED_PREF_FRIENDS, MODE_PRIVATE);
-    	Editor editor = sp.edit();
-    	editor.putLong("timesaved", System.currentTimeMillis());
-    	int index = 0;
-    	for(Player p : mAdapter.mPlayers){
-    		editor.putLong(String.valueOf(index) + "-id", p.steamdId64);
-    		editor.putString(String.valueOf(index) + "-name", p.steamName);
-    		index++;
-    	}
-    	editor.putInt("players", index);
-    	editor.commit();*/
-    	
+    	super.onPause();	
     	// remove dialog if it is showing
     	if (mProgress != null)
     	{

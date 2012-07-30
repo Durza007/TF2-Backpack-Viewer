@@ -199,7 +199,7 @@ public class ItemGridViewer extends Activity {
                 .setIcon(R.drawable.alert_dialog_icon)
                 .setTitle(R.string.dialog_notice)
                 .setMessage(R.string.message_unknown_item)
-                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     	startActivity(new Intent(ItemGridViewer.this, DashBoard.class).setAction("com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES"));
                     	finish();

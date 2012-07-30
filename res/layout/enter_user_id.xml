@@ -1,18 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayoutUserId"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/bg_color" >
 
+    <TextView
+        android:id="@+id/user_id_textView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/user_id" />
 
-<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/RelativeLayoutUserId" android:background="@color/bg_color" xmlns:app="http://schemas.android.com/apk/res/com.minder.app.tf2backpack" >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" android:text="@string/user_id" android:id="@+id/user_id_textView"/>
+    <AutoCompleteTextView
+        android:id="@+id/EditTextSteamId"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_id_textView"
+        android:layout_marginRight="80dp"
+        android:lines="1" >
+    </AutoCompleteTextView>
 
+    <Button
+        android:id="@+id/buttonSearch"
+        style="@style/Button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/EditTextSteamId"
+        android:text="@string/search" >
+    </Button>
 
+    <TextView
+        android:id="@+id/TextViewPoweredBySteam"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/includeAd"
+        android:layout_alignParentBottom="false"
+        android:layout_below="@+id/buttonSearch"
+        android:gravity="bottom|center_horizontal"
+        android:text="@string/powered_by_steam" >
+    </TextView>
 
+    <Button
+        android:id="@+id/ButtonOk"
+        style="@style/Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/user_id_textView"
+        android:text="@android:string/ok"
+        android:width="80dp" >
+    </Button>
 
-<AutoCompleteTextView android:layout_height="wrap_content" android:layout_below="@+id/user_id_textView" android:id="@+id/EditTextSteamId" android:layout_width="fill_parent" android:layout_marginRight="80dp" android:lines="1" android:inputType="text|textAutoComplete|textShortMessage" android:imeOptions="actionDone"></AutoCompleteTextView>
-<Button android:layout_height="wrap_content" android:layout_below="@+id/EditTextSteamId" android:id="@+id/buttonSearch" android:layout_width="fill_parent" style="@style/Button" android:text="@string/search"></Button>
-<TextView android:id="@+id/TextViewPoweredBySteam" android:text="@string/powered_by_steam" android:layout_height="wrap_content" android:layout_below="@+id/buttonSearch" android:layout_width="fill_parent" android:gravity="bottom|center_horizontal" android:layout_alignParentBottom="false" android:layout_above="@+id/includeAd"></TextView><Button android:layout_width="wrap_content" android:layout_below="@+id/user_id_textView" android:id="@+id/ButtonOk" android:text="@string/ok" android:width="80dp" android:layout_alignParentRight="true" android:layout_height="wrap_content" style="@style/Button"></Button>
-<include layout="@layout/ad" android:id="@+id/includeAd" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:layout_height="wrap_content"></include>
-
+    <include
+        android:id="@+id/includeAd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        layout="@layout/ad" >
+    </include>
 
 </RelativeLayout>

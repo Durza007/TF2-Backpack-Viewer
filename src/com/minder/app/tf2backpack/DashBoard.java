@@ -245,7 +245,7 @@ public class DashBoard extends Activity {
 	            .setIcon(R.drawable.alert_dialog_icon)
 	            .setTitle(R.string.download_notice)
         		.setView(layout)
-        		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+        		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     	if (resetImages) {
                     		DeleteItemImages();
@@ -301,7 +301,7 @@ public class DashBoard extends Activity {
             .setIcon(R.drawable.alert_dialog_icon)
             .setTitle(R.string.download_notice)
             .setMessage(R.string.gamescheme_updateinfo1)
-            .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {              	
                 	// download new ones
                 	DownloadGameFiles();

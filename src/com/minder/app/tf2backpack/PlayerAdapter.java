@@ -45,7 +45,7 @@ public class PlayerAdapter extends BaseAdapter {
         imageSize = typedArray.getDimensionPixelSize(0, 0);
         typedArray.recycle();
         
-        Log.d("PLayerAdapter", "list size: " + imageSize);
+        Log.d("PlayerAdapter", "list size: " + imageSize);
         
         //imageSize = activity.getResources().getDimensionPixelSize(android.R.attr.listPreferredItemHeight);
         

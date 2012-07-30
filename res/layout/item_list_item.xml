@@ -17,7 +17,7 @@
         android:background="@drawable/bg_black"
         android:gravity="center_vertical"
         android:padding="3dp"
-        android:text="Default"
+        android:text="@string/default_string"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/backpack_text" android:layout_centerHorizontal="true" android:layout_marginBottom="2dp"/>
 

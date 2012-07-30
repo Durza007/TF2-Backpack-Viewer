@@ -22,7 +22,7 @@ public class Changelog extends Activity {
             return new AlertDialog.Builder(Changelog.this)
                 .setTitle(R.string.changelog)
                 .setMessage(R.string.changelog_text)
-                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     	finish();
                     }

@@ -1,43 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-<PreferenceCategory android:title="User">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="User" >
+        <PreferenceScreen android:title="Change User" >
+            <intent android:action="com.minder.app.tf2backpack.SET_STEAMID" />
+        </PreferenceScreen>
 
-
-<PreferenceScreen android:title="Change User">
-	<intent android:action="com.minder.app.tf2backpack.SET_STEAMID" />
-</PreferenceScreen>
-<Preference android:title="How To: Community ID" android:summary="Explains how to set a community id" android:key="communityId"></Preference>
-
-</PreferenceCategory><PreferenceCategory android:title="Backpack"><CheckBoxPreference android:key="backpackrarity" android:summaryOn="@string/backpack_rarity_on" android:summaryOff="@string/backpack_rarity_off" android:persistent="true" android:defaultValue="true" android:title="@string/show_backpack_rarity"></CheckBoxPreference>
-<CheckBoxPreference android:key="hidelargecraftnumber" android:persistent="true" android:defaultValue="false" android:summaryOff="@string/hidelargecraftnumber_off" android:summaryOn="@string/hidelargecraftnumber_on" android:title="@string/hide_large_craft_number"></CheckBoxPreference>
-</PreferenceCategory>
-<PreferenceCategory android:title="Friends">
-    <CheckBoxPreference android:key="showavatars" android:title="Show Avatars" android:summaryOff="Player avatars will not be displayed" android:summaryOn="Player avatars will be displayed" android:defaultValue="true" android:persistent="true"/>
-</PreferenceCategory><PreferenceCategory android:title="News">
-	<EditTextPreference 
-		android:key="newscount" 
-		android:persistent="true"
-		android:defaultValue="10" android:title="@string/newscount" android:summary="@string/newscount_info" android:hint="@string/newscount_hint" android:maxLength="2" android:inputType="number">
-	
-	</EditTextPreference>
-</PreferenceCategory><PreferenceCategory android:title="Advanced">
-	<Preference android:title="Refresh TF2 Game Files" android:summary="Will redownload all the tf2 game files for all the items" android:key="refreshfiles">
-		
-	</Preference>
-	<Preference android:title="Clear Cache" android:summary="Clears the file cache" android:key="clearcache"></Preference><Preference android:key="clearhistory" android:title="Clear History" android:summary="Clear name history"/>
-	</PreferenceCategory>
-
-<PreferenceCategory android:title="About"><Preference android:title="Changelog" android:summary="Whats new">
-<intent android:action="com.minder.app.tf2backpack.CHANGELOG" />
-</Preference>
-<Preference 
-	android:summary="by Patrik Minder" 
-	android:title="TF2 Backpack Viewer">
-</Preference>
-
-
-</PreferenceCategory>
-
-
-
+        <Preference
+            android:key="communityId"
+            android:summary="Explains how to set a community id"
+            android:title="How To: Community ID" >
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Backpack" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="backpackrarity"
+            android:persistent="true"
+            android:summaryOff="@string/backpack_rarity_off"
+            android:summaryOn="@string/backpack_rarity_on"
+            android:title="@string/show_backpack_rarity" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="hidelargecraftnumber"
+            android:persistent="true"
+            android:summaryOff="@string/hidelargecraftnumber_off"
+            android:summaryOn="@string/hidelargecraftnumber_on"
+            android:title="@string/hide_large_craft_number" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Friends" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="showavatars"
+            android:persistent="true"
+            android:summaryOff="Player avatars will not be displayed"
+            android:summaryOn="Player avatars will be displayed"
+            android:title="Show Avatars" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="News" >
+        <EditTextPreference
+            android:defaultValue="10"
+            android:hint="@string/newscount_hint"
+            android:inputType="number"
+            android:key="newscount"
+            android:maxLength="2"
+            android:persistent="true"
+            android:summary="@string/newscount_info"
+            android:title="@string/newscount" >
+        </EditTextPreference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Advanced" >
+        <Preference
+            android:key="refreshfiles"
+            android:summary="Will redownload all the tf2 game files for all the items"
+            android:title="Refresh TF2 Game Files" >
+        </Preference>
+        <Preference
+            android:key="clearcache"
+            android:summary="Clears the file cache"
+            android:title="Clear Cache" >
+        </Preference>
+        <Preference
+            android:key="clearhistory"
+            android:summary="Clear name history"
+            android:title="Clear History" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="About" >
+        <Preference
+            android:summary="Whats new"
+            android:title="Changelog" >
+            <intent android:action="com.minder.app.tf2backpack.CHANGELOG" />
+        </Preference>
+        <Preference
+            android:summary="by Patrik Minder"
+            android:title="TF2 Backpack Viewer" >
+        </Preference>
+    </PreferenceCategory>
 </PreferenceScreen>
