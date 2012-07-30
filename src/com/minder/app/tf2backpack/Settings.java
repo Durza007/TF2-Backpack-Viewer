@@ -65,6 +65,14 @@ public class Settings extends PreferenceActivity {
             }
         });
         
+        Preference aboutCreator = (Preference)findPreference("aboutcreator");
+        aboutCreator.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+            	startActivity(new Intent(Settings.this, Backpack.class).putExtra("id", "76561197992965248"));
+            	return true;
+            }
+        });
+        
         /*Preference clearCache = (Preference)findPreference("clearcache");
         clearCache.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {

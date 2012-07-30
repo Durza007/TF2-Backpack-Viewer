@@ -19,15 +19,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
@@ -218,6 +221,18 @@ public class GetPlayer extends Activity {
         editTextPlayer.setOnItemClickListener(adapter);
         editTextPlayer.setThreshold(1);
         
+        editTextPlayer.setOnEditorActionListener(new OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                	textInputDone();
+                	
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+        
         buttonOk = (Button)findViewById(R.id.ButtonOk);
         buttonOk.setOnClickListener(onButtonOkClick);
         
@@ -264,10 +279,7 @@ public class GetPlayer extends Activity {
     
     OnClickListener onButtonOkClick = new OnClickListener(){
 		public void onClick(View v) {
-			if (!editTextPlayer.getText().toString().equals("")){
-				myProgressDialog = ProgressDialog.show(mContext, "Please Wait...", "Verifying player info...");
-				FetchPlayerId();
-			}
+			textInputDone();
 		}
     };
     
@@ -307,6 +319,13 @@ public class GetPlayer extends Activity {
 			
 	    	finish();
     	}
+    }
+    
+    private void textInputDone() {
+		if (!editTextPlayer.getText().toString().equals("")){
+			myProgressDialog = ProgressDialog.show(mContext, "Please Wait...", "Verifying player info...");
+			FetchPlayerId();
+		}
     }
     
     private void FetchPlayerId(){

@@ -5,12 +5,8 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.minder.app.tf2backpack.PlayerItemListParser.Item;
-
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 
 public class Util {
@@ -22,15 +18,7 @@ public class Util {
 		}
 		return dbHandler;
 	}
-	
-	/*public static void setTempItem(Item tempItem) {
-		Util.tempItem = tempItem;
-	}
 
-	public static Item getTempItem() {
-		return tempItem;
-	}*/
-	
 	public static int GetPxFromDp(Context context, float dp)
 	{
 		float scale = context.getResources().getDisplayMetrics().density;
