@@ -52,9 +52,14 @@ public class PlayerAdapter extends BaseAdapter {
         imageLoader = new ImageLoader(activity, imageSize);
         
 		defaultImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.avatar_64blank);
-		if (defaultImage != null){
-			Bitmap newImage = Util.getResizedBitmap(defaultImage, imageSize, imageSize);
-			defaultImage.recycle();
+		
+		{ // scale the bitmap
+			Bitmap newImage = Bitmap.createScaledBitmap(defaultImage, imageSize, imageSize, false);
+				
+			if (newImage != defaultImage) {
+				defaultImage.recycle();
+			}
+				
 			defaultImage = newImage;
 		}
 		
@@ -110,8 +115,7 @@ public class PlayerAdapter extends BaseAdapter {
 	            holder.avatar.setImageBitmap(defaultImage);
 	        }
         } else {
-        	//holder.avatar.setVisibility(View.GONE);
-        	//holder.state.setVisibility(View.GONE);
+        	holder.avatar.setImageBitmap(defaultImage);
         }
         
         boolean statusUpdated = false;

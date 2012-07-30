@@ -54,8 +54,10 @@ public class ItemAdapter extends BaseAdapter {
 		
 		defaultImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.unknown);
 		if (defaultImage != null){
-			Bitmap newImage = Util.getResizedBitmap(defaultImage, imageSize, imageSize);
-			defaultImage.recycle();
+			Bitmap newImage = Bitmap.createScaledBitmap(defaultImage, imageSize, imageSize, false);
+			if (newImage != defaultImage) {
+				defaultImage.recycle();
+			}
 			defaultImage = newImage;
 		}
 	}

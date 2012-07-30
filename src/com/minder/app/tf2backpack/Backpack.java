@@ -350,8 +350,10 @@ public class Backpack extends Activity {
 						
 						Bitmap image = BitmapFactory.decodeStream(in);
 						if (image != null){
-							Bitmap newImage = Util.getResizedBitmap(image, imageSize, imageSize);
-							image.recycle();
+							Bitmap newImage = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
+							if (newImage != image) {
+								image.recycle();
+							}
 							image = newImage;
 						} else {
 							throw new FileNotFoundException();
@@ -407,7 +409,7 @@ public class Backpack extends Activity {
 					}
 
 				} catch (FileNotFoundException e) {
-					Holder.imageButton.setImageBitmap(Util.getResizedBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), imageSize, imageSize));
+					Holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), imageSize, imageSize, false));
 					Holder.imageButton.setTag(index);
 					e.printStackTrace();
 					SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Backpack.this);

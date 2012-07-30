@@ -70,8 +70,12 @@ public class ImageLoader {
 				
 				Bitmap image = BitmapFactory.decodeStream(in);
 				if (image != null){
-					Bitmap newImage = Util.getResizedBitmap(image, requiredSize, requiredSize);
-					image.recycle();
+					Bitmap newImage = Bitmap.createScaledBitmap(image, requiredSize, requiredSize, false);
+					
+					if (newImage != image) {
+						image.recycle();
+					}
+					
 					image = newImage;
 				} else {
 					throw new FileNotFoundException();
@@ -205,7 +209,9 @@ public class ImageLoader {
                         synchronized(photosQueue.photosToLoad){
                             photoToLoad = photosQueue.photosToLoad.pop();
                         }
-                        Log.d("PhotoLoader", "Started loading bitmap");
+                        if (BuildConfig.DEBUG) {
+                        	Log.d("PhotoLoader", "Started loading bitmap");
+                        }
                         Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.imageView.getContext(), photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
                         String tag = imageViews.get(photoToLoad.imageView);
@@ -236,7 +242,10 @@ public class ImageLoader {
         
         public void run()
         {
-        	Log.d("BitmapDisplayer", "Setting bitmap");
+            if (BuildConfig.DEBUG) {
+            	Log.d("BitmapDisplayer", "Setting bitmap");
+            }
+            
             if (bitmap != null) {
                 imageView.setImageBitmap(bitmap);
             } else {

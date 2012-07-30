@@ -267,14 +267,10 @@ public class GameSchemeParser {
 		long start = System.currentTimeMillis();
 		
 		mContext = context;
-		/*DatabaseHandler dbHandler = Util.dbHandler;
-		if (dbHandler == null){
-			dbHandler = Util.dbHandler = new DatabaseHandler(context);
-		}*/
 		
-		//dbHandler.ExecSql("DELETE FROM items");
-		//dbHandler.ExecSql("DELETE FROM attributes");
-		//dbHandler.ExecSql("DELETE FROM item_attributes");
+		if (BuildConfig.DEBUG) {
+			Log.d("GameSchemeParser", data);
+		}
 		
 		try {
 			JSONObject jObject = new JSONObject(data);

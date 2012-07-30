@@ -82,13 +82,6 @@ public class Util {
 	    	}
     	}  	
     }
-
-	public static Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-		// recreate the new Bitmap
-		Bitmap resizedBitmap = Bitmap.createScaledBitmap(bm, newHeight, newHeight, false);	
-		
-		return resizedBitmap;
-	}
 	
 	public static void chkStatus(Context context)
 	{
