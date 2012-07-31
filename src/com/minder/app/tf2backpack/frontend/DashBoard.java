@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,13 +46,16 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.AdMobActivity;
+import com.minder.app.tf2backpack.GameSchemeParser;
 import com.minder.app.tf2backpack.GameSchemeParser.ImageInfo;
-import com.minder.app.tf2backpack.NewsList.NewsItem;
-import com.minder.app.tf2backpack.R.drawable;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.string;
+import com.minder.app.tf2backpack.HttpConnection;
+import com.minder.app.tf2backpack.HttpConnectionBitmapRunner;
+import com.minder.app.tf2backpack.Internet;
+import com.minder.app.tf2backpack.ItemListSelect;
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
 
 public class DashBoard extends Activity {
 	private final int CURRENT_DOWNLOAD_VERSION = 1;

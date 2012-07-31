@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.AdMobActivity;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.R.color;
 import com.minder.app.tf2backpack.R.id;

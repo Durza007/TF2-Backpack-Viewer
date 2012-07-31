@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,7 +39,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.AdMobActivity;
+import com.minder.app.tf2backpack.HttpConnection;
+import com.minder.app.tf2backpack.Internet;
+import com.minder.app.tf2backpack.ItemGridViewer;
+import com.minder.app.tf2backpack.PlayerItemListParser;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
 import com.minder.app.tf2backpack.R.drawable;
 import com.minder.app.tf2backpack.R.id;

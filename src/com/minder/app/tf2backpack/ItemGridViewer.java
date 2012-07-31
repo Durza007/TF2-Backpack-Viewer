@@ -28,6 +28,8 @@ import com.minder.app.tf2backpack.R.drawable;
 import com.minder.app.tf2backpack.R.id;
 import com.minder.app.tf2backpack.R.layout;
 import com.minder.app.tf2backpack.R.string;
+import com.minder.app.tf2backpack.frontend.DashBoard;
+import com.minder.app.tf2backpack.frontend.WeaponInfo;
 
 public class ItemGridViewer extends Activity {
 	private final int ITEM_FILTER_NONE = 0;

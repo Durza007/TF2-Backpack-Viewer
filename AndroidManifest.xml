@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name="com.minder.app.tf2backpack"
+        android:name="com.minder.app.tf2backpack.App"
         android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <activity
@@ -28,24 +28,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DashBoard" >
+        <activity android:name=".frontend.DashBoard" >
             <intent-filter>
                 <action android:name="com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".Backpack" >
+        <activity android:name=".frontend.Backpack" >
             <intent-filter>
                 <action android:name="com.minder.app.tf2backpack.VIEW_BACKPACK" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".Settings" >
+        <activity android:name=".frontend.Settings" >
         </activity>
         <activity
-            android:name=".GetPlayer"
+            android:name=".frontend.GetPlayer"
             android:configChanges="orientation"
             android:windowSoftInputMode="adjustResize" >
             <intent-filter>
@@ -56,15 +56,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SelectBackpack"
+            android:name=".frontend.SelectBackpack"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
         <activity
-            android:name=".WeaponInfo"
+            android:name=".frontend.WeaponInfo"
             android:theme="@style/InfoDialog" >
         </activity>
         <activity
-            android:name=".PlayerList"
+            android:name=".frontend.PlayerList"
             android:configChanges="orientation" >
             <intent-filter>
 
@@ -77,7 +77,7 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".NewsList"
+        	android:name=".frontend.NewsList"
             android:configChanges="orientation" >
         </activity>
 

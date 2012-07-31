@@ -1,6 +1,7 @@
 package com.minder.app.tf2backpack;
 
-import com.minder.app.tf2backpack.DashBoard.ImageSaverTask;
+import com.minder.app.tf2backpack.frontend.DashBoard;
+import com.minder.app.tf2backpack.frontend.DashBoard.ImageSaverTask;
 
 import android.graphics.Bitmap;
 import android.os.Handler;

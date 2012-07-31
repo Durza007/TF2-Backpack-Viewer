@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import java.net.UnknownHostException;
 
@@ -34,7 +34,12 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.AdMobActivity;
+import com.minder.app.tf2backpack.DataBaseHelper;
+import com.minder.app.tf2backpack.HttpConnection;
+import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.R.drawable;
 import com.minder.app.tf2backpack.R.id;
 import com.minder.app.tf2backpack.R.layout;

@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+
+import com.minder.app.tf2backpack.frontend.DashBoard;
+import com.minder.app.tf2backpack.frontend.GetPlayer;
 
 public class Main extends Activity {
 	private SharedPreferences playerPrefs;

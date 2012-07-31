@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -26,7 +26,11 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
+import com.minder.app.tf2backpack.Attribute;
+import com.minder.app.tf2backpack.DataBaseHelper;
+import com.minder.app.tf2backpack.PlayerItemListParser;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
 import com.minder.app.tf2backpack.R.id;

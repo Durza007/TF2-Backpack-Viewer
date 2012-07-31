@@ -1,7 +1,10 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.AdMobActivity;
+import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.R.drawable;
 import com.minder.app.tf2backpack.R.layout;
 import com.minder.app.tf2backpack.R.string;
