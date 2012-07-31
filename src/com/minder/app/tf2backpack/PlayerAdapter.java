@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.drawable;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;

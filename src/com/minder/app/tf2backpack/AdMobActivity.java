@@ -3,6 +3,8 @@ package com.minder.app.tf2backpack;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.id;
 
 import android.app.Activity;
 import android.content.ComponentName;

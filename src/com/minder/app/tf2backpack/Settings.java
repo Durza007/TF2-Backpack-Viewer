@@ -1,6 +1,11 @@
 package com.minder.app.tf2backpack;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.drawable;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
+import com.minder.app.tf2backpack.R.xml;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

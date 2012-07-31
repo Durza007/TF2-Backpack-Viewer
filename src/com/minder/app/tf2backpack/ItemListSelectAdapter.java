@@ -1,5 +1,10 @@
 package com.minder.app.tf2backpack;
 
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.array;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;

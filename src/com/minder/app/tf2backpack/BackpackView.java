@@ -9,8 +9,10 @@ import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Backpack.Holder;
 import com.minder.app.tf2backpack.Backpack.OnLayoutReadyListener;
+import com.minder.app.tf2backpack.R.layout;
 
 public class BackpackView extends TableLayout {
 	public int backpackCellSize;

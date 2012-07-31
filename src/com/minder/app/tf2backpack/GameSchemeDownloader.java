@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.minder.app.tf2backpack.GameSchemeParser.ImageInfo;
 
-public class GameSchemeDownloader implements Runnable{	
+public class GameSchemeDownloader implements Runnable {	
 	public static final int MSG_IMAGE_TOTAL = 0;
 	public static final int MSG_IMAGE_TICK = 1;
 	public static final int MSG_SCHEME_START = 2;

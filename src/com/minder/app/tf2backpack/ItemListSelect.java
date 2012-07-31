@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.GridView;
 
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.ItemListSelectAdapter.OnItemSelectedListener;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
 
 public class ItemListSelect extends Activity {
 	private GridView gridView;

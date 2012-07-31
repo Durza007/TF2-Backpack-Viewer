@@ -46,8 +46,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.GameSchemeParser.ImageInfo;
 import com.minder.app.tf2backpack.NewsList.NewsItem;
+import com.minder.app.tf2backpack.R.drawable;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
 
 public class DashBoard extends Activity {
 	private final int CURRENT_DOWNLOAD_VERSION = 1;

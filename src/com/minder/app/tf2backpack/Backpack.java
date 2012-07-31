@@ -39,8 +39,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
-//import com.minder.app.tf2backpack.downloadmanager.HttpConnection;
+import com.minder.app.tf2backpack.R.drawable;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.menu;
+import com.minder.app.tf2backpack.R.string;
 
 public class Backpack extends Activity {
 	public interface OnLayoutReadyListener {
@@ -59,7 +64,7 @@ public class Backpack extends Activity {
 		}
 	}
 	
-	private static class WeaponImage{
+	private static class WeaponImage {
 		public int defIndex;
 		private Bitmap image = null;
 		

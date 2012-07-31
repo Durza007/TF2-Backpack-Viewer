@@ -44,6 +44,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.color;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.menu;
+import com.minder.app.tf2backpack.R.string;
 import com.minder.app.tf2backpack.downloadmanager.DownloadManager;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{

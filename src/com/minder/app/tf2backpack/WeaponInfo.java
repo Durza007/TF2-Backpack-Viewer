@@ -26,9 +26,12 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
-//import com.minder.app.tf2backpack.downloadmanager.HttpConnection;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
 
 public class WeaponInfo extends Activity {
 	private static final int blueColor = Color.rgb(153, 204, 255);

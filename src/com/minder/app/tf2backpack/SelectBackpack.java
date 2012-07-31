@@ -1,5 +1,10 @@
 package com.minder.app.tf2backpack;
 
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;

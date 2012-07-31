@@ -22,7 +22,12 @@ import android.view.Window;
 import android.widget.GridView;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.PlayerItemListParser.Item;
+import com.minder.app.tf2backpack.R.drawable;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
 
 public class ItemGridViewer extends Activity {
 	private final int ITEM_FILTER_NONE = 0;

@@ -34,6 +34,11 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.R.drawable;
+import com.minder.app.tf2backpack.R.id;
+import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.R.string;
 
 public class GetPlayer extends Activity {
     private class ItemAutoTextAdapter extends CursorAdapter implements AdapterView.OnItemClickListener {
