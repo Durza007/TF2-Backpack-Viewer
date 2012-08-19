@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import java.util.ArrayList;
 
@@ -22,14 +22,16 @@ import android.view.Window;
 import android.widget.GridView;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.DataBaseHelper;
+import com.minder.app.tf2backpack.ItemAdapter;
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.PlayerItemListParser.Item;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.R.drawable;
 import com.minder.app.tf2backpack.R.id;
 import com.minder.app.tf2backpack.R.layout;
 import com.minder.app.tf2backpack.R.string;
-import com.minder.app.tf2backpack.frontend.DashBoard;
-import com.minder.app.tf2backpack.frontend.WeaponInfo;
+import com.minder.app.tf2backpack.backend.Item;
+import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 
 public class ItemGridViewer extends Activity {
 	private final int ITEM_FILTER_NONE = 0;

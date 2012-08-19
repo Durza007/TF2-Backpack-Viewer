@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.backend;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.BuildConfig;
+import com.minder.app.tf2backpack.DataBaseHelper;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 
 public class GameSchemeParser {
@@ -271,6 +274,7 @@ public class GameSchemeParser {
 		
 		if (BuildConfig.DEBUG) {
 			Log.d("GameSchemeParser", data);
+			Log.d("GameSchemeParser", "message size: " + data.length());
 		}
 		
 		try {

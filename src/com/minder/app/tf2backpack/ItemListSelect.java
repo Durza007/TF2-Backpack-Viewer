@@ -9,6 +9,7 @@ import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.ItemListSelectAdapter.OnItemSelectedListener;
 import com.minder.app.tf2backpack.R.id;
 import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.frontend.ItemGridViewer;
 
 public class ItemListSelect extends Activity {
 	private GridView gridView;

@@ -18,11 +18,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.PlayerItemListParser.Item;
 import com.minder.app.tf2backpack.R.dimen;
 import com.minder.app.tf2backpack.R.drawable;
 import com.minder.app.tf2backpack.R.id;
 import com.minder.app.tf2backpack.R.layout;
+import com.minder.app.tf2backpack.backend.Item;
 
 public class ItemAdapter extends BaseAdapter {
 	private class ViewHolder {

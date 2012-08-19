@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.backend;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.minder.app.tf2backpack.GameSchemeParser.ImageInfo;
+import com.minder.app.tf2backpack.HttpConnection;
+import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
 
 public class GameSchemeDownloader implements Runnable {	
 	public static final int MSG_IMAGE_TOTAL = 0;

@@ -39,19 +39,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
-import com.minder.app.tf2backpack.AdMobActivity;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
-import com.minder.app.tf2backpack.ItemGridViewer;
-import com.minder.app.tf2backpack.PlayerItemListParser;
+import com.minder.app.tf2backpack.backend.Item;
+import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.PlayerItemListParser.Item;
-import com.minder.app.tf2backpack.R.drawable;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.menu;
-import com.minder.app.tf2backpack.R.string;
 
 public class Backpack extends Activity {
 	public interface OnLayoutReadyListener {
@@ -333,7 +326,7 @@ public class Backpack extends Activity {
     	int imageSize = (int) (backpack.backpackCellSize);
     	Log.d("Tf2Backpack", "Backpack cell size: " + imageSize);
     	for (int index = 0; index < playerItemList.size(); index++){
-    		int backPackPos = playerItemList.get(index).getBackPackPosition();
+    		int backPackPos = playerItemList.get(index).getBackpackPosition();
     		
     		// if the item has been found but not yet given
     		if (backPackPos == -1 && checkUngivenItems) {

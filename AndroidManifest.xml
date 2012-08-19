@@ -103,7 +103,7 @@
         <!-- fix for memory problem in admob -->
 
         <activity
-            android:name=".AdMobActivity"
+            android:name=".frontend.AdMobActivity"
             android:launchMode="singleInstance" />
 
         <!-- ADMOB END -->
@@ -120,7 +120,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".ItemGridViewer" >
+        <activity android:name=".frontend.ItemGridViewer" >
             <intent-filter>
                 <action android:name="com.minder.app.tf2backpack.VIEW_ITEM_LIST" />
 

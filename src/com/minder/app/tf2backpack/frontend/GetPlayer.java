@@ -34,7 +34,6 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
-import com.minder.app.tf2backpack.AdMobActivity;
 import com.minder.app.tf2backpack.DataBaseHelper;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;

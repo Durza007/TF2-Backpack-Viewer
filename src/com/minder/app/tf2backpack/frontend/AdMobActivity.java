@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.frontend;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;

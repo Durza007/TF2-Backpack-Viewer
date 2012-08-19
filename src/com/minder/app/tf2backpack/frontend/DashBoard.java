@@ -46,15 +46,14 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.minder.app.tf2backpack.AdMobActivity;
-import com.minder.app.tf2backpack.GameSchemeParser;
-import com.minder.app.tf2backpack.GameSchemeParser.ImageInfo;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.HttpConnectionBitmapRunner;
 import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.GameSchemeParser;
+import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
 import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
 
 public class DashBoard extends Activity {
