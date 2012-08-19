@@ -1,4 +1,4 @@
-package com.minder.app.tf2backpack.downloadmanager;
+package com.minder.app.tf2backpack.backend;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,42 +13,36 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.MemoryCache;
 import com.minder.app.tf2backpack.Util;
 
-public class CacheManager {
-	private static CacheManager instance;
-	
+public class CacheManager {	
     private File cacheDir;
     
-    private CacheManager(Context context){
+    public CacheManager(Context context){
         //Find the dir to save cached images
-        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
-            cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TF2BackpackViewer/Cache/");
-        else
-            cacheDir = context.getCacheDir();
+        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
+        	cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TF2BackpackViewer/Cache/");
+        }
+        else {
+        	cacheDir = context.getCacheDir();
+        }
         
         if(!cacheDir.exists())
             cacheDir.mkdirs();
     }
     
     public File getFile(String url) {
-        //I identify images by hashcode. Not a perfect solution, good for the demo.
-        String filename = Util.md5Hash(url);
-        File f = new File(cacheDir, filename);
-        return f;
+    	return getFile(null, url);
     }
     
-    public File getFile(String url, long cacheTimeSeconds) {
+    public File getFile(String folder, String url) {
     	String filename = Util.md5Hash(url);
-    	File f = getFile(filename);
     	
-    	if (cacheTimeSeconds == -1) {
-    		return f;
-    	}
-    	
-    	if (f.lastModified() + (cacheTimeSeconds * 1000) > System.currentTimeMillis()) {
-    		return f;
+    	File f = null;
+    	if (folder != null) {
+    		f = new File(cacheDir, folder +"/" + filename);
     	} else {
-    		return null;
+    		f = new File(cacheDir, folder +"/" + filename);
     	}
+        return f;
     }
     
     public void cacheFile(String url, String data) throws IOException {
@@ -68,11 +62,4 @@ public class CacheManager {
         for(File f : files)
             f.delete();
     }
-
-	public static CacheManager getInstance() {
-		if (instance == null) {
-			instance = new CacheManager(App.getAppContext());
-		}
-		return instance;
-	}
 }

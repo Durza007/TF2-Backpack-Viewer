@@ -12,12 +12,12 @@
         android:layout_above="@+id/linearLayoutControls"
         android:layout_alignParentTop="true" >
 
-        <com.minder.app.tf2backpack.BackpackView
+        <com.minder.app.tf2backpack.frontend.BackpackView
             android:id="@+id/TableLayoutBackPack"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:fadeScrollbars="true" >
-        </com.minder.app.tf2backpack.BackpackView>
+        </com.minder.app.tf2backpack.frontend.BackpackView>
     </HorizontalScrollView>
 
     <LinearLayout

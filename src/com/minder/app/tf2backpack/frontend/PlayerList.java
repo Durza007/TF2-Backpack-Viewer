@@ -8,7 +8,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -51,12 +50,6 @@ import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.R.color;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.menu;
-import com.minder.app.tf2backpack.R.string;
-import com.minder.app.tf2backpack.downloadmanager.DownloadManager;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{
 	Handler mHandler = new Handler();
@@ -306,7 +299,6 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     @Override
     public void onStop() {
     	super.onStop();
-    	DownloadManager.getInstance().clearMemory();
     	adapter.stopBackgroundLoading();
     	Log.d("PlayerList", "stop");
     }
@@ -595,6 +587,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     	
         protected void onPostExecute(ArrayList<SteamUser> result) {
         	if (result != null){
+        		new DownloadFilesTask().execute(result.toArray());
+        		
         		if (totalInfoDownloads == 0){
     	    		setProgressBarIndeterminateVisibility(false);
     	    		setAdVisibility(View.VISIBLE);

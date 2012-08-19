@@ -17,7 +17,7 @@ public class PlayerItemListParser {
 	public ArrayList<Item> GetItemList(){
 		return itemList;
 	}	
-
+	
 	public int getStatusCode() {
 		return statusCode;
 	}
@@ -29,6 +29,7 @@ public class PlayerItemListParser {
 	public PlayerItemListParser(String data) {
 		try {
 			jObject = new JSONObject(data);
+			
 			JSONObject resultObject = jObject.getJSONObject("result");
 			//Check if everything is OK
 			if (resultObject.getString("status").equals("1")){

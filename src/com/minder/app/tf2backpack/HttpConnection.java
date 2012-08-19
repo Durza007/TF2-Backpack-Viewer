@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -16,12 +17,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 
-import com.minder.app.tf2backpack.downloadmanager.CacheManager;
+import com.minder.app.tf2backpack.backend.CacheManager;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 /**
  * Asynchronous HTTP connections
@@ -134,8 +136,17 @@ public class HttpConnection implements Runnable {
 				processBitmapEntity(response.getEntity());
 				break;
 			}
-			if (method < BITMAP)
+			if (method < BITMAP) {
+				if (BuildConfig.DEBUG) {
+					Header[] headers = response.getAllHeaders();
+					
+					for (int i = 0; i < headers.length; i++) {
+						Log.d("HttpConnection-HEader", headers[i].toString());
+					}
+				}
+				
 				processEntity(response.getEntity());
+			}
 		} catch (Exception e) {
 			handler.sendMessage(Message.obtain(handler,
 					HttpConnection.DID_ERROR, e));
@@ -145,6 +156,7 @@ public class HttpConnection implements Runnable {
 
 	private void processEntity(HttpEntity entity) throws IllegalStateException,
 			IOException {
+		
 		BufferedReader br = new BufferedReader(new InputStreamReader(entity
 				.getContent()));
 		StringBuilder result = new StringBuilder();
