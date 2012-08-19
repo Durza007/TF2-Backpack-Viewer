@@ -583,6 +583,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     	
         protected void onPostExecute(ArrayList<SteamUser> result) {
         	if (result != null){
+        		new DownloadFilesTask().execute(result.toArray());
+        		
         		if (totalInfoDownloads == 0){
     	    		setProgressBarIndeterminateVisibility(false);
     	    		setAdVisibility(View.VISIBLE);
