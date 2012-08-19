@@ -1,6 +1,5 @@
 package com.minder.app.tf2backpack.backend;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
