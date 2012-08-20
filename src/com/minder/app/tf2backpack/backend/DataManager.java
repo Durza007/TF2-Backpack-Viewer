@@ -6,6 +6,7 @@ import android.app.Activity;
 
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.Util;
 
 public class DataManager implements Runnable {
 	// Inner classes
@@ -124,7 +125,23 @@ public class DataManager implements Runnable {
 	 */
 	private ArrayList<Item> getPlayerItemList(SteamUser user) {
 		// try to fetch online first
+		HttpConnection connection = new HttpConnection("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
+				Util.GetAPIKey() + "&SteamID=" + user.steamdId64);
 		
+		String data = connection.execute();
+	
+		if (data == null) {
+			// if we could not get it from internet - check if we have it cached
+			data = cacheManager.getString("itemlist", Long.toString(user.steamdId64));
+		} else {
+			cacheManager.cacheString("itemlist", Long.toString(user.steamdId64), data);
+		}
+		
+		// Parse data if available
+		if (data != null) {
+			PlayerItemListParser parser = new PlayerItemListParser(data);
+			return parser.GetItemList();
+		}
 		
 		return null;
 	}

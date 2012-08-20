@@ -13,6 +13,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.MemoryCache;
 import com.minder.app.tf2backpack.Util;
 
@@ -75,11 +76,11 @@ public class CacheManager {
         return buffer.toString();
     }
     
-    public void cacheString(String url, String data) throws IOException {
+    public void cacheString(String url, String data) {
     	cacheString(null, url, data);
     }
     
-    public void cacheString(String folder, String url, String data) throws IOException {
+    public void cacheString(String folder, String url, String data) {
     	String filename = Util.md5Hash(url);
     	
     	File f = null;
@@ -89,10 +90,26 @@ public class CacheManager {
     		f = new File(cacheDir, folder + "-" + filename);
     	}
 		
-		FileOutputStream fos = new FileOutputStream(f);
-		fos.write(data.getBytes("UTF-8"));
-		fos.flush();
-		fos.close();
+    	FileOutputStream fos = null;
+    	try {
+			fos = new FileOutputStream(f);
+			fos.write(data.getBytes("UTF-8"));
+			fos.flush();
+    	}
+    	catch (IOException e) {
+    		if (BuildConfig.DEBUG) {
+    			e.printStackTrace();
+    		}
+    	} 
+    	finally {
+    		try {
+    			if (fos != null) {
+    				fos.close();
+    			}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
     }
     
     public void clear(){
