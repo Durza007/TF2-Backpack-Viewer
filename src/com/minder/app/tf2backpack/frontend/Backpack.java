@@ -39,9 +39,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
+import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.Item;
+import com.minder.app.tf2backpack.backend.OnDataReadyListener;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
@@ -230,6 +234,29 @@ public class Backpack extends Activity {
 		}  	
     };
     
+    OnDataReadyListener onDataReadyListener = new OnDataReadyListener() {
+		public void onDataReady(Request request) {
+			PlayerItemListParser pl = (PlayerItemListParser)request.data;
+			
+			// handle the request
+			if (pl.getStatusCode() == 1){
+				playerItemList = pl.getItemList();
+				numberOfPages = pl.getNumberOfBackpackSlots() / 50;
+				SetPageNumberText();
+				checkUngivenItems = true;
+				AddPlayerDataToView();
+				checkUngivenItems = false;
+			} else {
+				if (pl.getStatusCode() == 15){
+					Toast.makeText(Backpack.this, R.string.backack_private, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(Backpack.this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+				}
+			}
+			myProgressDialog.dismiss();
+		}
+	};
+    
     public void DownloadPlayerData(String playerId){
     	final Object data = getLastNonConfigurationInstance();
     	
@@ -250,7 +277,12 @@ public class Backpack extends Activity {
     	myProgressDialog = null;
     	myProgressDialog = ProgressDialog.show(this, 
     			"Please wait...", "Downloading player data...", true);
-		Handler handler = new Handler() {
+    	
+    	// TODO Should get a SteamUser object as parameter
+    	SteamUser su = new SteamUser();
+    	su.steamdId64 = Long.parseLong(playerId);
+    	App.getDataManager().requestPlayerItemList(this, onDataReadyListener, su);
+		/*Handler handler = new Handler() {
 			public void handleMessage(Message message) {
 				switch (message.what) {
 				case HttpConnection.DID_START: {
@@ -259,7 +291,7 @@ public class Backpack extends Activity {
 				case HttpConnection.DID_SUCCEED: {
 					PlayerItemListParser pl = new PlayerItemListParser((String)message.obj);
 					if (pl.getStatusCode() == 1){
-						playerItemList = pl.GetItemList();
+						playerItemList = pl.getItemList();
 						numberOfPages = pl.getNumberOfBackpackSlots() / 50;
 						SetPageNumberText();
 						checkUngivenItems = true;
@@ -295,10 +327,7 @@ public class Backpack extends Activity {
 		};
 		new HttpConnection(handler)
 			.get("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
-				Util.GetAPIKey() + "&SteamID=" + playerId, 86400);
-		/*new HttpConnection(handler)
-		.get("http://api.steampowered.com/ITFItems_440/GetSchema/v0001/?key=" + 
-			Util.GetAPIKey() + "&format=json&language=en");*/
+				Util.GetAPIKey() + "&SteamID=" + playerId, 86400);*/
     }
     
     public void AddPlayerDataToView(){

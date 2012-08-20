@@ -1,5 +1,7 @@
 package com.minder.app.tf2backpack;
 
+import com.minder.app.tf2backpack.backend.DataManager;
+
 import android.app.Application;
 import android.content.Context;
 
@@ -10,13 +12,19 @@ import android.content.Context;
  */
 public class App extends Application{
     private static Context context;
+    private static DataManager dataManager;
 
     public void onCreate(){
     	super.onCreate();
         context = getApplicationContext();
+        dataManager = new DataManager();
     }
 
     public static Context getAppContext() {
 		return context;
 	}
+    
+    public static DataManager getDataManager() {
+    	return dataManager;
+    }
 }

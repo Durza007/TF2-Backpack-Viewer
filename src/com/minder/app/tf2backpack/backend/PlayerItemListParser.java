@@ -9,12 +9,11 @@ import org.json.JSONObject;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 
 public class PlayerItemListParser {
-	private JSONObject jObject;
 	private ArrayList<Item> itemList;
 	private int statusCode;
 	private int numberOfBackpackSlots;
 	
-	public ArrayList<Item> GetItemList(){
+	public ArrayList<Item> getItemList(){
 		return itemList;
 	}	
 	
@@ -28,7 +27,7 @@ public class PlayerItemListParser {
 	
 	public PlayerItemListParser(String data) {
 		try {
-			jObject = new JSONObject(data);
+			JSONObject jObject = new JSONObject(data);
 			
 			JSONObject resultObject = jObject.getJSONObject("result");
 			//Check if everything is OK

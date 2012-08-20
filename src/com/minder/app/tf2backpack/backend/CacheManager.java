@@ -73,7 +73,11 @@ public class CacheManager {
 			}
     	}
     	
-        return buffer.toString();
+    	if (buffer != null) {
+    		return buffer.toString();
+    	} else {
+    		return null;
+    	}
     }
     
     public void cacheString(String url, String data) {

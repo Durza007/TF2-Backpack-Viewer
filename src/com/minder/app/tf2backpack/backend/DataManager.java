@@ -3,8 +3,10 @@ package com.minder.app.tf2backpack.backend;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.util.Log;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
 
@@ -13,22 +15,25 @@ public class DataManager implements Runnable {
 	public static class Request {
 		private final int type;
 		private final Activity activity;
+		private final OnDataReadyListener listener;
+		private int resultCode;
 		private Object[] args;
 		public Object data;
 		
-		public Request(Activity activity, int type, Object[] args) {
+		public Request(Activity activity, OnDataReadyListener listener, int type, Object[] args) {
 			this.type = type;
 			this.activity = activity;
+			this.listener = listener;
 			this.args = args;
 		}
 		
 		public int getType() {
 			return this.type;
 		}
-	}
-	
-	public static interface OnDataReadyListener {
-		public void OnDataReady(Request request);
+		
+		public int getResultCode() {
+			return this.resultCode;
+		}
 	}
 	
 	// Members
@@ -59,9 +64,9 @@ public class DataManager implements Runnable {
 	 * @param player
 	 * @return
 	 */
-	public Request requestPlayerItemList(Activity activity, SteamUser player) {
+	public Request requestPlayerItemList(Activity activity, OnDataReadyListener listener, SteamUser player) {
 		// start download
-		Request request = new Request(activity, TYPE_PLAYER_ITEM_LIST, new Object[] { player });
+		Request request = new Request(activity, listener, TYPE_PLAYER_ITEM_LIST, new Object[] { player });
 		
 		synchronized (todoList) {
 			todoList.add(0, request);
@@ -109,12 +114,23 @@ public class DataManager implements Runnable {
 	            todoList.notify();
 			}
 			
+			// handle the request
 			switch (request.getType()) {
 				case TYPE_PLAYER_ITEM_LIST:
-					request.data = getPlayerItemList((SteamUser) request.args[0]);
+					request = getPlayerItemList(request);
 					break;
 				default:
-					throw new RuntimeException("Unkown type");
+					throw new RuntimeException("Unknown type");
+			}
+			
+			// post results
+			if (request.listener != null) {
+				EventMessenger em = new EventMessenger(request);
+				request.activity.runOnUiThread(em);
+			} else {
+				synchronized (finishedWork) {
+					finishedWork.add(request);
+				}
 			}
 		}
 	}
@@ -123,26 +139,46 @@ public class DataManager implements Runnable {
 	 * Get player item list from cache or Internet
 	 * @return The player item list
 	 */
-	private ArrayList<Item> getPlayerItemList(SteamUser user) {
+	private Request getPlayerItemList(Request request) {
+		long steamId64 = ((SteamUser)request.args[0]).steamdId64;
+		
 		// try to fetch online first
 		HttpConnection connection = new HttpConnection("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
-				Util.GetAPIKey() + "&SteamID=" + user.steamdId64);
+				Util.GetAPIKey() + "&SteamID=" + steamId64);
 		
 		String data = connection.execute();
-	
+		data = null;
 		if (data == null) {
-			// if we could not get it from internet - check if we have it cached
-			data = cacheManager.getString("itemlist", Long.toString(user.steamdId64));
+			if (BuildConfig.DEBUG)
+				Log.d("DataManager", "loading item list from cache");
+			// if we could not get it from Internet - check if we have it cached
+			data = cacheManager.getString("itemlist", Long.toString(steamId64));
 		} else {
-			cacheManager.cacheString("itemlist", Long.toString(user.steamdId64), data);
+			if (BuildConfig.DEBUG)
+				Log.d("DataManager", "loading item list from internet");
+			cacheManager.cacheString("itemlist", Long.toString(steamId64), data);
 		}
 		
 		// Parse data if available
-		if (data != null) {
-			PlayerItemListParser parser = new PlayerItemListParser(data);
-			return parser.GetItemList();
+		if (data != null) {			
+			request.data = new PlayerItemListParser(data);
 		}
 		
-		return null;
+		return request;
+	}
+	
+	/**
+	 * Used for sending an event to the activity on it's UI thread
+	 */
+	private static class EventMessenger implements Runnable {
+		private final Request request;
+		
+		public EventMessenger(Request request) {
+			this.request = request;
+		}
+
+		public void run() {
+			request.listener.onDataReady(request);
+		}		
 	}
 }
