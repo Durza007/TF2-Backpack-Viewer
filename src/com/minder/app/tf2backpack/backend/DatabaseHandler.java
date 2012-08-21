@@ -1,7 +1,8 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.backend;
 
 import java.util.LinkedList;
 import java.util.Queue;
+
 
 import android.content.Context;
 import android.database.Cursor;

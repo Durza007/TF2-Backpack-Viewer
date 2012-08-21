@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.minder.app.tf2backpack.backend.DatabaseHandler;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;

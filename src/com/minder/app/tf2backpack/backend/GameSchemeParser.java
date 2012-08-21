@@ -11,7 +11,6 @@ import android.util.Log;
 
 import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.BuildConfig;
-import com.minder.app.tf2backpack.DataBaseHelper;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 

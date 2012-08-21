@@ -43,13 +43,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
-import com.minder.app.tf2backpack.DataBaseHelper;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.DataBaseHelper;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{
 	Handler mHandler = new Handler();

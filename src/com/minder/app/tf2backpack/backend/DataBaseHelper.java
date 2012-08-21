@@ -1,4 +1,6 @@
-package com.minder.app.tf2backpack;
+package com.minder.app.tf2backpack.backend;
+
+import com.minder.app.tf2backpack.Util;
 
 import android.content.Context;
 import android.database.Cursor;
