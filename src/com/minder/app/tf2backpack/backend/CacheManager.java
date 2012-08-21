@@ -8,19 +8,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
 
-import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.BuildConfig;
-import com.minder.app.tf2backpack.MemoryCache;
 import com.minder.app.tf2backpack.Util;
 
 public class CacheManager {	
     private File cacheDir;
+    private Exception exception;
+    
+    public Exception getException() {
+    	return this.exception;
+    }
     
     public CacheManager(Context context){
+    	this.exception = null;
+    	
         //Find the dir to save cached images
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
         	cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TF2BackpackViewer/Cache/");
@@ -62,6 +65,7 @@ public class CacheManager {
     	} 
     	catch (IOException e) {
     		// could not load file - not really a big deal
+    		exception = e;
     	} 
     	finally {
     		try {
@@ -104,6 +108,7 @@ public class CacheManager {
     		if (BuildConfig.DEBUG) {
     			e.printStackTrace();
     		}
+    		exception = e;
     	} 
     	finally {
     		try {
