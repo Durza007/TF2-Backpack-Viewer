@@ -15,15 +15,16 @@ public class DataManager implements Runnable {
 	public static class Request {
 		private final int type;
 		private final Activity activity;
-		private final OnDataReadyListener listener;
-		private int resultCode;
+		private final OnRequestReadyListener readyListener;
+		private boolean requestSucceded;
+		private Exception exception;
 		private Object[] args;
 		public Object data;
 		
-		public Request(Activity activity, OnDataReadyListener listener, int type, Object[] args) {
+		public Request(Activity activity, OnRequestReadyListener readyListener, int type, Object[] args) {
 			this.type = type;
 			this.activity = activity;
-			this.listener = listener;
+			this.readyListener = readyListener;
 			this.args = args;
 		}
 		
@@ -31,8 +32,12 @@ public class DataManager implements Runnable {
 			return this.type;
 		}
 		
-		public int getResultCode() {
-			return this.resultCode;
+		public boolean isRequestSuccess() {
+			return this.requestSucceded;
+		}
+		
+		public Exception getException() {
+			return this.exception;
 		}
 	}
 	
@@ -64,7 +69,7 @@ public class DataManager implements Runnable {
 	 * @param player
 	 * @return
 	 */
-	public Request requestPlayerItemList(Activity activity, OnDataReadyListener listener, SteamUser player) {
+	public Request requestPlayerItemList(Activity activity, OnRequestReadyListener listener, SteamUser player) {
 		// start download
 		Request request = new Request(activity, listener, TYPE_PLAYER_ITEM_LIST, new Object[] { player });
 		
@@ -124,7 +129,7 @@ public class DataManager implements Runnable {
 			}
 			
 			// post results
-			if (request.listener != null) {
+			if (request.readyListener != null) {
 				EventMessenger em = new EventMessenger(request);
 				request.activity.runOnUiThread(em);
 			} else {
@@ -147,7 +152,9 @@ public class DataManager implements Runnable {
 				Util.GetAPIKey() + "&SteamID=" + steamId64);
 		
 		String data = connection.execute();
-		data = null;
+		// fetch latest exception, if there is one
+		request.exception = connection.getException();
+
 		if (data == null) {
 			if (BuildConfig.DEBUG)
 				Log.d("DataManager", "loading item list from cache");
@@ -162,6 +169,7 @@ public class DataManager implements Runnable {
 		// Parse data if available
 		if (data != null) {			
 			request.data = new PlayerItemListParser(data);
+			request.requestSucceded = true;
 		}
 		
 		return request;
@@ -178,7 +186,7 @@ public class DataManager implements Runnable {
 		}
 
 		public void run() {
-			request.listener.onDataReady(request);
+			request.readyListener.onRequestReady(request);
 		}		
 	}
 }

@@ -16,10 +16,20 @@ import com.minder.app.tf2backpack.BuildConfig;
 
 public class HttpConnection {
 	private HttpClient httpClient;
+	private Exception exception;
 	private String url;
+	
+	/**
+	 * Will return the latest exception that was raised
+	 * @return The latest exception - null if none exists
+	 */
+	public Exception getException() {
+		return exception;
+	}
 	
 	public HttpConnection(String url) {
 		this.url = url;
+		this.exception = null;
 		
 		httpClient = new DefaultHttpClient();
 		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 5000);
@@ -37,22 +47,28 @@ public class HttpConnection {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
 			}
+			exception = e;
 		} catch (IOException e) {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
 			}
+			exception = e;
 		}
 		
 		String result = null;
-		try {
-			result = processEntity(response.getEntity());
-		} catch (IllegalStateException e) {
-			if (BuildConfig.DEBUG) {
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
-			if (BuildConfig.DEBUG) {
-				e.printStackTrace();
+		if (response != null) {
+			try {
+				result = processEntity(response.getEntity());
+			} catch (IllegalStateException e) {
+				if (BuildConfig.DEBUG) {
+					e.printStackTrace();
+				}
+				exception = e;
+			} catch (IOException e) {
+				if (BuildConfig.DEBUG) {
+					e.printStackTrace();
+				}
+				exception = e;
 			}
 		}
 		

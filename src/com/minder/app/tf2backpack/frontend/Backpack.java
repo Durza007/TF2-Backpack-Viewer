@@ -45,7 +45,7 @@ import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.Item;
-import com.minder.app.tf2backpack.backend.OnDataReadyListener;
+import com.minder.app.tf2backpack.backend.OnRequestReadyListener;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
@@ -234,8 +234,8 @@ public class Backpack extends Activity {
 		}  	
     };
     
-    OnDataReadyListener onDataReadyListener = new OnDataReadyListener() {
-		public void onDataReady(Request request) {
+    OnRequestReadyListener onDataReadyListener = new OnRequestReadyListener() {
+		public void onRequestReady(Request request) {
 			PlayerItemListParser pl = (PlayerItemListParser)request.data;
 			
 			// handle the request
