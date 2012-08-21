@@ -46,6 +46,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.HttpConnectionBitmapRunner;
 import com.minder.app.tf2backpack.Internet;
@@ -352,7 +353,7 @@ public class DashBoard extends Activity {
     
     private void DownloadGameFiles(){
     	showDialog(DIALOG_PROGRESS);
-    	
+
     	paintColor = BitmapFactory.decodeResource(this.getResources(), R.drawable.paintcan_paintcolor, mBitmapOptions);
     	teamPaintRed = BitmapFactory.decodeResource(this.getResources(), R.drawable.teampaint_red_mask, mBitmapOptions);
     	teamPaintBlue = BitmapFactory.decodeResource(this.getResources(), R.drawable.teampaint_blu_mask, mBitmapOptions);

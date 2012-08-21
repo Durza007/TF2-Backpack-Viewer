@@ -170,6 +170,8 @@ public class DataManager implements Runnable {
 		if (data != null) {			
 			request.data = new PlayerItemListParser(data);
 			request.requestSucceded = true;
+		} else {
+			request.requestSucceded = false;
 		}
 		
 		return request;

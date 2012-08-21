@@ -236,23 +236,38 @@ public class Backpack extends Activity {
     
     OnRequestReadyListener onDataReadyListener = new OnRequestReadyListener() {
 		public void onRequestReady(Request request) {
-			PlayerItemListParser pl = (PlayerItemListParser)request.data;
-			
-			// handle the request
-			if (pl.getStatusCode() == 1){
-				playerItemList = pl.getItemList();
-				numberOfPages = pl.getNumberOfBackpackSlots() / 50;
-				SetPageNumberText();
-				checkUngivenItems = true;
-				AddPlayerDataToView();
-				checkUngivenItems = false;
-			} else {
-				if (pl.getStatusCode() == 15){
-					Toast.makeText(Backpack.this, R.string.backack_private, Toast.LENGTH_SHORT).show();
+			if (request.isRequestSuccess()) {
+				PlayerItemListParser pl = (PlayerItemListParser)request.data;
+				
+				// handle the request
+				if (pl.getStatusCode() == 1){
+					playerItemList = pl.getItemList();
+					numberOfPages = pl.getNumberOfBackpackSlots() / 50;
+					SetPageNumberText();
+					checkUngivenItems = true;
+					AddPlayerDataToView();
+					checkUngivenItems = false;
 				} else {
-					Toast.makeText(Backpack.this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+					if (pl.getStatusCode() == 15){
+						Toast.makeText(Backpack.this, R.string.backack_private, Toast.LENGTH_SHORT).show();
+					} else {
+						Toast.makeText(Backpack.this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+					}
+				}
+			} else {
+				Exception e = request.getException();
+				e.printStackTrace();
+				if (Internet.isOnline(Backpack.this)){
+					if (e instanceof UnknownHostException){
+						Toast.makeText(Backpack.this, R.string.no_steam_api, Toast.LENGTH_LONG).show();
+					} else {
+						Toast.makeText(Backpack.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+					}					
+				} else {
+					Toast.makeText(Backpack.this, R.string.no_internet, Toast.LENGTH_LONG).show();
 				}
 			}
+			
 			myProgressDialog.dismiss();
 		}
 	};
@@ -282,52 +297,6 @@ public class Backpack extends Activity {
     	SteamUser su = new SteamUser();
     	su.steamdId64 = Long.parseLong(playerId);
     	App.getDataManager().requestPlayerItemList(this, onDataReadyListener, su);
-		/*Handler handler = new Handler() {
-			public void handleMessage(Message message) {
-				switch (message.what) {
-				case HttpConnection.DID_START: {
-					break;
-				}
-				case HttpConnection.DID_SUCCEED: {
-					PlayerItemListParser pl = new PlayerItemListParser((String)message.obj);
-					if (pl.getStatusCode() == 1){
-						playerItemList = pl.getItemList();
-						numberOfPages = pl.getNumberOfBackpackSlots() / 50;
-						SetPageNumberText();
-						checkUngivenItems = true;
-						AddPlayerDataToView();
-						checkUngivenItems = false;
-					} else {
-						if (pl.getStatusCode() == 15){
-							Toast.makeText(Backpack.this, R.string.backack_private, Toast.LENGTH_SHORT).show();
-						} else {
-							Toast.makeText(Backpack.this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
-						}
-					}
-					myProgressDialog.dismiss();
-					break;
-				}
-				case HttpConnection.DID_ERROR: {
-					Exception e = (Exception) message.obj;
-					e.printStackTrace();
-					if (Internet.isOnline(Backpack.this)){
-						if (e instanceof UnknownHostException){
-							Toast.makeText(Backpack.this, R.string.no_steam_api, Toast.LENGTH_LONG).show();
-						} else {
-							Toast.makeText(Backpack.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-						}					
-					} else {
-						Toast.makeText(Backpack.this, R.string.no_internet, Toast.LENGTH_LONG).show();
-					}
-					myProgressDialog.dismiss();
-					break;
-				}
-				}
-			}
-		};
-		new HttpConnection(handler)
-			.get("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
-				Util.GetAPIKey() + "&SteamID=" + playerId, 86400);*/
     }
     
     public void AddPlayerDataToView(){

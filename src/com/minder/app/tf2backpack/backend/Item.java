@@ -174,7 +174,7 @@ public class Item implements Parcelable {
 
 	//Parcelable functions
 	public int describeContents() {
-		return 0;
+		return 0; 
 	}
 
 	public void writeToParcel(Parcel dest, int flags) {
