@@ -176,6 +176,7 @@ public class DashBoard extends Activity {
         new DownloadNewsTask().execute();
     }
     
+    @Override
     public void onPause(){
     	super.onPause();
     	if (mProgress != null){
@@ -183,8 +184,14 @@ public class DashBoard extends Activity {
     	}
     }
     
+    @Override
     public void onResume(){
     	super.onResume();
+    }
+    
+    @Override
+    public void onStop() {
+    	mProgress = null;
     }
     
     OnClickListener onButtonBackpackClick = new OnClickListener(){

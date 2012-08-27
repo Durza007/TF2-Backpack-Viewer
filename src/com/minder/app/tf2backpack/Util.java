@@ -14,12 +14,12 @@ import android.net.ConnectivityManager;
 public class Util {
 	private static DatabaseHandler dbHandler;
 	
-	public static DatabaseHandler getDbHandler() {
+	/*public static DatabaseHandler getDbHandler() {
 		if (dbHandler == null) {
 			dbHandler = new DatabaseHandler(App.getAppContext());
 		}
 		return dbHandler;
-	}
+	}*/
 
 	public static int GetPxFromDp(Context context, float dp)
 	{

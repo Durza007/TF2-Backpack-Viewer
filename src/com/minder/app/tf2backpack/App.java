@@ -17,7 +17,7 @@ public class App extends Application{
     public void onCreate(){
     	super.onCreate();
         context = getApplicationContext();
-        dataManager = new DataManager();
+        dataManager = new DataManager(context);
     }
 
     public static Context getAppContext() {

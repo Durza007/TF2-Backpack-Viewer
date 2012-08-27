@@ -34,6 +34,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
@@ -89,7 +90,7 @@ public class GetPlayer extends Activity {
 		    	params = null;
 		    }
 
-		    Cursor cursor = Util.getDbHandler().querySql("SELECT * FROM name_history WHERE name LIKE ?", params);	  
+		    Cursor cursor = App.getDataManager().getDatabaseHandler().querySql("SELECT * FROM name_history WHERE name LIKE ?", params);	  
 		    return cursor;
 		}
 		

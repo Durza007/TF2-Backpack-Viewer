@@ -437,20 +437,14 @@ public class GameSchemeParser {
 				DataBaseHelper db = new DataBaseHelper(mContext);
 				SQLiteDatabase sqlDb = db.getWritableDatabase();
 				
-				// removes everything from database, else we would get duplicates
-				sqlDb.execSQL("DELETE FROM items");
-				sqlDb.execSQL("DELETE FROM attributes");
-				sqlDb.execSQL("DELETE FROM item_attributes");
-				
-				/*if (sqlExecList.size() != 0){
-					for (String sql : sqlExecList){
-						sqlDb.execSQL(sql);
-					}
-				}*/
 				
 				sqlDb.beginTransaction();
-
 				try {
+					// removes everything from database, else we would get duplicates
+					sqlDb.execSQL("DELETE FROM items");
+					sqlDb.execSQL("DELETE FROM attributes");
+					sqlDb.execSQL("DELETE FROM item_attributes");
+					
 					if (sqlExecList.size() != 0){
 						for (String sql : sqlExecList){
 							sqlDb.execSQL(sql);

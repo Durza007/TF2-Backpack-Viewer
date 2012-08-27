@@ -3,9 +3,9 @@ package com.minder.app.tf2backpack.backend;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
-import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
@@ -44,24 +44,33 @@ public class DataManager implements Runnable {
 	// Members
 	private final static int TYPE_PLAYER_ITEM_LIST = 10;
 	
+	private Context context;
 	private Thread dataThread;
 	
+	private DatabaseHandler databaseHandler;
 	private CacheManager cacheManager;
 	
 	private ArrayList<Request> todoList;
 	private ArrayList<Request> finishedWork;
 	
 	// Constructor
-	public DataManager() {	
+	public DataManager(Context context) {
+		this.context = context;
+		
 		todoList = new ArrayList<Request>();
 		finishedWork = new ArrayList<Request>();
 		
 		dataThread = new Thread(this);
 		dataThread.setDaemon(true);
-		dataThread.setName("DataThread");
+		dataThread.setName("DataManagerThread");
 		dataThread.start();
 		
-		cacheManager = new CacheManager(App.getAppContext());
+		databaseHandler = new DatabaseHandler(context);
+		cacheManager = new CacheManager(context);
+	}
+	
+	public DatabaseHandler getDatabaseHandler() {
+		return this.databaseHandler;
 	}
 	
 	/**
