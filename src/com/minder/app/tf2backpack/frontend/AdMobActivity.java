@@ -1,17 +1,16 @@
 package com.minder.app.tf2backpack.frontend;
 
-import com.google.ads.AdRequest;
-import com.google.ads.AdSize;
-import com.google.ads.AdView;
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.R.id;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.LinearLayout;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
+import com.minder.app.tf2backpack.R;
 
 public final class AdMobActivity extends Activity {
     public static AdMobActivity AdMobMemoryLeakWorkAroundActivity;

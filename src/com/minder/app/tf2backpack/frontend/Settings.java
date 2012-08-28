@@ -1,15 +1,5 @@
 package com.minder.app.tf2backpack.frontend;
 
-import com.google.ads.AdView;
-import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.ImageLoader;
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.R.drawable;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.string;
-import com.minder.app.tf2backpack.R.xml;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -19,6 +9,11 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.widget.Toast;
+
+import com.google.ads.AdView;
+import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.ImageLoader;
+import com.minder.app.tf2backpack.R;
 
 public class Settings extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;

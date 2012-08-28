@@ -36,10 +36,6 @@ import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.R.color;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.string;
 
 public class NewsList extends Activity{
 	public static class NewsItem {

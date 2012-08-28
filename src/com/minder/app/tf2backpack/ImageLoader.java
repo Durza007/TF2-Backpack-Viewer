@@ -13,10 +13,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
-import com.minder.app.tf2backpack.BuildConfig;
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.R.drawable;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;

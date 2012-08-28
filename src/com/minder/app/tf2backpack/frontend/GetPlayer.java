@@ -38,11 +38,6 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.R.drawable;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.string;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
 
 public class GetPlayer extends Activity {

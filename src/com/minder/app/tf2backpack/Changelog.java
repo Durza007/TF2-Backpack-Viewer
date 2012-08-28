@@ -1,8 +1,5 @@
 package com.minder.app.tf2backpack;
 
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.R.string;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

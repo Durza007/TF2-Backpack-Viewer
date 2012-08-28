@@ -1,10 +1,5 @@
 package com.minder.app.tf2backpack.frontend;
 
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.string;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +8,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+
+import com.minder.app.tf2backpack.R;
 
 public class SelectBackpack extends Activity {
 	private Typeface tf2TypeFace;

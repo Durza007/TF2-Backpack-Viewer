@@ -10,7 +10,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.R.layout;
 import com.minder.app.tf2backpack.frontend.Backpack.Holder;
 import com.minder.app.tf2backpack.frontend.Backpack.OnLayoutReadyListener;
 

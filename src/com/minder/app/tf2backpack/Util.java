@@ -5,22 +5,11 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.minder.app.tf2backpack.backend.DatabaseHandler;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 
 public class Util {
-	private static DatabaseHandler dbHandler;
-	
-	/*public static DatabaseHandler getDbHandler() {
-		if (dbHandler == null) {
-			dbHandler = new DatabaseHandler(App.getAppContext());
-		}
-		return dbHandler;
-	}*/
-
 	public static int GetPxFromDp(Context context, float dp)
 	{
 		float scale = context.getResources().getDisplayMetrics().density;
@@ -100,16 +89,16 @@ public class Util {
         final int buffer_size=1024;
         try
         {
-            byte[] bytes=new byte[buffer_size];
+            byte[] bytes = new byte[buffer_size];
             for(;;)
             {
-              int count=is.read(bytes, 0, buffer_size);
-              if(count==-1)
+              int count = is.read(bytes, 0, buffer_size);
+              if(count == -1)
                   break;
               os.write(bytes, 0, count);
             }
         }
-        catch(Exception ex){}
+        catch (Exception ex){}
     }
     
     public static String md5Hash(String s) {

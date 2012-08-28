@@ -21,8 +21,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -40,15 +38,14 @@ import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.Item;
 import com.minder.app.tf2backpack.backend.OnRequestReadyListener;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.Util;
 
 public class Backpack extends Activity {
 	public interface OnLayoutReadyListener {

@@ -46,7 +46,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.HttpConnectionBitmapRunner;
 import com.minder.app.tf2backpack.Internet;

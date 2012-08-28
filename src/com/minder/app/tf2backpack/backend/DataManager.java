@@ -47,7 +47,7 @@ public class DataManager implements Runnable {
 	private Context context;
 	private Thread dataThread;
 	
-	private DatabaseHandler databaseHandler;
+	private DatabaseHandler databaseHandler;      
 	private CacheManager cacheManager;
 	
 	private ArrayList<Request> todoList;

@@ -27,15 +27,11 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.Attribute;
+import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.Attribute.ItemAttribute;
-import com.minder.app.tf2backpack.R.id;
-import com.minder.app.tf2backpack.R.layout;
-import com.minder.app.tf2backpack.R.string;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
 import com.minder.app.tf2backpack.backend.Item;
-import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 
 public class WeaponInfo extends Activity {
 	private static final int blueColor = Color.rgb(153, 204, 255);
