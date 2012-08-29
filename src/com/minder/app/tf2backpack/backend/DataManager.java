@@ -42,6 +42,7 @@ public class DataManager implements Runnable {
 	}
 	
 	// Members
+	private final static int TYPE_PLAYER_NAME = 8;
 	private final static int TYPE_PLAYER_ITEM_LIST = 10;
 	
 	private Context context;
@@ -75,8 +76,10 @@ public class DataManager implements Runnable {
 	
 	/**
 	 * Create a request for getting a player item list
-	 * @param player
-	 * @return
+	 * @param activity The activity that wants to get the ready event
+	 * @param listener The listener - leave null if you want to check result manually
+	 * @param player The SteamUser whose itemlist will be downloaded
+	 * @return A request object used for retrieving data when ready
 	 */
 	public Request requestPlayerItemList(Activity activity, OnRequestReadyListener listener, SteamUser player) {
 		// start download
@@ -88,6 +91,24 @@ public class DataManager implements Runnable {
 		}
 		
 		return request;
+	}
+	
+	public Request requestPlayerName(Activity activity, OnRequestReadyListener listener, SteamUser player) {
+		// fetch from our db cache if name is available
+		String name = DataBaseHelper.getSteamUserName(databaseHandler.getReadableDatabase(), player.steamdId64);
+		
+		// check if name was available
+		if (name.length() == 0) {
+			// start download instead
+			Request request = new Request(activity, listener, TYPE_PLAYER_NAME, new Object[] { player });
+			
+			synchronized (todoList) {
+				todoList.add(request);
+				todoList.notify();
+			}
+		}
+		
+		return null;
 	}
 	
 	public boolean isRequestAvail(Request request) {
