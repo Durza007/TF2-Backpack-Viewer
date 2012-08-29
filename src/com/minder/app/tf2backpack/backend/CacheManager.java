@@ -14,7 +14,7 @@ import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.Util;
 
 public class CacheManager {	
-    private File cacheDir;
+    private final File cacheDir;
     private Exception exception;
     
     public Exception getException() {

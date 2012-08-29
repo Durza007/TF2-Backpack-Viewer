@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.minder.app.tf2backpack.BuildConfig;
@@ -93,6 +94,11 @@ public class DataManager implements Runnable {
 		return request;
 	}
 	
+	public void requestPlayerItemList(AsyncTaskListener listener, SteamUser player) {
+		GetPlayerItems asyncTask = new GetPlayerItems(listener);
+		asyncTask.execute(player);
+	}
+	
 	public Request requestPlayerName(Activity activity, OnRequestReadyListener listener, SteamUser player) {
 		// fetch from our db cache if name is available
 		String name = DataBaseHelper.getSteamUserName(databaseHandler.getReadableDatabase(), player.steamdId64);
@@ -167,6 +173,55 @@ public class DataManager implements Runnable {
 					finishedWork.add(request);
 				}
 			}
+		}
+	}
+	
+	private class GetPlayerItems extends AsyncTask<SteamUser, Void, PlayerItemListParser> {
+		private AsyncTaskListener listener;
+		
+		public GetPlayerItems(AsyncTaskListener listener) {
+			this.listener = listener;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			listener.onPreExecute();
+		}
+
+		@Override
+		protected PlayerItemListParser doInBackground(SteamUser... params) {
+			long steamId64 = params[0].steamdId64;
+			
+			// try to fetch online first
+			HttpConnection connection = new HttpConnection("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
+					Util.GetAPIKey() + "&SteamID=" + steamId64);
+			
+			String data = connection.execute();
+			// fetch latest exception, if there is one
+			//request.exception = connection.getException();
+
+			if (data == null) {
+				if (BuildConfig.DEBUG)
+					Log.d("DataManager", "loading item list from cache");
+				// if we could not get it from Internet - check if we have it cached
+				data = cacheManager.getString("itemlist", Long.toString(steamId64));
+			} else {
+				if (BuildConfig.DEBUG)
+					Log.d("DataManager", "loading item list from internet");
+				cacheManager.cacheString("itemlist", Long.toString(steamId64), data);
+			}
+			
+			// Parse data if available
+			if (data != null) {			
+				return new PlayerItemListParser(data);
+			} else {
+				return null;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(PlayerItemListParser parser) {
+			listener.onPostExecute(parser);
 		}
 	}
 	
