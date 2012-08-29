@@ -190,6 +190,7 @@ public class DashBoard extends Activity {
     
     @Override
     public void onStop() {
+    	super.onStop();
     	mProgress = null;
     }
     

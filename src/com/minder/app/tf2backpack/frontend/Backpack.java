@@ -2,7 +2,6 @@ package com.minder.app.tf2backpack.frontend;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -38,13 +37,11 @@ import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.backend.DataManager.Request;
+import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.Item;
-import com.minder.app.tf2backpack.backend.OnRequestReadyListener;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 
 public class Backpack extends Activity {
@@ -231,10 +228,20 @@ public class Backpack extends Activity {
 		}  	
     };
     
-    OnRequestReadyListener onDataReadyListener = new OnRequestReadyListener() {
-		public void onRequestReady(Request request) {
-			if (request.isRequestSuccess()) {
-				PlayerItemListParser pl = (PlayerItemListParser)request.data;
+    AsyncTaskListener asyncTasklistener = new AsyncTaskListener() {
+		public void onPreExecute() {
+	    	myProgressDialog = null;
+	    	myProgressDialog = ProgressDialog.show(Backpack.this, 
+	    			"Please wait...", "Downloading player data...", true);
+		}
+
+		public void onProgressUpdate(Object object) {
+			// nothing
+		}
+
+		public void onPostExecute(Object object) {
+			if (object != null) {
+				PlayerItemListParser pl = (PlayerItemListParser)object;
 				
 				// handle the request
 				if (pl.getStatusCode() == 1){
@@ -252,7 +259,9 @@ public class Backpack extends Activity {
 					}
 				}
 			} else {
-				Exception e = request.getException();
+				// TODO handle exception
+				/*
+				 * 				Exception e = request.getException();
 				e.printStackTrace();
 				if (Internet.isOnline(Backpack.this)){
 					if (e instanceof UnknownHostException){
@@ -263,6 +272,7 @@ public class Backpack extends Activity {
 				} else {
 					Toast.makeText(Backpack.this, R.string.no_internet, Toast.LENGTH_LONG).show();
 				}
+				 */
 			}
 			
 			myProgressDialog.dismiss();
@@ -286,14 +296,10 @@ public class Backpack extends Activity {
     		}
     	}
     	
-    	myProgressDialog = null;
-    	myProgressDialog = ProgressDialog.show(this, 
-    			"Please wait...", "Downloading player data...", true);
-    	
     	// TODO Should get a SteamUser object as parameter
     	SteamUser su = new SteamUser();
     	su.steamdId64 = Long.parseLong(playerId);
-    	App.getDataManager().requestPlayerItemList(this, onDataReadyListener, su);
+    	App.getDataManager().requestPlayerItemList(asyncTasklistener, su);
     }
     
     public void AddPlayerDataToView(){
