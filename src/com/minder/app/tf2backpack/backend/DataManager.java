@@ -1,14 +1,23 @@
 package com.minder.app.tf2backpack.backend;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.app.Activity;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.minder.app.tf2backpack.BuildConfig;
+import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
 
@@ -32,7 +41,9 @@ public class DataManager {
 	}
 	
 	// Members
+	private final static int TYPE_FRIEND_LIST = 7;
 	private final static int TYPE_PLAYER_NAME = 8;
+	private final static int TYPE_PLAYER_INFO = 9;
 	private final static int TYPE_PLAYER_ITEM_LIST = 10;
 	
 	private Context context;
@@ -41,8 +52,6 @@ public class DataManager {
 	private CacheManager cacheManager;
 	
 	private HashMap<Request, AsyncTask> asyncWorkList;;
-	private ArrayList<Request> todoList;
-	private ArrayList<Request> finishedWork;
 	
 	// Constructor
 	public DataManager(Context context) {
@@ -58,12 +67,31 @@ public class DataManager {
 		return this.databaseHandler;
 	}
 	
-	public void requestPlayerItemList(AsyncTaskListener listener, SteamUser player) {
+	public Request requestPlayerItemList(AsyncTaskListener listener, SteamUser player) {
 		Request request = new Request(TYPE_PLAYER_ITEM_LIST);
 		GetPlayerItems asyncTask = new GetPlayerItems(listener, request);
-		asyncWorkList.put(request, asyncTask);
 		
 		asyncTask.execute(player);
+		
+		return request;
+	}
+	
+	public Request requestFriendsList(AsyncTaskListener listener, SteamUser player) {
+		Request request = new Request(TYPE_FRIEND_LIST);
+		GetFriendListTask asyncTask = new GetFriendListTask(listener, request);
+		
+		asyncTask.execute(player);
+		
+		return request;
+	}
+	
+	public Request requestSteamUserInfo(AsyncTaskListener listener, SteamUser[] players) {
+		Request request = new Request(TYPE_PLAYER_INFO);
+		GetPlayerInfo asyncTask = new GetPlayerInfo(listener, request);
+		
+		asyncTask.execute(players);
+		
+		return request;
 	}
 	
 	/*public Request requestPlayerName(Activity activity, OnRequestReadyListener listener, SteamUser player) {
@@ -110,6 +138,7 @@ public class DataManager {
 		
 		@Override
 		protected void onPreExecute() {
+			asyncWorkList.put(request, this);
 			listener.onPreExecute();
 		}
 
@@ -150,4 +179,292 @@ public class DataManager {
 			removeRequest(request);
 		}
 	}
+	
+    private class GetFriendListTask extends AsyncTask<SteamUser, Void, ArrayList<SteamUser>> {
+		private final AsyncTaskListener listener;
+		private final Request request;
+		
+		public GetFriendListTask(AsyncTaskListener listener, Request request) {
+			this.listener = listener;
+			this.request = request;
+		}
+    	
+    	protected void onPreExecute() {
+    		asyncWorkList.put(request, this);
+    		listener.onPreExecute();
+    	}
+    	
+		@Override
+		protected ArrayList<SteamUser> doInBackground(SteamUser... params) {	
+	        XmlPullParserFactory pullMaker;
+	        InputStream fis = null;
+	        
+        	ArrayList<SteamUser> players = new ArrayList<SteamUser>();
+        	
+            SQLiteDatabase sqlDb = databaseHandler.getReadableDatabase();
+	        try {
+	        	//String xml = (String) new HttpConnection().getDirect("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1", 86400);
+                URL url = new URL("http://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=" + Util.GetAPIKey() + 
+                		"&steamid=" + params[0].steamdId64 + "&relationship=all&format=xml");
+	        	
+	            pullMaker = XmlPullParserFactory.newInstance();
+
+	            XmlPullParser parser = pullMaker.newPullParser();
+	            fis = url.openStream();
+
+	            parser.setInput(fis, null);
+
+	            boolean friendslist = false;
+	            boolean friends = true;
+	        	boolean friend = false;
+	        	boolean steamid = false;
+	        	
+	        	SteamUser newPlayer;
+
+	            int eventType = parser.getEventType();
+	            while (eventType != XmlPullParser.END_DOCUMENT) {
+	                switch (eventType) {
+	                case XmlPullParser.START_DOCUMENT:
+	                    break;
+	                case XmlPullParser.START_TAG:
+	                    if (parser.getName().equals("friendslist")) {
+	                    	friendslist = true;
+	                    } else if (parser.getName().equals("friends")) {
+	                    	friends = true;
+	                    } else if (parser.getName().equals("friend")) {
+	                    	friend = true;
+	                    } else if (parser.getName().equals("steamid")) {
+	                    	steamid = true;
+	                    }
+	                    break;
+	                case XmlPullParser.END_TAG:
+	                    if (parser.getName().equals("friendslist")) {
+	                    	friendslist = false;
+	                    } else if (parser.getName().equals("friends")) {
+	                    	friends = false;
+	                    } else if (parser.getName().equals("friend")) {
+	                    	friend = false;
+	                    } else if (parser.getName().equals("steamid")) {
+	                    	steamid = false;
+	                    }
+	                    break;
+	                case XmlPullParser.TEXT:
+	                    if (friendslist && friends && friend && steamid) {
+	                    	newPlayer = new SteamUser();
+	                    	newPlayer.steamdId64 = Long.parseLong(parser.getText());
+	                    	newPlayer.steamName = DataBaseHelper.getSteamUserName(sqlDb, newPlayer.steamdId64);
+	                    	players.add(newPlayer);
+	                    	//GetPlayerName(newPlayer.steamdId64);
+	                    }
+	                    break;
+
+	                }
+	                eventType = parser.next();
+	            }
+	        } catch (UnknownHostException e) {
+	            Log.e("xml_perf", "Pull parser failed", e);
+	            request.exception = e;
+	            players = null;
+	        } catch (XmlPullParserException e) {
+	        	request.exception = e;
+	        	players = null;
+				e.printStackTrace();
+			} catch (IOException e) {
+				request.exception = e;
+				players = null;
+				e.printStackTrace();
+			}
+			
+            sqlDb.close();
+			return players;
+		}
+    	
+        protected void onPostExecute(ArrayList<SteamUser> result) {
+        	listener.onPostExecute(result);
+        	asyncWorkList.remove(request);
+        }
+    }
+    
+    private class GetPlayerInfo extends AsyncTask<SteamUser[], SteamUser[], Void> {
+    	private final static int ID_CHUNK_SIZE = 50;
+    	private final static int PUBLISH_BUFFER_SIZE = 5;
+		private final AsyncTaskListener listener;
+		private final Request request;
+		
+		public GetPlayerInfo(AsyncTaskListener listener, Request request) {
+			this.listener = listener;
+			this.request = request;
+		}
+    	
+    	protected void onPreExecute() {
+    		asyncWorkList.put(request, this);
+    		listener.onPreExecute();
+    	}
+    	
+		@Override
+		protected Void doInBackground(final SteamUser[]... params) {
+	        XmlPullParserFactory pullMaker;
+	        XmlPullParser parser;
+	        StringBuilder sb = new StringBuilder();
+	        
+	        final int length = params[0].length;
+	        int index = 0;
+	        
+        	SteamUser[] playersToPublish = new SteamUser[PUBLISH_BUFFER_SIZE];
+        	int currentPublishIndex = 0;
+        	
+            try {
+				pullMaker = XmlPullParserFactory.newInstance();
+				
+				parser = pullMaker.newPullParser();
+			} catch (XmlPullParserException e1) {
+				e1.printStackTrace();
+				return null;
+			}
+			
+	        
+	        while (index < length) {       
+	        	for (int stringIndex = 0; stringIndex < ID_CHUNK_SIZE; stringIndex++) {
+	        		if (stringIndex + index >= length) break;
+	        		
+	        		sb.append(params[0][stringIndex + index].steamdId64);
+	        		sb.append(",");
+	        	}
+	        	
+	        	// removes the last comma
+	        	sb.deleteCharAt(sb.length() - 1);
+	        	
+		        try {
+		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + player.steamdId64 + "&format=xml", 0);
+		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&format=xml&steamids=" + sb.toString());
+	
+		            InputStream fis = url.openStream();
+	
+		            parser.setInput(fis, null);
+	
+		            boolean steamid = false;
+		            boolean playerTag = false;
+		        	boolean personaName = false;
+		        	boolean personaState = false;
+		        	boolean avatar = false;
+		        	boolean gameId = false;
+		        	
+		        	SteamUser player = null;
+	
+		            int eventType = parser.getEventType();
+		            while (eventType != XmlPullParser.END_DOCUMENT) {
+		                switch (eventType) {
+		                case XmlPullParser.START_DOCUMENT:
+		                    break;
+		                case XmlPullParser.START_TAG:
+		                	if (parser.getName().equals("player")) {
+		                		playerTag = true;
+		                		index++;
+		                	} else if (parser.getName().equals("steamid")) {
+		                		steamid = true;
+		                	} else if (parser.getName().equals("personaname")) {
+		                    	personaName = true;
+		                    } else if (parser.getName().equals("personastate")) {
+		                    	personaState = true;
+		                    } else if (parser.getName().equals("avatarmedium")) {
+		                    	avatar = true;
+		                    } else if (parser.getName().equals("gameid")) {
+		                    	gameId = true;
+		                    }
+		                    break;
+		                case XmlPullParser.END_TAG:
+		                	if (parser.getName().equals("player")) {
+		                		playerTag = false;
+		                		
+		                		playersToPublish[currentPublishIndex] = player;
+		                		currentPublishIndex++;
+		                		
+		                		// publish if our buffer is filled
+		                		if (currentPublishIndex == playersToPublish.length) {
+		                			publishProgress(playersToPublish);
+		                			
+		                			// clear buffer
+		                			for (int i = 0; i < playersToPublish.length; i++) {
+		                				playersToPublish[i] = null;
+		                			}
+		                		} // or publish if its the last user
+		                		else if (index >= length - 1) {
+		                			publishProgress(playersToPublish);
+		                		}
+		        		        
+		        		        // for safety - if something goes wrong and we start writing
+		        		        // to the wrong object then we will get a nullpointer exception
+		        		        // instead
+		        		        player = null;
+		                	} else if (parser.getName().equals("steamid")) {
+		                		steamid = false;
+		                	} else if (parser.getName().equals("personaname")) {
+		                    	personaName = false;
+		                    } else if (parser.getName().equals("personastate")) {
+		                    	personaState = false;
+		                    } else if (parser.getName().equals("avatarmedium")) {
+		                    	avatar = false;
+		                    } else if (parser.getName().equals("gameid")) {
+		                    	gameId = false;
+		                    }
+		                    break;
+		                case XmlPullParser.TEXT:
+		                	if (playerTag) {
+		                		if (steamid) {
+		                			long steamId64 = Long.parseLong(parser.getText());
+		                			
+		                			// need to find the right player - SLOW
+		                			// TODO come up with better solution to this
+		                			for (SteamUser s : params[0]) {
+		                				if (steamId64 == s.steamdId64) {
+		                					player = s;
+		                					break;
+		                				}
+ 		                			}
+		                			
+		                		} else if (personaName) {
+		                			// TODO find out why this can be null
+			                    	player.steamName = parser.getText();
+			                    	DataBaseHelper.cacheSteamUserName(player.steamdId64, player.steamName);
+			                    } else if (personaState) {
+			                    	int state = Integer.parseInt(parser.getText());
+			                    	
+			                    	// check for handling future persona states that might be added
+			                    	if (state < PersonaState.values().length) {
+			                    		player.personaState = PersonaState.values()[state];
+			                    	} else {
+			                    		player.personaState = PersonaState.Online;
+			                    	}
+			                    } else if (avatar) {
+			                    	player.avatarUrl = parser.getText();
+			                    } else if (gameId) {
+			                    	player.gameId = parser.getText();
+			                    }
+		                	}
+		                    break;
+	
+		                }
+		                eventType = parser.next();
+		            }
+		        } catch (XmlPullParserException e) {
+		        	e.printStackTrace();
+		        } catch (IOException e) {
+					e.printStackTrace();
+				}
+	        	sb.delete(0, sb.length());
+	        }
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(SteamUser[]... users) {
+			listener.onProgressUpdate(users);
+		}
+		
+		@Override
+		protected void onPostExecute(Void voids) {
+			listener.onPostExecute(null);
+			asyncWorkList.remove(request);
+		}
+    }
 }
