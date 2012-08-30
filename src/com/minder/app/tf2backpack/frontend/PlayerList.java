@@ -43,13 +43,16 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
+import com.minder.app.tf2backpack.backend.DataManager.Request;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{
 	Handler mHandler = new Handler();
@@ -80,6 +83,8 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	private int totalInfoDownloads;
 	private int numberInfoDownloads;
 	private int workingThreads;
+	
+	private Request currentRequest;
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -235,16 +240,17 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 	        setAdVisibility(View.VISIBLE);
     	} else {      
             setAdVisibility(View.GONE);
-	        mProgress = ProgressDialog.show(this, getResources().getText(R.string.please_wait_title), getResources().getText(R.string.downloading_player_list), true, true);
 	        if (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
 	        	friendList = true;
 	        	//this.setTitle(R.string.friends);
 	            SharedPreferences playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
 	            
 	            String playerId = playerPrefs.getString("id", null);
-	            if (playerId != null){
-	                new DownloadFriendListTask().execute(playerId);
-	                setProgressBarIndeterminateVisibility(true);
+	            if (playerId != null) {
+	            	SteamUser user = new SteamUser();
+	            	user.steamdId64 = Long.parseLong(playerId);
+	            	
+	            	currentRequest = App.getDataManager().requestFriendsList(friendListListener, user);
 	            }
 	        } else if (action.equals("com.minder.app.tf2backpack.VIEW_WRENCH")){
 	        	friendList = false;
@@ -274,7 +280,13 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     
     @Override
     public void onPause(){
-    	super.onPause();	
+    	super.onPause();
+    	
+    	// cancel any ongoing work
+    	if (currentRequest != null) {
+    		App.getDataManager().cancelRequest(currentRequest);
+    	}
+    	
     	// remove dialog if it is showing
     	if (mProgress != null)
     	{
@@ -416,101 +428,24 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     	return false;
     }
     
-    private class DownloadFriendListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
-    	protected void onPreExecute(){
-    		workingThreads++;
-    	}
-    	
-		@Override
-		protected ArrayList<SteamUser> doInBackground(String... params) {	
-	    	totalInfoDownloads = 0;
-	        XmlPullParserFactory pullMaker;
-	        InputStream fis = null;
-	        
-        	ArrayList<SteamUser> players = new ArrayList<SteamUser>();
-        	
-            DataBaseHelper db = new DataBaseHelper(PlayerList.this.getApplicationContext());
-            SQLiteDatabase sqlDb = db.getReadableDatabase();
-	        try {
-	        	//String xml = (String) new HttpConnection().getDirect("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1", 86400);
-                URL url = new URL("http://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=" + Util.GetAPIKey() + 
-                		"&steamid=" + params[0] + "&relationship=all&format=xml");
-	        	
-	            pullMaker = XmlPullParserFactory.newInstance();
-
-	            XmlPullParser parser = pullMaker.newPullParser();
-	            fis = url.openStream();
-
-	            parser.setInput(fis, null);
-
-	            boolean friendslist = false;
-	            boolean friends = true;
-	        	boolean friend = false;
-	        	boolean steamid = false;
-	        	
-	        	SteamUser newPlayer;
-
-	            int eventType = parser.getEventType();
-	            while (eventType != XmlPullParser.END_DOCUMENT) {
-	                switch (eventType) {
-	                case XmlPullParser.START_DOCUMENT:
-	                    break;
-	                case XmlPullParser.START_TAG:
-	                    if (parser.getName().equals("friendslist")) {
-	                    	friendslist = true;
-	                    } else if (parser.getName().equals("friends")) {
-	                    	friends = true;
-	                    } else if (parser.getName().equals("friend")) {
-	                    	friend = true;
-	                    } else if (parser.getName().equals("steamid")) {
-	                    	steamid = true;
-	                    }
-	                    break;
-	                case XmlPullParser.END_TAG:
-	                    if (parser.getName().equals("friendslist")) {
-	                    	friendslist = false;
-	                    } else if (parser.getName().equals("friends")) {
-	                    	friends = false;
-	                    } else if (parser.getName().equals("friend")) {
-	                    	friend = false;
-	                    } else if (parser.getName().equals("steamid")) {
-	                    	steamid = false;
-	                    }
-	                    break;
-	                case XmlPullParser.TEXT:
-	                    if (friendslist && friends && friend && steamid) {
-	                    	newPlayer = new SteamUser();
-	                    	newPlayer.steamdId64 = Long.parseLong(parser.getText());
-	                    	newPlayer.steamName = DataBaseHelper.getSteamUserName(sqlDb, newPlayer.steamdId64);
-	                    	players.add(newPlayer);
-	                    	//GetPlayerName(newPlayer.steamdId64);
-	                    }
-	                    break;
-
-	                }
-	                eventType = parser.next();
-	            }
-	        } catch (UnknownHostException e) {
-	            Log.e("xml_perf", "Pull parser failed", e);
-                mHandler.post(new Runnable() {
-                    public void run() {
-                        Toast.makeText(PlayerList.this, R.string.no_steam_api, Toast.LENGTH_LONG).show();
-                    }
-                });
-                finish();
-	        } catch (XmlPullParserException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			db.close();
-			return players;
+    private AsyncTaskListener friendListListener = new AsyncTaskListener() {
+		public void onPreExecute() {
+			mProgress = ProgressDialog.show(PlayerList.this, getResources().getText(R.string.please_wait_title), getResources().getText(R.string.downloading_player_list), true, true);
+            setProgressBarIndeterminateVisibility(true);
 		}
-    	
-        protected void onPostExecute(ArrayList<SteamUser> result) {
+
+		public void onProgressUpdate(Object object) {
+			// nothing
+		}
+
+		@SuppressWarnings("unchecked")
+		public void onPostExecute(Object result) {
         	if (result != null){
+        		currentRequest = 
+        			App.getDataManager().requestSteamUserInfo(
+        					getSteamUserInfoListener, 
+        					((ArrayList<SteamUser>) result));
+        		
         		if (totalInfoDownloads == 0){
     	    		setAdVisibility(View.VISIBLE);
             		System.gc();
@@ -527,14 +462,12 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         			}
             	}
         		
-            	adapter.addPlayerInfoList(result);
+            	adapter.addPlayerInfoList((ArrayList<SteamUser>) result);
         	}
-        	workingThreads--;
-        	//GetPlayerInfoRange(0, 10);
-        	new DownloadFilesTask().execute(result.toArray());
-        }
-    }
+		}
+	};
     
+
     private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
     	public int pageNumber = 1;
     	
@@ -587,7 +520,10 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
     	
         protected void onPostExecute(ArrayList<SteamUser> result) {
         	if (result != null){
-        		new DownloadFilesTask().execute(result.toArray());
+        		currentRequest = 
+        			App.getDataManager().requestSteamUserInfo(
+        					getSteamUserInfoListener, 
+        					((ArrayList<SteamUser>) result));
         		
         		if (totalInfoDownloads == 0){
     	    		setProgressBarIndeterminateVisibility(false);
@@ -700,162 +636,19 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         return adapter.getPlayers();
     } 
     
-    private class DownloadFilesTask extends AsyncTask<Object[], SteamUser, Void> {
-    	private final static int ID_CHUNK_SIZE = 50;
-    	
-    	protected void onPreExecute(){
-    		workingThreads++;
+    private AsyncTaskListener getSteamUserInfoListener = new AsyncTaskListener () {
+		public void onPreExecute() {
 			setProgressBarIndeterminateVisibility(true);
-    	}
-    	
-		@Override
-		protected Void doInBackground(final Object[]... params) {
-	        XmlPullParserFactory pullMaker;
-	        XmlPullParser parser;
-	        StringBuilder sb = new StringBuilder();
-	        
-	        final int length = params[0].length;
-	        int index = 0;
-	        
-        	
-            try {
-				pullMaker = XmlPullParserFactory.newInstance();
-				
-				parser = pullMaker.newPullParser();
-			} catch (XmlPullParserException e1) {
-				e1.printStackTrace();
-				return null;
-			}
-			
-	        
-	        while (index < length) {       
-	        	for (int stringIndex = 0; stringIndex < ID_CHUNK_SIZE; stringIndex++) {
-	        		if (stringIndex + index >= length) break;
-	        		
-	        		sb.append(((SteamUser)params[0][stringIndex + index]).steamdId64);
-	        		sb.append(",");
-	        	}
-	        	
-	        	// removes the last comma
-	        	sb.deleteCharAt(sb.length() - 1);
-	        	
-		        try {
-		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + player.steamdId64 + "&format=xml", 0);
-		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&format=xml&steamids=" + sb.toString());
-	
-		            InputStream fis = url.openStream();
-	
-		            parser.setInput(fis, null);
-	
-		            boolean steamid = false;
-		            boolean playerTag = false;
-		        	boolean personaName = false;
-		        	boolean personaState = false;
-		        	boolean avatar = false;
-		        	boolean gameId = false;
-		        	
-		        	SteamUser player = null;
-	
-		            int eventType = parser.getEventType();
-		            while (eventType != XmlPullParser.END_DOCUMENT) {
-		                switch (eventType) {
-		                case XmlPullParser.START_DOCUMENT:
-		                    break;
-		                case XmlPullParser.START_TAG:
-		                	if (parser.getName().equals("player")) {
-		                		playerTag = true;
-		                		index++;
-		                	} else if (parser.getName().equals("steamid")) {
-		                		steamid = true;
-		                	} else if (parser.getName().equals("personaname")) {
-		                    	personaName = true;
-		                    } else if (parser.getName().equals("personastate")) {
-		                    	personaState = true;
-		                    } else if (parser.getName().equals("avatarmedium")) {
-		                    	avatar = true;
-		                    } else if (parser.getName().equals("gameid")) {
-		                    	gameId = true;
-		                    }
-		                    break;
-		                case XmlPullParser.END_TAG:
-		                	if (parser.getName().equals("player")) {
-		                		playerTag = false;
-		        		        publishProgress(player);
-		        		        // for safety - if something goes wrong and we start writing
-		        		        // to the wrong object then we will get a nullpointer exception
-		        		        // instead
-		        		        player = null;
-		                	} else if (parser.getName().equals("steamid")) {
-		                		steamid = false;
-		                	} else if (parser.getName().equals("personaname")) {
-		                    	personaName = false;
-		                    } else if (parser.getName().equals("personastate")) {
-		                    	personaState = false;
-		                    } else if (parser.getName().equals("avatarmedium")) {
-		                    	avatar = false;
-		                    } else if (parser.getName().equals("gameid")) {
-		                    	gameId = false;
-		                    }
-		                    break;
-		                case XmlPullParser.TEXT:
-		                	if (playerTag) {
-		                		if (steamid) {
-		                			long id = Long.parseLong(parser.getText());
-		                			
-		                			// need to find the right player - SLOW
-		                			// TODO come up with better solution to this
-		                			for (Object o : params[0]) {
-		                				SteamUser s = (SteamUser)o;
-		                				if (id == s.steamdId64) {
-		                					player = s;
-		                					break;
-		                				}
- 		                			}
-		                			
-		                		} else if (personaName) {
-		                			// TODO find out why this can be null
-			                    	player.steamName = parser.getText();
-			                    	DataBaseHelper.cacheSteamUserName(player.steamdId64, player.steamName);
-			                    } else if (personaState) {
-			                    	int state = Integer.parseInt(parser.getText());
-			                    	
-			                    	// check for handling future persona states that might be added
-			                    	if (state < PersonaState.values().length) {
-			                    		player.personaState = PersonaState.values()[state];
-			                    	} else {
-			                    		player.personaState = PersonaState.Online;
-			                    	}
-			                    } else if (avatar) {
-			                    	player.avatarUrl = parser.getText();
-			                    } else if (gameId) {
-			                    	player.gameId = parser.getText();
-			                    }
-		                	}
-		                    break;
-	
-		                }
-		                eventType = parser.next();
-		            }
-		        } catch (XmlPullParserException e) {
-		        	e.printStackTrace();
-		        } catch (IOException e) {
-					e.printStackTrace();
-				}
-	        	sb.delete(0, sb.length());
-	        }
-			return null;
 		}
-		
-		@Override
-		protected void onProgressUpdate(SteamUser... users) {
+
+		public void onProgressUpdate(Object object) {
 			adapter.notifyDataSetChanged();
 		}
-		
-		@Override
-		protected void onPostExecute(Void voids) {
+
+		public void onPostExecute(Object object) {
 			setProgressBarIndeterminateVisibility(false);
 		}
-    }
+	};
     
     // obsolete
     public static class byWrenchNumber implements java.util.Comparator<SteamUser> {

@@ -51,6 +51,7 @@ public class DataManager {
 	private DatabaseHandler databaseHandler;      
 	private CacheManager cacheManager;
 	
+	@SuppressWarnings("rawtypes")
 	private HashMap<Request, AsyncTask> asyncWorkList;;
 	
 	// Constructor
@@ -85,7 +86,8 @@ public class DataManager {
 		return request;
 	}
 	
-	public Request requestSteamUserInfo(AsyncTaskListener listener, SteamUser[] players) {
+	@SuppressWarnings("unchecked")
+	public Request requestSteamUserInfo(AsyncTaskListener listener, ArrayList<SteamUser> players) {
 		Request request = new Request(TYPE_PLAYER_INFO);
 		GetPlayerInfo asyncTask = new GetPlayerInfo(listener, request);
 		
@@ -115,6 +117,8 @@ public class DataManager {
 	public boolean cancelRequest(Request request) {
 		@SuppressWarnings("rawtypes")
 		final AsyncTask task = asyncWorkList.remove(request);
+		if (task == null)
+			return false;
 		return task.cancel(true);
 	}
 	
@@ -275,7 +279,6 @@ public class DataManager {
 				e.printStackTrace();
 			}
 			
-            sqlDb.close();
 			return players;
 		}
     	
@@ -285,7 +288,7 @@ public class DataManager {
         }
     }
     
-    private class GetPlayerInfo extends AsyncTask<SteamUser[], SteamUser[], Void> {
+    private class GetPlayerInfo extends AsyncTask<ArrayList<SteamUser>, SteamUser[], Void> {
     	private final static int ID_CHUNK_SIZE = 50;
     	private final static int PUBLISH_BUFFER_SIZE = 5;
 		private final AsyncTaskListener listener;
@@ -302,12 +305,18 @@ public class DataManager {
     	}
     	
 		@Override
-		protected Void doInBackground(final SteamUser[]... params) {
+		protected Void doInBackground(final ArrayList<SteamUser>... params) {
+			if (BuildConfig.DEBUG) {
+				Log.d("DataManager", "GetPlayerInfo - start");
+			}
+			// used for performance timing
+			long start = System.currentTimeMillis();
+				
 	        XmlPullParserFactory pullMaker;
 	        XmlPullParser parser;
 	        StringBuilder sb = new StringBuilder();
 	        
-	        final int length = params[0].length;
+	        final int length = params[0].size();
 	        int index = 0;
 	        
         	SteamUser[] playersToPublish = new SteamUser[PUBLISH_BUFFER_SIZE];
@@ -327,7 +336,7 @@ public class DataManager {
 	        	for (int stringIndex = 0; stringIndex < ID_CHUNK_SIZE; stringIndex++) {
 	        		if (stringIndex + index >= length) break;
 	        		
-	        		sb.append(params[0][stringIndex + index].steamdId64);
+	        		sb.append(params[0].get(stringIndex + index).steamdId64);
 	        		sb.append(",");
 	        	}
 	        	
@@ -381,6 +390,7 @@ public class DataManager {
 		                		
 		                		// publish if our buffer is filled
 		                		if (currentPublishIndex == playersToPublish.length) {
+		                			currentPublishIndex = 0;
 		                			publishProgress(playersToPublish);
 		                			
 		                			// clear buffer
@@ -452,6 +462,10 @@ public class DataManager {
 					e.printStackTrace();
 				}
 	        	sb.delete(0, sb.length());
+	        }
+	        
+	        if (BuildConfig.DEBUG) {
+	        	Log.d("DataManager", "GetPlayerInfo - end: " + (System.currentTimeMillis() - start) + " ms");
 	        }
 			return null;
 		}

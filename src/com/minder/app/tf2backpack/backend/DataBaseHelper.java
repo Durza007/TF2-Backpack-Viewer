@@ -70,7 +70,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	}
 
 	public static String getSteamUserName(SQLiteDatabase db, long steamId) {
-        Cursor c = db.rawQuery("SELECT * FROM steamid_cache WHERE steamid=" + steamId, null);
+        Cursor c = db.rawQuery("SELECT * FROM steamid_cache WHERE steamid=?", new String[] { String.valueOf(steamId) });
         String name = "";
         
         if (c != null) {
@@ -87,7 +87,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	public static void cacheSteamUserName(long steamid, String name) {
 		// TODO could probably remove this null check...
 		if (name != null) {
-			App.getDataManager().getDatabaseHandler().ExecSql("REPLACE INTO steamid_cache (steamid, name) VALUES ('" + steamid + "', '" + name.replace("'", "''") + "');");
+			App.getDataManager().getDatabaseHandler().execSql("REPLACE INTO steamid_cache (steamid, name) VALUES ('" + steamid + "', '" + name.replace("'", "''") + "');");
 		}
 	}
 }

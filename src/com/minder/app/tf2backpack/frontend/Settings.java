@@ -132,7 +132,7 @@ public class Settings extends PreferenceActivity {
         		.setMessage(R.string.alert_dialog_are_you_sure)
         		.setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
-                		App.getDataManager().getDatabaseHandler().ExecSql("DELETE FROM name_history");
+                		App.getDataManager().getDatabaseHandler().execSql("DELETE FROM name_history");
                 		
                 		Toast.makeText(Settings.this, "History cleared", Toast.LENGTH_SHORT).show();
         			}

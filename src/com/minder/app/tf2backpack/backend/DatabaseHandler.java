@@ -25,7 +25,7 @@ public class DatabaseHandler implements Runnable {
 		mRunning = true;
 	}
 	
-	public void ExecSql(String sql){
+	public void execSql(String sql){
 		if (sqlThread == null){
 			sqlThread = new Thread(this);
 			sqlThread.setDaemon(true);
