@@ -263,9 +263,9 @@ public class DashBoard extends Activity {
         		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     	if (resetImages) {
-                    		DeleteItemImages();
+                    		deleteItemImages();
                     	}
-                    	DownloadGameFiles();
+                    	downloadGameFiles();
                     }
                 })
                 .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -319,7 +319,7 @@ public class DashBoard extends Activity {
             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {              	
                 	// download new ones
-                	DownloadGameFiles();
+                	downloadGameFiles();
                 }
             })
             .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -347,7 +347,7 @@ public class DashBoard extends Activity {
      * Checsk if weaponimages are downloaded and if so 
      * shows a dialog box asking if you want to refresh them
      */
-    private void DeleteItemImages() {
+    private void deleteItemImages() {
 		File file = new File(this.getFilesDir().getPath());
 		if (file.isDirectory()) {
 	        String[] children = file.list();
@@ -358,7 +358,7 @@ public class DashBoard extends Activity {
 
     }
     
-    private void DownloadGameFiles(){
+    private void downloadGameFiles(){
     	showDialog(DIALOG_PROGRESS);
 
     	paintColor = BitmapFactory.decodeResource(this.getResources(), R.drawable.paintcan_paintcolor, mBitmapOptions);
@@ -394,12 +394,12 @@ public class DashBoard extends Activity {
 					if (mProgress != null) {
 						mProgress.setMessage("Downloading images...");
 					}
-					if (gs.GetImageURList() != null){
-				    	imageUrlList = gs.GetImageURList();
+					if (gs.getImageURList() != null){
+				    	imageUrlList = gs.getImageURList();
 						gs = null;
 						System.gc();
 						
-						DownloadImages();
+						downloadImages();
 						
 						gamePrefs = DashBoard.this.getSharedPreferences("gamefiles", MODE_PRIVATE);
 						Editor editor = gamePrefs.edit();
@@ -439,7 +439,7 @@ public class DashBoard extends Activity {
 			Util.GetAPIKey() + "&format=json&language=en");
     }
     
-    private void DownloadImages(){
+    private void downloadImages(){
 		Handler handler = new Handler() {
 			public void handleMessage(Message message) {
 				if (mProgress == null || mProgress.isShowing() == false) showDialog(DIALOG_PROGRESS);

@@ -135,6 +135,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 				// TODO This is NOT a good solution
 				final SteamUser player = (SteamUser)adapter.getItem(arg2);
 				if (player.steamdId64 == 0){
+					// this only happens when we search
 					Log.v("PlayerList", "64-bit id missing - fetching");
 					Handler handler = new Handler() {
 						public void handleMessage(Message message) {
@@ -193,12 +194,6 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 						setResult(RESULT_OK , result);
 						
 						finish();
-						
-						/*SharedPreferences playerPrefs = PlayerList.this.getSharedPreferences("player", MODE_PRIVATE);
-						Editor editor = playerPrefs.edit();
-						editor.putString("id", String.valueOf(player.steamdId64));
-						editor.commit();
-						startActivity(new Intent(PlayerList.this, Main.class));*/
 					} else {
 						startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
 					}

@@ -155,11 +155,11 @@ public class GameSchemeParser {
 	
 	private Context mContext;
 	
-	public ArrayList<TF2Weapon> GetItemList(){
+	public ArrayList<TF2Weapon> getItemList(){
 		return itemList;
 	}
 	
-	public ArrayList<ImageInfo> GetImageURList(){
+	public ArrayList<ImageInfo> getImageURList(){
 		return imageURList;
 	}
 	
@@ -423,13 +423,13 @@ public class GameSchemeParser {
 		Log.i(Util.GetTag(), "Json: " + (System.currentTimeMillis() - start) + " ms");
 		
 		if (sqlExecList != null){
-			SaveToDB();
+			saveToDB();
 		}
 	}
 	
 	private long start;
 	
-	public void SaveToDB(){
+	public void saveToDB(){
 		new Thread(new Runnable() {
 			public void run() {
 				Log.i(Util.GetTag(), "Saving to database...");

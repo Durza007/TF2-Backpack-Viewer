@@ -28,10 +28,10 @@ public class GameSchemeDownloader implements Runnable {
 	}
 	
 	public void run() {
-		Download();
+		download();
 	}
     
-    public void Download(){
+    public void download(){
 		Handler handler = new Handler() {
 			public void handleMessage(Message message) {
 				switch (message.what) {
@@ -42,7 +42,7 @@ public class GameSchemeDownloader implements Runnable {
 				case HttpConnection.DID_SUCCEED: {
 					GameSchemeParser gs = new GameSchemeParser((String)message.obj, null);
 					mHandler.sendMessage(Message.obtain(mHandler, MSG_SCHEME_END));
-					DownloadImages(gs.GetImageURList());
+					DownloadImages(gs.getImageURList());
 					break;
 				}
 				case HttpConnection.DID_ERROR: {

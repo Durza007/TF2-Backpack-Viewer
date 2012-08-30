@@ -12,14 +12,18 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
+import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
+import com.minder.app.tf2backpack.frontend.DashBoard;
 
 public class DataManager {
 	// Inner classes
@@ -480,5 +484,63 @@ public class DataManager {
 			listener.onPostExecute(null);
 			asyncWorkList.remove(request);
 		}
+    }
+    
+    private class DownloadSchemaFiles extends AsyncTask<Void, Void, Void> {
+		private final AsyncTaskListener listener;
+		private final Request request;
+		
+		public DownloadSchemaFiles(AsyncTaskListener listener, Request request) {
+			this.listener = listener;
+			this.request = request;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			listener.onPreExecute();
+		}
+    	
+		@Override
+		protected Void doInBackground(Void... params) {
+			HttpConnection connection = 
+				new HttpConnection("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
+					Util.GetAPIKey() + "&format=json&language=en");
+			
+			String data = connection.execute();
+			
+			if (data != null) {
+				GameSchemeParser gs = 
+					new GameSchemeParser(data, context);
+				
+				if (gs.error != null){
+					// handle error
+				}
+				
+				// download images
+				if (gs.getImageURList() != null){
+			    	ArrayList<ImageInfo> imageUrlList = gs.getImageURList();
+					gs = null;
+					System.gc();
+					
+					/*downloadImages();
+					
+					gamePrefs = DashBoard.this.getSharedPreferences("gamefiles", MODE_PRIVATE);
+					Editor editor = gamePrefs.edit();
+					editor.putInt("download_version", CURRENT_DOWNLOAD_VERSION);
+					editor.commit();*/
+				} else {
+					// handle error
+				}
+				gs = null;
+				System.gc();
+				Log.d("Dashboard", "GameScheme download complete");
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			listener.onPostExecute(null);
+		}	
     }
 }
