@@ -9,8 +9,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.minder.app.tf2backpack.BuildConfig;
 
@@ -18,6 +22,7 @@ public class HttpConnection {
 	private HttpClient httpClient;
 	private Exception exception;
 	private String url;
+	private boolean isBitmap = false;
 	
 	/**
 	 * Will return the latest exception that was raised
@@ -27,7 +32,27 @@ public class HttpConnection {
 		return exception;
 	}
 	
-	public HttpConnection(String url) {
+	/**
+	 * Constructs a http connection for downloading a string
+	 * @param url
+	 * @return A HttpConnection object used for downloading
+	 */
+	public static HttpConnection string(String url) {
+		return new HttpConnection(url);
+	}
+	
+	/**
+	 * Constructs a http connection for downloading a bitmap
+	 * @param url
+	 * @return A HttpConnection object used for downloading
+	 */
+	public static HttpConnection bitmap(String url) {
+		HttpConnection conn = new HttpConnection(url);
+		conn.isBitmap = true;
+		return conn;
+	}
+	
+	private HttpConnection(String url) {
 		this.url = url;
 		this.exception = null;
 		
@@ -36,10 +61,10 @@ public class HttpConnection {
 	}
 	
 	/**
-	 * Executes http request
+	 * Executes the http request
 	 * @return The data - null if it failed
 	 */
-	public String execute() {	
+	public Object execute() {	
 		HttpResponse response = null;
 		try {
 			response = httpClient.execute(new HttpGet(url));
@@ -55,10 +80,14 @@ public class HttpConnection {
 			exception = e;
 		}
 		
-		String result = null;
+		Object result = null;
 		if (response != null) {
 			try {
-				result = processEntity(response.getEntity());
+				if (isBitmap) {
+					result = processBitmapEntity(response.getEntity());
+				} else {
+					result = processEntity(response.getEntity());
+				}
 			} catch (IllegalStateException e) {
 				if (BuildConfig.DEBUG) {
 					e.printStackTrace();
@@ -86,5 +115,10 @@ public class HttpConnection {
 		}
 		
 		return result.toString();
+	}
+	
+	private Bitmap processBitmapEntity(HttpEntity entity) throws IOException {
+		BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
+		return BitmapFactory.decodeStream(bufHttpEntity.getContent());
 	}
 }

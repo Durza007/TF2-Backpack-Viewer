@@ -155,10 +155,10 @@ public class DataManager {
 			long steamId64 = params[0].steamdId64;
 			
 			// try to fetch online first
-			HttpConnection connection = new HttpConnection("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
+			HttpConnection connection = HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
 					Util.GetAPIKey() + "&SteamID=" + steamId64);
 			
-			String data = connection.execute();
+			String data = (String) connection.execute();
 			// fetch latest exception, if there is one
 			request.exception = connection.getException();
 
@@ -503,10 +503,10 @@ public class DataManager {
 		@Override
 		protected Void doInBackground(Void... params) {
 			HttpConnection connection = 
-				new HttpConnection("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
+				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
 					Util.GetAPIKey() + "&format=json&language=en");
 			
-			String data = connection.execute();
+			String data = (String) connection.execute();
 			
 			if (data != null) {
 				GameSchemeParser gs = 
