@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack.backend;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -12,18 +13,23 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
-import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.PersonaState;
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
-import com.minder.app.tf2backpack.frontend.DashBoard;
 
 public class DataManager {
 	// Inner classes
@@ -486,9 +492,25 @@ public class DataManager {
 		}
     }
     
+    /**
+     * This behemoth downloads all the tf2 schema files
+     */
     private class DownloadSchemaFiles extends AsyncTask<Void, Void, Void> {
+    	private final static int NUMBER_OF_IMAGE_THREADS = 3;
+    	
 		private final AsyncTaskListener listener;
 		private final Request request;
+		
+		private boolean imagesLeft = true;
+		private final Object imageListLock = new Object();
+		private ArrayList<ImageInfo> imageUrlList;
+		
+		private final Object resultLock = new Object();
+		private int finishedThreads;
+		
+		private Bitmap paintColor;
+		private Bitmap teamPaintRed;
+		private Bitmap teamPaintBlue;
 		
 		public DownloadSchemaFiles(AsyncTaskListener listener, Request request) {
 			this.listener = listener;
@@ -518,20 +540,42 @@ public class DataManager {
 				
 				// download images
 				if (gs.getImageURList() != null){
-			    	ArrayList<ImageInfo> imageUrlList = gs.getImageURList();
-					gs = null;
-					System.gc();
+			    	imageUrlList = gs.getImageURList();
+			    	// set this to null since it as pretty big object
+			    	gs = null;
+			    	
+			    	final BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+			    	bitmapOptions.inScaled = false;
+			    	paintColor = BitmapFactory.decodeResource(context.getResources(), R.drawable.paintcan_paintcolor, bitmapOptions);
+			    	teamPaintRed = BitmapFactory.decodeResource(context.getResources(), R.drawable.teampaint_red_mask, bitmapOptions);
+			    	teamPaintBlue = BitmapFactory.decodeResource(context.getResources(), R.drawable.teampaint_blu_mask, bitmapOptions);
 					
-					// TODO 
-					for (ImageInfo image : imageUrlList) {
-						
-					}
-					/*downloadImages();
-					
-					gamePrefs = DashBoard.this.getSharedPreferences("gamefiles", MODE_PRIVATE);
-					Editor editor = gamePrefs.edit();
-					editor.putInt("download_version", CURRENT_DOWNLOAD_VERSION);
-					editor.commit();*/
+			    	// start up some download threads
+			    	for (int index = 0; index < NUMBER_OF_IMAGE_THREADS; index++) {
+			    		ImageDownloader downloader = new ImageDownloader(index);
+			    		Thread thread = new Thread(downloader);
+			    		thread.setName("ImageDownloadThread #" + index);
+			    		thread.start();
+			    	}
+			    	
+			    	// wait for download threads to finish
+			    	while (true) {
+			    		synchronized (resultLock) {
+			    			if (finishedThreads == NUMBER_OF_IMAGE_THREADS) {
+			    				break;
+			    			} else {
+			    				try {
+									resultLock.wait();
+								} catch (InterruptedException e) {
+									// Doesn't matter
+								}
+			    			}
+			    		}
+			    	}
+			    	
+			    	paintColor.recycle();
+			    	teamPaintBlue.recycle();
+			    	teamPaintRed.recycle();
 				} else {
 					// handle error
 				}
@@ -545,6 +589,112 @@ public class DataManager {
 		@Override
 		protected void onPostExecute(Void result) {
 			listener.onPostExecute(null);
-		}	
+		}
+		
+		private class ImageDownloader implements Runnable {
+			private int index;
+			
+			public ImageDownloader(int index) {
+				this.index = index;
+			}
+			
+			public void run() {
+				while (imagesLeft) {
+					ImageInfo imageInfo = null;
+					synchronized (imageListLock) {
+						if (!imageUrlList.isEmpty()) {
+							imageInfo = imageUrlList.remove(0);
+						} else {
+							imagesLeft = false;
+						}
+						imageListLock.notify();
+					}
+					
+					// TODO Better image download error handling
+					HttpConnection conn = HttpConnection.bitmap(imageInfo.getLink());
+					Object data = conn.execute();
+					if (data != null) {
+						// save
+					} else {
+						if (BuildConfig.DEBUG) {
+							Log.i("DataManager", "Failed to download image with id: " + imageInfo.getDefIndex());
+						}
+					}
+				}
+				
+				// tell the world we are done here
+				synchronized (resultLock) {
+					finishedThreads++;
+					resultLock.notifyAll();
+				}
+			}
+		}
+		
+	   public class ImageSaverTask implements Runnable {
+	    	private Bitmap image;
+	    	private ImageInfo imageInfo;
+	    	private boolean isPaintCan;
+	    	private boolean isTeamPaintCan;
+	    	
+			public ImageSaverTask(Bitmap image, ImageInfo info){
+				this.image = image;
+				this.imageInfo = info;
+				if (info.getColor() != 0) {
+					this.isPaintCan = true;
+
+					if (info.getColor2() != 0) {
+						this.isTeamPaintCan = true;
+					}
+				} else {
+					this.isPaintCan = false;
+				}
+			}
+
+			public void run() {
+				try {
+					if (image != null){
+						if (isPaintCan){
+							if (!isTeamPaintCan) {
+								// Regular paintcan
+								Bitmap newBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+								Canvas canvas = new Canvas(newBitmap);
+								Paint paint = new Paint();
+								paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor(), 1));
+								// draw paintcan
+								canvas.drawBitmap(image, 0, 0, null);
+								// draw paint color
+								canvas.drawBitmap(paintColor, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
+								image.recycle();
+								image = newBitmap;
+							} else {
+								// Team-paintcan
+								Bitmap newBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+								Canvas canvas = new Canvas(newBitmap);
+								Paint paint = new Paint();
+								paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor(), 1));
+								// draw paintcan
+								canvas.drawBitmap(image, 0, 0, null);
+								// draw first paint color
+								canvas.drawBitmap(teamPaintRed, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
+								
+								paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor2(), 1));
+								canvas.drawBitmap(teamPaintBlue, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
+								
+								image.recycle();
+								image = newBitmap;
+							}
+						}
+						FileOutputStream fos = context.openFileOutput(imageInfo.getDefIndex() + ".png", 0);
+						boolean saved = image.compress(CompressFormat.PNG, 100, fos);
+						fos.flush();
+						fos.close();
+						image.recycle();
+						// TODO maybe check if saved was false
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+	    }
     }
 }
