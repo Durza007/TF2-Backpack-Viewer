@@ -522,6 +522,10 @@ public class DataManager {
 					gs = null;
 					System.gc();
 					
+					// TODO 
+					for (ImageInfo image : imageUrlList) {
+						
+					}
 					/*downloadImages();
 					
 					gamePrefs = DashBoard.this.getSharedPreferences("gamefiles", MODE_PRIVATE);
