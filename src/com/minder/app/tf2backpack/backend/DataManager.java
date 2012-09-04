@@ -55,6 +55,7 @@ public class DataManager {
 	private final static int TYPE_PLAYER_NAME = 8;
 	private final static int TYPE_PLAYER_INFO = 9;
 	private final static int TYPE_PLAYER_ITEM_LIST = 10;
+	private final static int TYPE_SCHEMA_FILES = 11;
 	
 	private Context context;
 	
@@ -102,6 +103,15 @@ public class DataManager {
 		GetPlayerInfo asyncTask = new GetPlayerInfo(listener, request);
 		
 		asyncTask.execute(players);
+		
+		return request;
+	}
+	
+	public Request requestSchemaFilesDownload(AsyncTaskListener listener) {
+		Request request = new Request(TYPE_SCHEMA_FILES);	
+		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request);
+		
+		asyncTask.execute();
 		
 		return request;
 	}
