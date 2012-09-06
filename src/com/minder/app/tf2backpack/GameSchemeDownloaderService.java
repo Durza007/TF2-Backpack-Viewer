@@ -61,6 +61,7 @@ public class GameSchemeDownloaderService extends Service {
 			.setOngoing(true)
             .setProgress(100, 0, true)
             .setContentTitle(getResources().getText(R.string.starting_download))
+            .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.icon);
 			
 			Notification notification = builder.build();
@@ -72,11 +73,16 @@ public class GameSchemeDownloaderService extends Service {
 
 		public void onProgressUpdate(ProgressUpdate progress) {
 			if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
+				
+				final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+		        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
 				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
 				.setOngoing(true)
-	            .setProgress(progress.totalCount, 0, true)
+	            .setProgress(progress.totalCount, 0, false)
 	            .setContentTitle(getResources().getText(R.string.starting_download))
+	            .setContentIntent(pendingIntent)
+	            .setSubText(progress.count + "/" + progress.totalCount)
 	            .setSmallIcon(R.drawable.icon);
 				
 				Notification notification = builder.build();
@@ -92,10 +98,16 @@ public class GameSchemeDownloaderService extends Service {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Removing notification");
 			
+			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+			
 			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
-			.setOngoing(true)
+			.setOngoing(false)
             .setContentTitle(getResources().getText(R.string.download_successful))
-            .setSmallIcon(R.drawable.icon);
+            .setContentIntent(pendingIntent)
+            .setSmallIcon(R.drawable.icon)
+            .setAutoCancel(true);
+			
 			
 			Notification notification = builder.build();
 			
