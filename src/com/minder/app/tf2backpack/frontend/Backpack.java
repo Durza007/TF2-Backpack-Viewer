@@ -43,6 +43,7 @@ import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.Item;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
 
 public class Backpack extends Activity {
 	public interface OnLayoutReadyListener {
@@ -235,7 +236,7 @@ public class Backpack extends Activity {
 	    			"Please wait...", "Downloading player data...", true);
 		}
 
-		public void onProgressUpdate(Object object) {
+		public void onProgressUpdate(ProgressUpdate object) {
 			// nothing
 		}
 

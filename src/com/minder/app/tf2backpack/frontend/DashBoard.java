@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -20,19 +18,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.LightingColorFilter;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,15 +33,14 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.minder.app.tf2backpack.HttpConnection;
-import com.minder.app.tf2backpack.Internet;
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.Util;
-import com.minder.app.tf2backpack.backend.GameSchemeParser;
+import com.minder.app.tf2backpack.backend.AsyncTaskListener;
+import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
 
 public class DashBoard extends Activity {
@@ -343,7 +331,21 @@ public class DashBoard extends Activity {
     }
     
     private void downloadGameFiles(){
-    	showDialog(DIALOG_PROGRESS);
+    	App.getDataManager().requestSchemaFilesDownload(new AsyncTaskListener() {
+			public void onPreExecute() {
+				showDialog(DIALOG_PROGRESS);
+			}
+
+			public void onProgressUpdate(ProgressUpdate progress) {
+				if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
+					mProgress.setMessage("Downloading images...");
+				}
+			}
+
+			public void onPostExecute(Object object) {
+				mProgress.cancel();
+			}
+		});
 
     }
     

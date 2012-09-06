@@ -1,9 +1,11 @@
 package com.minder.app.tf2backpack.backend;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +51,10 @@ public class DataManager {
 			return this.exception;
 		}
 	}
+	
+	public final static int PROGRESS_DOWNLOADING_SCHEMA_UPDATE = 1;
+	public final static int PROGRESS_DOWNLOADING_IMAGES = 2;
+	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 3;
 	
 	// Members
 	private final static int TYPE_FRIEND_LIST = 7;
@@ -492,7 +498,7 @@ public class DataManager {
 		
 		@Override
 		protected void onProgressUpdate(SteamUser[]... users) {
-			listener.onProgressUpdate(users);
+			listener.onProgressUpdate(new ProgressUpdate(users[0]));
 		}
 		
 		@Override
@@ -505,13 +511,12 @@ public class DataManager {
     /**
      * This behemoth downloads all the tf2 schema files
      */
-    private class DownloadSchemaFiles extends AsyncTask<Void, Void, Void> {
+    private class DownloadSchemaFiles extends AsyncTask<Void, ProgressUpdate, Void> {
     	private final static int NUMBER_OF_IMAGE_THREADS = 3;
     	
 		private final AsyncTaskListener listener;
 		private final Request request;
 		
-		private boolean imagesLeft = true;
 		private final Object imageListLock = new Object();
 		private ArrayList<ImageInfo> imageUrlList;
 		
@@ -560,6 +565,18 @@ public class DataManager {
 			    	teamPaintRed = BitmapFactory.decodeResource(context.getResources(), R.drawable.teampaint_red_mask, bitmapOptions);
 			    	teamPaintBlue = BitmapFactory.decodeResource(context.getResources(), R.drawable.teampaint_blu_mask, bitmapOptions);
 					
+			    	long start = System.nanoTime();
+			    	int totalDownloads = 0;
+	                for (ImageInfo ii : imageUrlList){
+                        final File file = new File(context.getFilesDir().getPath() + "/" + ii.getDefIndex() + ".png");
+                        if (!file.exists()){
+                                totalDownloads++;
+                        }
+	                }
+	                Log.d("DataManager", "File image check: " + (System.nanoTime() - start) / 1000000 + " ms");
+	                
+			    	publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_IMAGES, totalDownloads, 0));
+			    	
 			    	// start up some download threads
 			    	for (int index = 0; index < NUMBER_OF_IMAGE_THREADS; index++) {
 			    		ImageDownloader downloader = new ImageDownloader(index);
@@ -597,6 +614,11 @@ public class DataManager {
 		}
 		
 		@Override
+		protected void onProgressUpdate(ProgressUpdate... progress) {
+			listener.onProgressUpdate(progress[0]);
+		}
+		
+		@Override
 		protected void onPostExecute(Void result) {
 			listener.onPostExecute(null);
 		}
@@ -609,22 +631,26 @@ public class DataManager {
 			}
 			
 			public void run() {
-				while (imagesLeft) {
+				while (true) {
 					ImageInfo imageInfo = null;
 					synchronized (imageListLock) {
 						if (!imageUrlList.isEmpty()) {
 							imageInfo = imageUrlList.remove(0);
 						} else {
-							imagesLeft = false;
+							break;
 						}
 						imageListLock.notify();
 					}
 					
 					// TODO Better image download error handling
-					HttpConnection conn = HttpConnection.bitmap(imageInfo.getLink());
-					Object data = conn.execute();
+					Object data = null;
+					if (imageInfo.getLink().length() != 0) {
+						HttpConnection conn = HttpConnection.bitmap(imageInfo.getLink());
+						data = conn.execute();
+					}
 					if (data != null) {
 						// save
+						saveImage((Bitmap)data, imageInfo);
 					} else {
 						if (BuildConfig.DEBUG) {
 							Log.i("DataManager", "Failed to download image with id: " + imageInfo.getDefIndex());
@@ -638,29 +664,22 @@ public class DataManager {
 					resultLock.notifyAll();
 				}
 			}
-		}
-		
-	   public class ImageSaverTask implements Runnable {
-	    	private Bitmap image;
-	    	private ImageInfo imageInfo;
-	    	private boolean isPaintCan;
-	    	private boolean isTeamPaintCan;
-	    	
-			public ImageSaverTask(Bitmap image, ImageInfo info){
-				this.image = image;
-				this.imageInfo = info;
-				if (info.getColor() != 0) {
-					this.isPaintCan = true;
+			
+			public void saveImage(Bitmap image, ImageInfo imageInfo) {
+		    	boolean isPaintCan = false;
+		    	boolean isTeamPaintCan = false;
+				
+		    	// get some info about the image
+				if (imageInfo.getColor() != 0) {
+					isPaintCan = true;
 
-					if (info.getColor2() != 0) {
-						this.isTeamPaintCan = true;
+					if (imageInfo.getColor2() != 0) {
+						isTeamPaintCan = true;
 					}
 				} else {
-					this.isPaintCan = false;
+					isPaintCan = false;
 				}
-			}
-
-			public void run() {
+				
 				try {
 					if (image != null){
 						if (isPaintCan){
@@ -705,6 +724,6 @@ public class DataManager {
 					e.printStackTrace();
 				}
 			}
-	    }
+		}
     }
 }

@@ -53,6 +53,7 @@ import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
 
 public class PlayerList extends Activity implements ListView.OnScrollListener{
 	Handler mHandler = new Handler();
@@ -429,7 +430,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
             setProgressBarIndeterminateVisibility(true);
 		}
 
-		public void onProgressUpdate(Object object) {
+		public void onProgressUpdate(ProgressUpdate object) {
 			// nothing
 		}
 
@@ -636,7 +637,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 			setProgressBarIndeterminateVisibility(true);
 		}
 
-		public void onProgressUpdate(Object object) {
+		public void onProgressUpdate(ProgressUpdate object) {
 			adapter.notifyDataSetChanged();
 		}
 

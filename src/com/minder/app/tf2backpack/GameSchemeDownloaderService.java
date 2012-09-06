@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
 
 import android.app.NotificationManager;
 import android.app.Service;
@@ -45,7 +46,7 @@ public class GameSchemeDownloaderService extends Service {
 			NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		}
 
-		public void onProgressUpdate(Object object) {
+		public void onProgressUpdate(ProgressUpdate object) {
 		}
 
 		public void onPostExecute(Object object) {
