@@ -6,10 +6,12 @@ import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.frontend.DashBoard;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -53,6 +55,9 @@ public class GameSchemeDownloaderService extends Service {
 		public void onPreExecute() {
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			
+			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+			
 			// build the notification differently depending on which platform
 			// we are running on
 			if (android.os.Build.VERSION.SDK_INT >= 11) {
@@ -61,7 +66,8 @@ public class GameSchemeDownloaderService extends Service {
 				final Notification.Builder builder = new Notification.Builder(GameSchemeDownloaderService.this)
 				.setOngoing(true)
 				.setContent(new RemoteViews(getApplicationContext().getPackageName(),
-                        R.layout.download_progress_notification));
+                        R.layout.download_progress_notification))
+                .setSmallIcon(R.drawable.icon);
 				
 				if (android.os.Build.VERSION.SDK_INT >= 16) {
 					notification = builder.build();
@@ -70,10 +76,12 @@ public class GameSchemeDownloaderService extends Service {
 				}
 			} else {
 				// configure the notification
-				this.notification = new Notification();
+				this.notification = new Notification(R.drawable.icon, "Downloading TF2 files...", System.currentTimeMillis());
+				notification.contentIntent = pendingIntent;
 				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
                         R.layout.download_progress_notification);
 				notification.flags = Notification.FLAG_ONGOING_EVENT;
+				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
 			}
 			
 			if (BuildConfig.DEBUG)
@@ -86,12 +94,22 @@ public class GameSchemeDownloaderService extends Service {
 				notification.contentView.setTextViewText(R.id.textViewStatus, getResources().getText(R.string.downloading_images));
 				notification.contentView.setProgressBar(R.id.progressBarDownload, progress.totalCount, 0, false);
 				
+				if (BuildConfig.DEBUG)
+					Log.d(DEBUG_TAG, "Updating notification");
 				final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 				notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 			}
 		}
 
 		public void onPostExecute(Object object) {
+			if (BuildConfig.DEBUG)
+				Log.d(DEBUG_TAG, "Removing notification");
+			
+			notification.flags = 0;
+			notification.contentView.setTextViewText(R.id.textViewStatus, getResources().getText(R.string.download_successful));
+			
+			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 		}
     };
 

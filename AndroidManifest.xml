@@ -129,6 +129,7 @@
         </activity>
         <activity android:name=".ItemListSelect" >
         </activity>
+        <service android:name=".GameSchemeDownloaderService"></service>
     </application>
 
 </manifest>

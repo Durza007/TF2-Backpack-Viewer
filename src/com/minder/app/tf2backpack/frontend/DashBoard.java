@@ -33,6 +33,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
@@ -322,7 +323,7 @@ public class DashBoard extends Activity {
     }
     
     private void downloadGameFiles(){
-    	App.getDataManager().requestSchemaFilesDownload(new AsyncTaskListener() {
+    	/*App.getDataManager().requestSchemaFilesDownload(new AsyncTaskListener() {
 			public void onPreExecute() {
 				showDialog(DIALOG_PROGRESS);
 			}
@@ -336,8 +337,10 @@ public class DashBoard extends Activity {
 			public void onPostExecute(Object object) {
 				mProgress.cancel();
 			}
-		});
+		});*/
 
+    	Intent intent = new Intent(this, GameSchemeDownloaderService.class);
+    	startService(intent);
     }
     
     private class DownloadNewsTask extends AsyncTask<Void, Void, NewsItem>{

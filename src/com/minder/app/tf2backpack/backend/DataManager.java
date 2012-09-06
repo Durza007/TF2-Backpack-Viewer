@@ -567,10 +567,11 @@ public class DataManager {
 					
 			    	long start = System.nanoTime();
 			    	int totalDownloads = 0;
-	                for (ImageInfo ii : imageUrlList){
-                        final File file = new File(context.getFilesDir().getPath() + "/" + ii.getDefIndex() + ".png");
-                        if (!file.exists()){
-                                totalDownloads++;
+	                for (int index = 0; index < imageUrlList.size(); index++){
+                        final File file = new File(context.getFilesDir().getPath() + "/" + imageUrlList.get(index).getDefIndex() + ".png");
+                        if (file.exists()){
+                        	imageUrlList.remove(index);
+                        	index--;
                         }
 	                }
 	                Log.d("DataManager", "File image check: " + (System.nanoTime() - start) / 1000000 + " ms");
