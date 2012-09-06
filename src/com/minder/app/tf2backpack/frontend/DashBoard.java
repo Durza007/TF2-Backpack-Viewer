@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -18,7 +17,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,7 +37,6 @@ import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager;
-import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
 
@@ -67,16 +64,10 @@ public class DashBoard extends Activity {
 	private boolean newsLoaded = false;
 	
 	private int gameFilesVersion;
-	private int failedDownloads;
 	private int totalDownloads;
 	private int numberOfDownloads;
-	private String errorMessage;
 	private boolean resetImages;
 	
-	private Bitmap paintColor;
-	private Bitmap teamPaintRed;
-	private Bitmap teamPaintBlue;
-	private ArrayList<ImageInfo> imageUrlList;
 	//private WorkerSystem workerSystem;
 	
     /** Called when the activity is first created. */
