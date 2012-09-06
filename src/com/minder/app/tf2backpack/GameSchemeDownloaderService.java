@@ -16,6 +16,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -48,9 +49,7 @@ public class GameSchemeDownloaderService extends Service {
     	App.getDataManager().requestSchemaFilesDownload(gameSchemeListener);
     }
     
-    AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {
-    	private Notification notification;
-    	
+    AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	
     	@TargetApi(16)
 		public void onPreExecute() {
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -58,31 +57,13 @@ public class GameSchemeDownloaderService extends Service {
 			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			
-			// build the notification differently depending on which platform
-			// we are running on
-			if (android.os.Build.VERSION.SDK_INT >= 11) {
-			// configure the notification
-				
-				final Notification.Builder builder = new Notification.Builder(GameSchemeDownloaderService.this)
-				.setOngoing(true)
-				.setContent(new RemoteViews(getApplicationContext().getPackageName(),
-                        R.layout.download_progress_notification))
-                .setSmallIcon(R.drawable.icon);
-				
-				if (android.os.Build.VERSION.SDK_INT >= 16) {
-					notification = builder.build();
-				} else {
-					notification = builder.getNotification();
-				}
-			} else {
-				// configure the notification
-				this.notification = new Notification(R.drawable.icon, "Downloading TF2 files...", System.currentTimeMillis());
-				notification.contentIntent = pendingIntent;
-				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
-                        R.layout.download_progress_notification);
-				notification.flags = Notification.FLAG_ONGOING_EVENT;
-				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
-			}
+			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
+			.setOngoing(true)
+            .setProgress(100, 0, true)
+            .setContentTitle(getResources().getText(R.string.starting_download))
+            .setSmallIcon(R.drawable.icon);
+			
+			Notification notification = builder.build();
 			
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Showing notification");
@@ -91,8 +72,14 @@ public class GameSchemeDownloaderService extends Service {
 
 		public void onProgressUpdate(ProgressUpdate progress) {
 			if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
-				notification.contentView.setTextViewText(R.id.textViewStatus, getResources().getText(R.string.downloading_images));
-				notification.contentView.setProgressBar(R.id.progressBarDownload, progress.totalCount, 0, false);
+
+				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
+				.setOngoing(true)
+	            .setProgress(progress.totalCount, 0, true)
+	            .setContentTitle(getResources().getText(R.string.starting_download))
+	            .setSmallIcon(R.drawable.icon);
+				
+				Notification notification = builder.build();
 				
 				if (BuildConfig.DEBUG)
 					Log.d(DEBUG_TAG, "Updating notification");
@@ -105,8 +92,12 @@ public class GameSchemeDownloaderService extends Service {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Removing notification");
 			
-			notification.flags = 0;
-			notification.contentView.setTextViewText(R.id.textViewStatus, getResources().getText(R.string.download_successful));
+			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
+			.setOngoing(true)
+            .setContentTitle(getResources().getText(R.string.download_successful))
+            .setSmallIcon(R.drawable.icon);
+			
+			Notification notification = builder.build();
 			
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
