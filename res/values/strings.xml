@@ -70,4 +70,5 @@
     <string name="enter_a_number_1_99">enter a number (1 – 99)</string>
     <string name="default_string">Default</string>
     <string name="downloading_images">Downloading images…</string>
+    <string name="parsing_schema">Parsing data…</string>
 </resources>

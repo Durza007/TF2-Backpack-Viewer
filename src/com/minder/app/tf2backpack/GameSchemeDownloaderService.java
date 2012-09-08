@@ -2,12 +2,6 @@ package com.minder.app.tf2backpack;
 
 import java.io.File;
 
-import com.minder.app.tf2backpack.backend.AsyncTaskListener;
-import com.minder.app.tf2backpack.backend.DataManager;
-import com.minder.app.tf2backpack.backend.DataManager.Request;
-import com.minder.app.tf2backpack.backend.ProgressUpdate;
-import com.minder.app.tf2backpack.frontend.DashBoard;
-
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -15,10 +9,18 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.RemoteViews;
+
+import com.minder.app.tf2backpack.backend.AsyncTaskListener;
+import com.minder.app.tf2backpack.backend.DataManager;
+import com.minder.app.tf2backpack.backend.DataManager.Request;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.frontend.DashBoard;
 
 public class GameSchemeDownloaderService extends Service {
 	private static final String DEBUG_TAG = "GameSchemeDownloaderService";
@@ -45,8 +47,17 @@ public class GameSchemeDownloaderService extends Service {
     }
     
     private void handleCommand(Intent intent) {
+    	boolean refreshImages = intent.getExtras().getBoolean("refreshImages");
+    	
     	// start the request
-    	App.getDataManager().requestSchemaFilesDownload(gameSchemeListener);
+    	App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages);
+    }
+    
+    private void saveGameSchemeDownloaded() {
+    	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
+        Editor editor = gamePrefs.edit();
+        editor.putInt("download_version", DataManager.CURRENT_GAMESCHEMA_VERSION);
+        editor.commit();
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	
@@ -62,7 +73,7 @@ public class GameSchemeDownloaderService extends Service {
             .setProgress(100, 0, true)
             .setContentTitle(getResources().getText(R.string.starting_download))
             .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.icon);
+            .setSmallIcon(android.R.drawable.stat_sys_download);
 			
 			Notification notification = builder.build();
 			
@@ -71,19 +82,39 @@ public class GameSchemeDownloaderService extends Service {
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 		}
 
-		public void onProgressUpdate(ProgressUpdate progress) {
-			if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
+		public void onProgressUpdate(ProgressUpdate progress) {	
+			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+			
+			if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
+				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
+				.setOngoing(true)
+	            .setProgress(100, 0, true)
+	            .setContentTitle(getResources().getText(R.string.parsing_schema))
+	            .setContentIntent(pendingIntent)
+	            .setSmallIcon(android.R.drawable.stat_sys_download);
 				
-				final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
-		        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+				Notification notification = builder.build();
+				
+				if (BuildConfig.DEBUG)
+					Log.d(DEBUG_TAG, "Updating notification");
+				final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+				notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
+				
+			} else if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
+				// this means game files are downloaded
+				saveGameSchemeDownloaded();
 
 				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
 				.setOngoing(true)
-	            .setProgress(progress.totalCount, 0, false)
-	            .setContentTitle(getResources().getText(R.string.starting_download))
+	            .setProgress(progress.totalCount, progress.count, false)
+	            .setContentTitle(getResources().getText(R.string.downloading_images))
 	            .setContentIntent(pendingIntent)
-	            .setSubText(progress.count + "/" + progress.totalCount)
-	            .setSmallIcon(R.drawable.icon);
+	            .setSmallIcon(android.R.drawable.stat_sys_download);
+				
+				if (Build.VERSION.SDK_INT <= 10) {
+					builder.setSubText(progress.count + "/" + progress.totalCount);
+				}
 				
 				Notification notification = builder.build();
 				
@@ -105,28 +136,16 @@ public class GameSchemeDownloaderService extends Service {
 			.setOngoing(false)
             .setContentTitle(getResources().getText(R.string.download_successful))
             .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.icon)
-            .setAutoCancel(true);
-			
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setAutoCancel(true);	
 			
 			Notification notification = builder.build();
 			
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
+			
+			// we are done so stop the service
+			GameSchemeDownloaderService.this.stopSelf();
 		}
     };
-
-    /**
-     * Deletes all item images
-     */
-    private void deleteItemImages() {
-		File file = new File(this.getFilesDir().getPath());
-		if (file.isDirectory()) {
-	        String[] children = file.list();
-	        for (int i = 0; i < children.length; i++) {
-	            new File(file, children[i]).delete();
-	        }
-	    }
-
-    }
 }

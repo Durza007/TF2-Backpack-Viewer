@@ -272,7 +272,6 @@ public class GameSchemeParser {
 		mContext = context;
 		
 		if (BuildConfig.DEBUG) {
-			Log.d("GameSchemeParser", data);
 			Log.d("GameSchemeParser", "message size: " + data.length());
 		}
 		
@@ -425,15 +424,13 @@ public class GameSchemeParser {
 		if (sqlExecList != null){
 			saveToDB();
 		}
-	}
-	
-	private long start;
+	}	
 	
 	public void saveToDB(){
 		new Thread(new Runnable() {
 			public void run() {
 				Log.i(Util.GetTag(), "Saving to database...");
-				start = System.currentTimeMillis();
+				long start = System.currentTimeMillis();
 				DataBaseHelper db = new DataBaseHelper(mContext);
 				SQLiteDatabase sqlDb = db.getWritableDatabase();
 				

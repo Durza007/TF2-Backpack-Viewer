@@ -42,7 +42,6 @@ import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
 
 public class DashBoard extends Activity {
-	private final int CURRENT_DOWNLOAD_VERSION = 1;
 	private final int DIALOG_DOWNLOAD_GAMEFILES = 0;
 	private final int DIALOG_PROGRESS = 1;
 	private final int DIALOG_UPDATE_GAMEFILES = 2;
@@ -136,6 +135,7 @@ public class DashBoard extends Activity {
         gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
         gameFilesVersion = gamePrefs.getInt("download_version", 0);
         
+        // TODO Old stuff - rewrite
         String action = this.getIntent().getAction();
         if (action != null){
             if (action.equals("com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES")){
@@ -144,7 +144,7 @@ public class DashBoard extends Activity {
         }
         
         if (gameFilesVersion > 0){
-        	if (gameFilesVersion < CURRENT_DOWNLOAD_VERSION){
+        	if (gameFilesVersion < DataManager.CURRENT_GAMESCHEMA_VERSION){
         		showDialog(DIALOG_UPDATE_GAMEFILES);
         	}
         } else {
@@ -225,121 +225,101 @@ public class DashBoard extends Activity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-        case DIALOG_DOWNLOAD_GAMEFILES:      	
-        	Context mContext = getApplicationContext();
-        	LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-        	View layout = inflater.inflate(R.layout.dialog_download_reset_images,
-        	                               (ViewGroup) findViewById(R.id.LinearLayout01));
-
-        	CheckBox cb = (CheckBox)layout.findViewById(R.id.checkBoxRefreshImages);
-        	cb.setOnCheckedChangeListener(onCheckedChangeListener);
-        	//return dialog;
-        	
-        	return new AlertDialog.Builder(this)
+	        case DIALOG_DOWNLOAD_GAMEFILES:      	
+	        	Context mContext = getApplicationContext();
+	        	LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+	        	View layout = inflater.inflate(R.layout.dialog_download_reset_images,
+	        	                               (ViewGroup) findViewById(R.id.LinearLayout01));
+	
+	        	CheckBox cb = (CheckBox)layout.findViewById(R.id.checkBoxRefreshImages);
+	        	cb.setOnCheckedChangeListener(onCheckedChangeListener);
+	        	//return dialog;
+	        	
+	        	return new AlertDialog.Builder(this)
+		            .setIcon(R.drawable.alert_dialog_icon)
+		            .setTitle(R.string.download_notice)
+	        		.setView(layout)
+	        		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int whichButton) {
+	                    	downloadGameFiles(resetImages);
+	                    }
+	                })
+	                .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int whichButton) {
+	                    	if (gameFilesVersion == 0) {
+	                    		finish();
+	                    	}
+	                    }
+	                })
+	        		.create();
+	        	
+	        	
+	            /*return new AlertDialog.Builder(this)
+	                .setIcon(R.drawable.alert_dialog_icon)
+	                .setTitle(R.string.download_notice)
+	                .setMessage(R.string.gamescheme_downloadinfo)
+	                .setMultiChoiceItems(new CharSequence[] {"Reset images"}, null, onMultiListener)
+	                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int whichButton) {
+	                    	/*gameSchemePref = GameSchemeDownloader.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
+	                    	GameSchemeDownloader.this.setContentView(R.layout.downloader);
+	                    	
+	                    	downloadText = (TextView)findViewById(R.id.TextViewDownloadStatus);
+	                    	
+	                    	imageDownloadProgress = (ProgressBar)findViewById(R.id.ProgressBarImageDownload);
+	                    	imageDownloadProgress.setProgress(0);
+	                    	Download();*/
+	                    	/*if (resetImages) {
+	                    		DeleteItemImages();
+	                    	}
+	                    	DownloadGameFiles();
+	                    }
+	                })
+	                /*.setNeutralButton(R.string.alert_dialog_something, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int whichButton) {
+	
+	
+	                    }
+	                })*/
+	                /*.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int whichButton) {
+	                    	finish();
+	                    }
+	                })
+	                .create();*/
+	        case DIALOG_UPDATE_GAMEFILES:
+	            return new AlertDialog.Builder(this)
 	            .setIcon(R.drawable.alert_dialog_icon)
 	            .setTitle(R.string.download_notice)
-        		.setView(layout)
-        		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    	if (resetImages) {
-                    		// TODO HANDLE THIS SHIT
-                    	}
-                    	downloadGameFiles();
-                    }
-                })
-                .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    	if (gameFilesVersion == 0) {
-                    		finish();
-                    	}
-                    }
-                })
-        		.create();
-        	
-        	
-            /*return new AlertDialog.Builder(this)
-                .setIcon(R.drawable.alert_dialog_icon)
-                .setTitle(R.string.download_notice)
-                .setMessage(R.string.gamescheme_downloadinfo)
-                .setMultiChoiceItems(new CharSequence[] {"Reset images"}, null, onMultiListener)
-                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    	/*gameSchemePref = GameSchemeDownloader.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
-                    	GameSchemeDownloader.this.setContentView(R.layout.downloader);
-                    	
-                    	downloadText = (TextView)findViewById(R.id.TextViewDownloadStatus);
-                    	
-                    	imageDownloadProgress = (ProgressBar)findViewById(R.id.ProgressBarImageDownload);
-                    	imageDownloadProgress.setProgress(0);
-                    	Download();*/
-                    	/*if (resetImages) {
-                    		DeleteItemImages();
-                    	}
-                    	DownloadGameFiles();
-                    }
-                })
-                /*.setNeutralButton(R.string.alert_dialog_something, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-
-                    }
-                })*/
-                /*.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    	finish();
-                    }
-                })
-                .create();*/
-        case DIALOG_UPDATE_GAMEFILES:
-            return new AlertDialog.Builder(this)
-            .setIcon(R.drawable.alert_dialog_icon)
-            .setTitle(R.string.download_notice)
-            .setMessage(R.string.gamescheme_updateinfo1)
-            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {              	
-                	// download new ones
-                	downloadGameFiles();
-                }
-            })
-            .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                	finish();
-                }
-            })
-            .create();
-        case DIALOG_PROGRESS:{
-        	mProgress = new ProgressDialog(DashBoard.this);
-        	mProgress.setCancelable(false);
-        	mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        	mProgress.setMessage("Downloading...");
-        	mProgress.setMax(totalDownloads);
-        	mProgress.setProgress(numberOfDownloads);
-            return mProgress;
-
-        }
-        	
+	            .setMessage(R.string.gamescheme_updateinfo1)
+	            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {              	
+	                	// download new ones
+	                	downloadGameFiles(false);
+	                }
+	            })
+	            .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {
+	                	finish();
+	                }
+	            })
+	            .create();
+	        case DIALOG_PROGRESS:{
+	        	mProgress = new ProgressDialog(DashBoard.this);
+	        	mProgress.setCancelable(false);
+	        	mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+	        	mProgress.setMessage("Downloading...");
+	        	mProgress.setMax(totalDownloads);
+	        	mProgress.setProgress(numberOfDownloads);
+	            return mProgress;
+	        }  	
         }
         return null;
     }
     
-    private void downloadGameFiles(){
-    	/*App.getDataManager().requestSchemaFilesDownload(new AsyncTaskListener() {
-			public void onPreExecute() {
-				showDialog(DIALOG_PROGRESS);
-			}
-
-			public void onProgressUpdate(ProgressUpdate progress) {
-				if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
-					mProgress.setMessage("Downloading images...");
-				}
-			}
-
-			public void onPostExecute(Object object) {
-				mProgress.cancel();
-			}
-		});*/
-
+    private void downloadGameFiles(boolean refreshImages){
     	Intent intent = new Intent(this, GameSchemeDownloaderService.class);
+    	intent.putExtra("refreshImages", refreshImages);
     	startService(intent);
     }
     

@@ -28,12 +28,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".frontend.DashBoard" >
-            <intent-filter>
-                <action android:name="com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+        <activity
+            android:name=".frontend.DashBoard"
+            android:launchMode="singleTop" >
         </activity>
         <activity android:name=".frontend.Backpack" >
             <intent-filter>
@@ -77,14 +74,14 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-        	android:name=".frontend.NewsList"
+            android:name=".frontend.NewsList"
             android:configChanges="orientation" >
         </activity>
 
         <!-- declare the default searchable Activity for the whole app -->
         <!--
           <meta-data android:name="android.app.default_searchable"
-               android:value=".PlayerList" />
+               android:value=".PlayerList" />
         -->
 
 
@@ -94,7 +91,7 @@
 
         <!--
           <activity android:name="com.google.ads.AdActivity"
-             android:configChanges="keyboard|keyboardHidden|orientation"/>
+             android:configChanges="keyboard|keyboardHidden|orientation"/>
         -->
         <activity
             android:name="com.google.ads.AdActivity"
@@ -129,7 +126,14 @@
         </activity>
         <activity android:name=".ItemListSelect" >
         </activity>
-        <service android:name=".GameSchemeDownloaderService"></service>
+
+        <service android:name=".GameSchemeDownloaderService" >
+            <intent-filter>
+                <action android:name="com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

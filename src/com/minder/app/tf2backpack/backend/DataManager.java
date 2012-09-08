@@ -53,8 +53,11 @@ public class DataManager {
 	}
 	
 	public final static int PROGRESS_DOWNLOADING_SCHEMA_UPDATE = 1;
-	public final static int PROGRESS_DOWNLOADING_IMAGES = 2;
-	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 3;
+	public final static int PROGRESS_PARSING_SCHEMA = 2;
+	public final static int PROGRESS_DOWNLOADING_IMAGES = 3;
+	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 2;
+	
+	public final static int CURRENT_GAMESCHEMA_VERSION = 1;
 	
 	// Members
 	private final static int TYPE_FRIEND_LIST = 7;
@@ -113,9 +116,9 @@ public class DataManager {
 		return request;
 	}
 	
-	public Request requestSchemaFilesDownload(AsyncTaskListener listener) {
+	public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages) {
 		Request request = new Request(TYPE_SCHEMA_FILES);	
-		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request);
+		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request, refreshImages);
 		
 		asyncTask.execute();
 		
@@ -516,6 +519,7 @@ public class DataManager {
     	
 		private final AsyncTaskListener listener;
 		private final Request request;
+		private final boolean refreshImages;
 		
 		private final Object imageListLock = new Object();
 		private ArrayList<ImageInfo> imageUrlList;
@@ -527,9 +531,10 @@ public class DataManager {
 		private Bitmap teamPaintRed;
 		private Bitmap teamPaintBlue;
 		
-		public DownloadSchemaFiles(AsyncTaskListener listener, Request request) {
+		public DownloadSchemaFiles(AsyncTaskListener listener, Request request, boolean refreshImages) {
 			this.listener = listener;
 			this.request = request;
+			this.refreshImages = refreshImages;
 		}
 		
 		@Override
@@ -539,6 +544,9 @@ public class DataManager {
     	
 		@Override
 		protected Void doInBackground(Void... params) {
+			if (refreshImages)
+				deleteItemImages();
+			
 			HttpConnection connection = 
 				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
 					Util.GetAPIKey() + "&format=json&language=en");
@@ -546,6 +554,8 @@ public class DataManager {
 			String data = (String) connection.execute();
 			
 			if (data != null) {
+				publishProgress(new ProgressUpdate(PROGRESS_PARSING_SCHEMA, 0, 0));
+				
 				GameSchemeParser gs = 
 					new GameSchemeParser(data, context);
 				
@@ -623,6 +633,20 @@ public class DataManager {
 		protected void onPostExecute(Void result) {
 			listener.onPostExecute(null);
 		}
+		
+	    /**
+	     * Deletes all item images
+	     */
+	    private void deleteItemImages() {
+			File file = new File(context.getFilesDir().getPath());
+			if (file.isDirectory()) {
+		        String[] children = file.list();
+		        for (int i = 0; i < children.length; i++) {
+		            new File(file, children[i]).delete();
+		        }
+		    }
+
+	    }
 		
 		private class ImageDownloader implements Runnable {
 			private int index;

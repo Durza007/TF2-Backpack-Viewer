@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 
@@ -44,10 +45,9 @@ public class Settings extends PreferenceActivity {
         Preference refresh = (Preference)findPreference("refreshfiles");
         refresh.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
-				Intent intent = new Intent(Settings.this, DashBoard.class);
-				intent.setAction("com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES");
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
+		    	Intent intent = new Intent(Settings.this, GameSchemeDownloaderService.class);
+		    	intent.putExtra("refreshImages", true);
+		    	startService(intent);
 				return true;
 			}
 		});
