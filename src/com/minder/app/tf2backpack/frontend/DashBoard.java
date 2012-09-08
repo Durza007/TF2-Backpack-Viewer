@@ -211,7 +211,6 @@ public class DashBoard extends Activity {
 				boolean isChecked) {
 			resetImages = isChecked;
 		}
-
     };
     
     @Override
@@ -241,7 +240,7 @@ public class DashBoard extends Activity {
 	        		.setView(layout)
 	        		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                    	downloadGameFiles(resetImages);
+
 	                    }
 	                })
 	                .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -252,41 +251,6 @@ public class DashBoard extends Activity {
 	                    }
 	                })
 	        		.create();
-	        	
-	        	
-	            /*return new AlertDialog.Builder(this)
-	                .setIcon(R.drawable.alert_dialog_icon)
-	                .setTitle(R.string.download_notice)
-	                .setMessage(R.string.gamescheme_downloadinfo)
-	                .setMultiChoiceItems(new CharSequence[] {"Reset images"}, null, onMultiListener)
-	                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                    	/*gameSchemePref = GameSchemeDownloader.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
-	                    	GameSchemeDownloader.this.setContentView(R.layout.downloader);
-	                    	
-	                    	downloadText = (TextView)findViewById(R.id.TextViewDownloadStatus);
-	                    	
-	                    	imageDownloadProgress = (ProgressBar)findViewById(R.id.ProgressBarImageDownload);
-	                    	imageDownloadProgress.setProgress(0);
-	                    	Download();*/
-	                    	/*if (resetImages) {
-	                    		DeleteItemImages();
-	                    	}
-	                    	DownloadGameFiles();
-	                    }
-	                })
-	                /*.setNeutralButton(R.string.alert_dialog_something, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	
-	
-	                    }
-	                })*/
-	                /*.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                    	finish();
-	                    }
-	                })
-	                .create();*/
 	        case DIALOG_UPDATE_GAMEFILES:
 	            return new AlertDialog.Builder(this)
 	            .setIcon(R.drawable.alert_dialog_icon)
@@ -294,8 +258,7 @@ public class DashBoard extends Activity {
 	            .setMessage(R.string.gamescheme_updateinfo1)
 	            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface dialog, int whichButton) {              	
-	                	// download new ones
-	                	downloadGameFiles(false);
+
 	                }
 	            })
 	            .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -315,12 +278,6 @@ public class DashBoard extends Activity {
 	        }  	
         }
         return null;
-    }
-    
-    private void downloadGameFiles(boolean refreshImages){
-    	Intent intent = new Intent(this, GameSchemeDownloaderService.class);
-    	intent.putExtra("refreshImages", refreshImages);
-    	startService(intent);
     }
     
     private class DownloadNewsTask extends AsyncTask<Void, Void, NewsItem>{

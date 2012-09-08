@@ -692,7 +692,7 @@ public class DataManager {
 					
 					synchronized (resultLock) {
 						downloadedImages++;
-						if (downloadedImages > valueSinceLastProgressUpdate + VALUE_DIFF_FOR_PROGRESS_UPDATE)
+						if (downloadedImages >= valueSinceLastProgressUpdate + VALUE_DIFF_FOR_PROGRESS_UPDATE)
 							resultLock.notify();
 					}
 				}
