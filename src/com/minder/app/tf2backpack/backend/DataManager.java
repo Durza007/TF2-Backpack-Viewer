@@ -54,8 +54,7 @@ public class DataManager {
 	
 	public final static int PROGRESS_DOWNLOADING_SCHEMA_UPDATE = 1;
 	public final static int PROGRESS_PARSING_SCHEMA = 2;
-	public final static int PROGRESS_DOWNLOADING_IMAGES = 3;
-	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 2;
+	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 3;
 	
 	public final static int CURRENT_GAMESCHEMA_VERSION = 1;
 	
@@ -516,6 +515,7 @@ public class DataManager {
      */
     private class DownloadSchemaFiles extends AsyncTask<Void, ProgressUpdate, Void> {
     	private final static int NUMBER_OF_IMAGE_THREADS = 3;
+    	private final static int VALUE_DIFF_FOR_PROGRESS_UPDATE = 3;
     	
 		private final AsyncTaskListener listener;
 		private final Request request;
@@ -525,6 +525,8 @@ public class DataManager {
 		private ArrayList<ImageInfo> imageUrlList;
 		
 		private final Object resultLock = new Object();
+		private int downloadedImages;
+		private int valueSinceLastProgressUpdate;
 		private int finishedThreads;
 		
 		private Bitmap paintColor;
@@ -576,7 +578,6 @@ public class DataManager {
 			    	teamPaintBlue = BitmapFactory.decodeResource(context.getResources(), R.drawable.teampaint_blu_mask, bitmapOptions);
 					
 			    	long start = System.nanoTime();
-			    	int totalDownloads = 0;
 	                for (int index = 0; index < imageUrlList.size(); index++){
                         final File file = new File(context.getFilesDir().getPath() + "/" + imageUrlList.get(index).getDefIndex() + ".png");
                         if (file.exists()){
@@ -584,9 +585,10 @@ public class DataManager {
                         	index--;
                         }
 	                }
+	                int totalDownloads = imageUrlList.size();
 	                Log.d("DataManager", "File image check: " + (System.nanoTime() - start) / 1000000 + " ms");
 	                
-			    	publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_IMAGES, totalDownloads, 0));
+			    	publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_IMAGES_UPDATE, totalDownloads, 0));
 			    	
 			    	// start up some download threads
 			    	for (int index = 0; index < NUMBER_OF_IMAGE_THREADS; index++) {
@@ -599,6 +601,12 @@ public class DataManager {
 			    	// wait for download threads to finish
 			    	while (true) {
 			    		synchronized (resultLock) {
+			    			valueSinceLastProgressUpdate = downloadedImages;
+			    			publishProgress(new ProgressUpdate(
+			    					DataManager.PROGRESS_DOWNLOADING_IMAGES_UPDATE, 
+			    					totalDownloads, 
+			    					downloadedImages));
+			    			
 			    			if (finishedThreads == NUMBER_OF_IMAGE_THREADS) {
 			    				break;
 			    			} else {
@@ -680,6 +688,12 @@ public class DataManager {
 						if (BuildConfig.DEBUG) {
 							Log.i("DataManager", "Failed to download image with id: " + imageInfo.getDefIndex());
 						}
+					}
+					
+					synchronized (resultLock) {
+						downloadedImages++;
+						if (downloadedImages > valueSinceLastProgressUpdate + VALUE_DIFF_FOR_PROGRESS_UPDATE)
+							resultLock.notify();
 					}
 				}
 				

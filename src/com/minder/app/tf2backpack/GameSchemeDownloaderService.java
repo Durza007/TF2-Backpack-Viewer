@@ -108,7 +108,7 @@ public class GameSchemeDownloaderService extends Service {
 				final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 				notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 				
-			} else if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES) {
+			} else if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES_UPDATE) {
 				// this means game files are downloaded
 				saveGameSchemeDownloaded();
 
