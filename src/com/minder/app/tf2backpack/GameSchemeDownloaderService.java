@@ -15,6 +15,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.RemoteViews;
 
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager;
@@ -38,7 +40,7 @@ public class GameSchemeDownloaderService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 	    handleCommand(intent);
-	    return START_STICKY;
+	    return START_NOT_STICKY;
 	}
  
     @Override
@@ -70,12 +72,14 @@ public class GameSchemeDownloaderService extends Service {
 			
 			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
 			.setOngoing(true)
-            .setProgress(100, 0, true)
-            .setContentTitle(getResources().getText(R.string.starting_download))
+			.setSmallIcon(android.R.drawable.stat_sys_download)
             .setContentIntent(pendingIntent)
-            .setSmallIcon(android.R.drawable.stat_sys_download);
+            .setTicker(getResources().getText(R.string.starting_download));
 			
 			Notification notification = builder.build();
+			notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
+                    R.layout.download_progress_notification);
+			notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
 			
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Showing notification");
@@ -89,15 +93,18 @@ public class GameSchemeDownloaderService extends Service {
 			if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
 				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
 				.setOngoing(true)
-	            .setProgress(100, 0, true)
-	            .setContentTitle(getResources().getText(R.string.parsing_schema))
-	            .setContentIntent(pendingIntent)
-	            .setSmallIcon(android.R.drawable.stat_sys_download);
+				.setSmallIcon(android.R.drawable.stat_sys_download)
+	            .setContentIntent(pendingIntent);
 				
 				Notification notification = builder.build();
+				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
+	                    R.layout.download_progress_notification);
+				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
+				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.parsing_schema));
 				
 				if (BuildConfig.DEBUG)
 					Log.d(DEBUG_TAG, "Updating notification");
+				
 				final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 				notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 				
@@ -107,16 +114,16 @@ public class GameSchemeDownloaderService extends Service {
 
 				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
 				.setOngoing(true)
-	            .setProgress(progress.totalCount, progress.count, false)
-	            .setContentTitle(getResources().getText(R.string.downloading_images))
-	            .setContentIntent(pendingIntent)
-	            .setSmallIcon(android.R.drawable.stat_sys_download);
-				
-				if (Build.VERSION.SDK_INT <= 10) {
-					builder.setSubText(progress.count + "/" + progress.totalCount);
-				}
+				.setSmallIcon(android.R.drawable.stat_sys_download)
+	            .setContentIntent(pendingIntent);
 				
 				Notification notification = builder.build();
+				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
+	                    R.layout.download_progress_notification);
+				notification.contentView.setProgressBar(R.id.progressBarDownload, progress.totalCount, progress.count, false);
+				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.downloading_images));
+				notification.contentView.setViewVisibility(R.id.textViewExtra, View.VISIBLE);
+				notification.contentView.setTextViewText(R.id.textViewExtra, progress.count + "/" + progress.totalCount);
 				
 				if (BuildConfig.DEBUG)
 					Log.d(DEBUG_TAG, "Updating notification");

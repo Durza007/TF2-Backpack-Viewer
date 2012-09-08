@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Button" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">#FF2A2725</item>
@@ -13,14 +14,30 @@
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
     </style>
-    
+
     <style name="InfoDialog" parent="@android:style/Theme.Dialog">
-    	<item name="android:windowBackground">@drawable/bg_info</item>
-    	<item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowBackground">@drawable/bg_info</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
+
     <style name="dash_board_button_style" parent="android:Widget.ImageButton">
         <item name="android:background">@drawable/backpack_cell</item>
         <item name="android:layout_marginLeft">2dp</item>
         <item name="android:layout_marginRight">2dp</item>
     </style>
+
+    <!-- Notification text styles -->
+    <style name="NotificationText">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="NotificationTitle">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <!--
+         If you want a slightly different color for some text,
+         consider using ?android:attr/textColorSecondary
+    -->
+
 </resources>
