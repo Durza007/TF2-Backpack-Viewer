@@ -192,7 +192,7 @@ public class NewsList extends Activity{
         setContentView(R.layout.list_layout);
         
         // Look up the AdView as a resource and load a request.
-        adView = AdMobActivity.createAdView(adView, this);
+        adView = (AdView)findViewById(R.id.ad);
         
         mList = (ListView)findViewById(android.R.id.list);
         

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.minder.app.tf2backpack.frontend.AdMobActivity;
 import com.minder.app.tf2backpack.frontend.DashBoard;
 import com.minder.app.tf2backpack.frontend.GetPlayer;
 
@@ -16,8 +15,6 @@ public class Main extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        AdMobActivity.createAdmobActivity(this);
         
         playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
         

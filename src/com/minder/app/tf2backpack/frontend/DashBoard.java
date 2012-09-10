@@ -75,8 +75,6 @@ public class DashBoard extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        AdMobActivity.createAdmobActivity(this);
-        
         this.getWindow().requestFeature(Window.FEATURE_NO_TITLE);       
         setContentView(R.layout.dashboard);
         
@@ -171,6 +169,12 @@ public class DashBoard extends Activity {
     public void onStop() {
     	super.onStop();
     	mProgress = null;
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	// TODO Destroy adview
     }
     
     OnClickListener onButtonBackpackClick = new OnClickListener(){

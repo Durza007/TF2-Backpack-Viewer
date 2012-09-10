@@ -52,7 +52,7 @@ public class ItemGridViewer extends Activity {
 		
 		setContentView(R.layout.item_grid);
 		
-		adView = AdMobActivity.createAdView(adView, this);
+		adView = (AdView)findViewById(R.id.ad);
 		
 		GridView grid = (GridView)findViewById(R.id.gridViewItems);
 		itemAdapter = new ItemAdapter(this, true);
