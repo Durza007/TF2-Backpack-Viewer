@@ -14,8 +14,6 @@ public class Main extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        AdMobActivity.createAdmobActivity(this);
-        
         playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
         
         String playerId = playerPrefs.getString("id", null);

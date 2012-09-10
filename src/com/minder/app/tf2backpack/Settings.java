@@ -25,7 +25,7 @@ public class Settings extends PreferenceActivity {
         
         setContentView(R.layout.list_layout);
         
-        adView = AdMobActivity.createAdView(adView, this);
+        adView = (AdView)findViewById(R.id.ad);
         
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.settings);
