@@ -560,9 +560,11 @@ public class DataManager {
 				
 				GameSchemeParser gs = 
 					new GameSchemeParser(data, context);
+				// set to null as soon as possible since it is holding >2 MB
+				data = null;
 				
 				if (gs.error != null){
-					// handle error
+					// TODO handle error
 				}
 				
 				// download images
@@ -690,6 +692,7 @@ public class DataManager {
 						}
 					}
 					
+					// Tell everybody else that we have downloaded a image
 					synchronized (resultLock) {
 						downloadedImages++;
 						if (downloadedImages >= valueSinceLastProgressUpdate + VALUE_DIFF_FOR_PROGRESS_UPDATE)
