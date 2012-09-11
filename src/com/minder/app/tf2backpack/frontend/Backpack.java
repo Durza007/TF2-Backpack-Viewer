@@ -66,7 +66,7 @@ public class Backpack extends Activity {
 		public int defIndex;
 		private Bitmap image = null;
 		
-		public Bitmap GetImage(){
+		public Bitmap getImage(){
 			return this.image;
 		}
 		
@@ -346,7 +346,7 @@ public class Backpack extends Activity {
 				buttonChanged[buttonIndex] = true;
     			try {
     				if (imageIndex != -1){
-    					Holder.imageButton.setImageBitmap(weaponImageList.get(imageIndex).GetImage());
+    					Holder.imageButton.setImageBitmap(weaponImageList.get(imageIndex).getImage());
     				} else {
 						FileInputStream in = openFileInput(playerItem.getDefIndex() + ".png");
 						

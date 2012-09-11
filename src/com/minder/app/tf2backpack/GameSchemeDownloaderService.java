@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack;
 
-import java.io.File;
-
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -11,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -57,6 +54,7 @@ public class GameSchemeDownloaderService extends Service {
     
     private void saveGameSchemeDownloaded() {
     	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
+    	
         Editor editor = gamePrefs.edit();
         editor.putInt("download_version", DataManager.CURRENT_GAMESCHEMA_VERSION);
         editor.commit();

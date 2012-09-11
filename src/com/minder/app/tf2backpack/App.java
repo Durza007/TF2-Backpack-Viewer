@@ -10,7 +10,7 @@ import android.content.Context;
  * 
  * @by Rohit Ghatol
  */
-public class App extends Application{
+public class App extends Application {
     private static Context context;
     private static DataManager dataManager;
 

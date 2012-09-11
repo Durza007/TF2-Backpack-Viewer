@@ -3,8 +3,7 @@ package com.minder.app.tf2backpack;
 import java.io.File;
 import android.content.Context;
 
-public class FileCache {
-    
+public class FileCache {  
     private File cacheDir;
     
     public FileCache(Context context){
