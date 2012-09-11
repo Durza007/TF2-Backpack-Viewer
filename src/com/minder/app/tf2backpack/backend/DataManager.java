@@ -644,6 +644,24 @@ public class DataManager {
 			listener.onPostExecute(null);
 		}
 		
+	    private class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+	        public void uncaughtException(Thread thread, Throwable ex) {
+	            Log.e("UncaughtException", "Got an uncaught exception: "+ex.toString());
+	            if(ex.getClass().equals(OutOfMemoryError.class))
+	            {
+	                try {
+	                    android.os.Debug.dumpHprofData("/sdcard/dump.hprof");
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	                System.exit(1337);
+	            }
+	            ex.printStackTrace();
+	        }
+	    }
+
+		
 	    /**
 	     * Deletes all item images
 	     */
@@ -666,6 +684,7 @@ public class DataManager {
 			}
 			
 			public void run() {
+				Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
 				while (true) {
 					ImageInfo imageInfo = null;
 					synchronized (imageListLock) {
@@ -686,6 +705,7 @@ public class DataManager {
 					if (data != null) {
 						// save
 						saveImage((Bitmap)data, imageInfo);
+						data = null;
 					} else {
 						if (BuildConfig.DEBUG) {
 							Log.i("DataManager", "Failed to download image with id: " + imageInfo.getDefIndex());
@@ -735,6 +755,7 @@ public class DataManager {
 								canvas.drawBitmap(image, 0, 0, null);
 								// draw paint color
 								canvas.drawBitmap(paintColor, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
+								// recycle old image
 								image.recycle();
 								image = newBitmap;
 							} else {
@@ -746,8 +767,8 @@ public class DataManager {
 								// draw paintcan
 								canvas.drawBitmap(image, 0, 0, null);
 								// draw first paint color
-								canvas.drawBitmap(teamPaintRed, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
-								
+								canvas.drawBitmap(teamPaintRed, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);	
+								// draw second paint color
 								paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor2(), 1));
 								canvas.drawBitmap(teamPaintBlue, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
 								

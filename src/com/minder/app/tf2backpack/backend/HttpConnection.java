@@ -102,6 +102,7 @@ public class HttpConnection {
 			}
 		}
 		
+		httpClient.getConnectionManager().shutdown();
 		return result;
 	}
 
