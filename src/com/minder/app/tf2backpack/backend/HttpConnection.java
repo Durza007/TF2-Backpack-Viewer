@@ -15,7 +15,6 @@ import org.apache.http.params.HttpConnectionParams;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.minder.app.tf2backpack.BuildConfig;
 

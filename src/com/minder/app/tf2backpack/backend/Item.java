@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 
@@ -129,7 +128,7 @@ public class Item implements Parcelable {
 		this.setQuality(quality);
 		this.setQuantity(quantity);
 		this.inventoryToken = inventoryToken;
-		this.setBackpackPosition(ExtractBackpackPosition(inventoryToken));
+		this.setBackpackPosition(extractBackpackPosition(inventoryToken));
 		this.itemColor = 0;
 		this.notTradable = false;
 		this.attributeList = new ArrayList<ItemAttribute>();
@@ -153,7 +152,7 @@ public class Item implements Parcelable {
 	}
 	
 	// find out if the item is equipped at the same time
-	public int ExtractBackpackPosition(long inventoryToken){
+	public int extractBackpackPosition(long inventoryToken){
 		// awarded but not yet given
 		if (inventoryToken == 0 || (inventoryToken & 0x40000000) != 0) {
 			return -1;

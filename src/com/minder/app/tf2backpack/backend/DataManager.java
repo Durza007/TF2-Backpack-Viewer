@@ -514,8 +514,8 @@ public class DataManager {
      * This behemoth downloads all the tf2 schema files
      */
     private class DownloadSchemaFiles extends AsyncTask<Void, ProgressUpdate, Void> {
-    	private final static int NUMBER_OF_IMAGE_THREADS = 3;
-    	private final static int VALUE_DIFF_FOR_PROGRESS_UPDATE = 3;
+    	private final static int NUMBER_OF_IMAGE_THREADS = 4;
+    	private final static int VALUE_DIFF_FOR_PROGRESS_UPDATE = 7;
     	
 		private final AsyncTaskListener listener;
 		private final Request request;

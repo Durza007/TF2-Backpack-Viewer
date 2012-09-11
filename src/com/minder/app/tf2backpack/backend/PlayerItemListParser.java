@@ -67,7 +67,7 @@ public class PlayerItemListParser {
 							} else if (type.equals("quantity")){
 								item.setQuantity(valArray.getInt(arrayIndex));
 							} else if (type.equals("inventory")){
-								item.setBackpackPosition(item.ExtractBackpackPosition(valArray.getLong(arrayIndex)));
+								item.setBackpackPosition(item.extractBackpackPosition(valArray.getLong(arrayIndex)));
 							} else if (type.equals("flag_cannot_trade")){
 								item.setNotTradable(valArray.getBoolean(arrayIndex));
 							} else if (type.equals("flag_cannot_craft")){
