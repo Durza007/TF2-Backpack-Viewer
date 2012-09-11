@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 
@@ -115,6 +116,13 @@ public class Util {
 			e.printStackTrace();
 		}	
 		return null;
+    }
+    
+    public static boolean isGameSchemeAvailable(Context context) {
+    	SharedPreferences gamePrefs = context.getSharedPreferences("gamefiles", Context.MODE_PRIVATE);
+    	int ver = gamePrefs.getInt("download_version", -1);
+    	
+    	return ver != -1;
     }
 
 }
