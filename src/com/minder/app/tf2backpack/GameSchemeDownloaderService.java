@@ -52,6 +52,14 @@ public class GameSchemeDownloaderService extends Service {
     	App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages);
     }
     
+    private void removeGameSchemeDownloaded() {
+    	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
+    	
+        Editor editor = gamePrefs.edit();
+        editor.putInt("download_version", 0);
+        editor.commit();
+    }
+    
     private void saveGameSchemeDownloaded() {
     	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
     	
@@ -82,6 +90,10 @@ public class GameSchemeDownloaderService extends Service {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Showing notification");
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
+			
+			// the gamescheme files will be in a undefined state from
+			// here on. Reflect that by saying they dont exist
+			removeGameSchemeDownloaded();
 		}
 
 		public void onProgressUpdate(ProgressUpdate progress) {	

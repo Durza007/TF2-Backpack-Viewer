@@ -103,8 +103,7 @@ public class BackpackView extends TableLayout {
 	}
 
     @Override
-    protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec)
-    {
+    protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
