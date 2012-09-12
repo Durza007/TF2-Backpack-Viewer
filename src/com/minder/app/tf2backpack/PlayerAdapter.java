@@ -3,6 +3,7 @@ package com.minder.app.tf2backpack;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,7 +27,7 @@ public class PlayerAdapter extends BaseAdapter {
 	}
 	
 	private Activity activity;
-    private ArrayList<SteamUser> playerList = new ArrayList<SteamUser>();
+    private List<SteamUser> playerList = new ArrayList<SteamUser>();
     
     private LayoutInflater mInflater;        
     private ImageLoader imageLoader;
@@ -158,7 +159,8 @@ public class PlayerAdapter extends BaseAdapter {
     	notifyDataSetChanged();
     }
     
-    public void setPlayers(ArrayList<SteamUser> data) {
+    public void setPlayers(List<SteamUser> data) {
+    	playerList.clear();
     	playerList.addAll(data);
 		notifyDataSetChanged();
     }
@@ -167,7 +169,7 @@ public class PlayerAdapter extends BaseAdapter {
      * Get the list of players
      * @return The internal list of players/steam users
      */
-    public ArrayList<SteamUser> getPlayers() {
+    public List<SteamUser> getPlayers() {
     	return this.playerList;
     }
     

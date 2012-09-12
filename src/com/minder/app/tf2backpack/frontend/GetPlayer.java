@@ -291,7 +291,7 @@ public class GetPlayer extends Activity {
     OnClickListener onButtonSearchClick = new OnClickListener(){
 		public void onClick(View v) {
 			if (!editTextPlayer.getText().toString().equals("")){
-				Intent intent = new Intent(GetPlayer.this, PlayerList.class);
+				Intent intent = new Intent(GetPlayer.this, PlayerListActivity.class);
 				intent.setAction("com.minder.app.tf2backpack.SEARCH");
 				intent.putExtra(SearchManager.QUERY, editTextPlayer.getText().toString());
 

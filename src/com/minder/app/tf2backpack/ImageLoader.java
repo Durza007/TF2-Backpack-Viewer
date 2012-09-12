@@ -162,16 +162,23 @@ public class ImageLoader {
     }
     
     public void startThread() {
-    	createThread();
-    	photoLoaderThread.start();
+    	if (createThread()) {
+    		photoLoaderThread.start();
+    	}
     }
     
-    private void createThread() {
+    /**
+     * Creates a new thread
+     * @return True if a new thread was created - false otherwise
+     */
+    private boolean createThread() {
     	if (photoLoaderThread == null || !photoLoaderThread.isAlive()) {
         	photoLoaderThread = new PhotosLoader();
         	photoLoaderThread.setName("PhotoLoader");
             photoLoaderThread.setPriority(Thread.NORM_PRIORITY - 1);
+            return true;
     	}
+    	return false;
     }
     
     //stores list of photos to download

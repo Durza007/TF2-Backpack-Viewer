@@ -7,44 +7,39 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
-import android.view.Window;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
-import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
-import com.minder.app.tf2backpack.backend.ProgressUpdate;
 
-public class PlayerList extends Activity {
+public class PlayerListFragment extends Fragment {
 	Handler mHandler = new Handler();
 	
 	private boolean ready = false;
@@ -52,7 +47,6 @@ public class PlayerList extends Activity {
 	private boolean nothingMoreToLoad = false;
 	private boolean loadAvatars = false;
 	
-	private final String SHARED_PREF_FRIENDS = "friendlist";
 	private final int CONTEXTMENU_VIEW_BACKPACK = 0;
 	private final int CONTEXTMENU_VIEW_STEAMPAGE = 1;
 	
@@ -65,7 +59,7 @@ public class PlayerList extends Activity {
 	public int searchPage = 1;
 	public String searchQuery;
 	
-	private ListView mList;
+	private ListView playerList;
 	private PlayerAdapter adapter;
 	private View footerView;
 	private View noResultFooterView;
@@ -73,26 +67,15 @@ public class PlayerList extends Activity {
 	private int numberInfoDownloads;
 	private int workingThreads;
 	
+	private List<SteamUser> steamUserList;
 	private Request currentRequest;
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        this.setTitle(R.string.friends);
-        
-        setContentView(R.layout.list_layout);
-        
-        String action = this.getIntent().getAction();
-        if (action == null) {
-        	finish();
-        	return;
-        }
+        this.setRetainInstance(true);
         
         getSettings();
-        
-        // Look up the AdView as a resource and load a request.
-        adView = (AdView)findViewById(R.id.ad);
 
         /*if (adView != null) {
             AdRequest r = new AdRequest();
@@ -101,21 +84,77 @@ public class PlayerList extends Activity {
             adView.loadAd(r);
         }*/
         
-        mList = (ListView)findViewById(android.R.id.list);
+    	/*if (adapter.getPlayers().isEmpty()){   
+            setAdVisibility(View.GONE);
+	        if (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
+	        	friendList = true;
+	        	//this.setTitle(R.string.friends);
+	            SharedPreferences playerPrefs = getActivity().getSharedPreferences("player", Activity.MODE_PRIVATE);
+	            
+	            String playerId = playerPrefs.getString("id", null);
+	            if (playerId != null) {
+	            	SteamUser user = new SteamUser();
+	            	user.steamdId64 = Long.parseLong(playerId);
+	            	
+	            	currentRequest = App.getDataManager().requestFriendsList(friendListListener, user);
+	            }
+	        } else if (action.equals("com.minder.app.tf2backpack.VIEW_WRENCH")){
+	        	friendList = false;
+	        	//this.setTitle(R.string.golden_wrench_list);
+	        	//new DownloadWrenchListTask().execute();
+	        	//setProgressBarIndeterminateVisibility(true);
+	        } else if (action.equals("com.minder.app.tf2backpack.SEARCH")){
+	        	/*SharedPreferences playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
+	            if (playerPrefs.getString("id", null) == null){
+	            	setPlayerId = true;
+	            }*/
+	        	/*searchList = true;
+	        	friendList = true;
+	        	this.setTitle(R.string.search_result);
+	        	setPlayerId = getIntent().getBooleanExtra("setid", false);
+	        	searchQuery = getIntent().getStringExtra(SearchManager.QUERY);
+                new DownloadSearchListTask().execute(searchQuery);
+                setProgressBarIndeterminateVisibility(true);
+	        }
+    	}*/
+    }
+    
+    /**
+     * Sets the player-list that will be displayed by this fragment
+     * @param players The list of players
+     */
+    public void setPlayerList(List<SteamUser> players) {
+    	this.steamUserList = players;
+    	
+    	if (adapter != null) {
+    		adapter.setPlayers(players);
+    	}
+    }
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+    	View view = inflater.inflate(R.layout.list_layout, container, false);
+    	
+        // Look up the AdView as a resource and load a request.
+        adView = (AdView)view.findViewById(R.id.ad);
+        
+        playerList = (ListView)view.findViewById(android.R.id.list);
         
         // Set up our adapter
-        adapter = new PlayerAdapter(this);
+        // TODO maybe rethink if this needs a activity?
+        adapter = new PlayerAdapter(getActivity());
         adapter.setShowAvatars(loadAvatars);
-        footerView = getLayoutInflater().inflate(R.layout.loading_footer, null);
-        noResultFooterView = getLayoutInflater().inflate(R.layout.noresult_footer, null);
-        mList.addFooterView(footerView, null, false);
-        mList.setAdapter(adapter);
-        mList.removeFooterView(footerView);
+        footerView = inflater.inflate(R.layout.loading_footer, null);
+        noResultFooterView = inflater.inflate(R.layout.noresult_footer, null);
+        playerList.addFooterView(footerView, null, false);
+        playerList.setAdapter(adapter);
+        playerList.removeFooterView(footerView);
         
-        mList.setBackgroundResource(R.color.bg_color);
-        mList.setCacheColorHint(this.getResources().getColor(R.color.bg_color));
+        playerList.setBackgroundResource(R.color.bg_color);
+        playerList.setCacheColorHint(this.getResources().getColor(R.color.bg_color));
         
-        mList.setOnItemClickListener(new OnItemClickListener() {
+        /*playerList.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO This is NOT a good solution
@@ -156,7 +195,7 @@ public class PlayerList extends Activity {
 											editor.putString("id", textId.substring(idStartIndex + 11, idEndIndex));
 											editor.commit();
 											startActivity(new Intent(PlayerList.this, Main.class));*/
-											finish();
+											/*finish();
 										} else {
 											startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", textId.substring(idStartIndex + 11, idEndIndex)));
 										}
@@ -185,9 +224,9 @@ public class PlayerList extends Activity {
 					}
 				}
 			}
-		});
+		});*/
         
-        mList.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+        playerList.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			public void onCreateContextMenu(ContextMenu menu, View v,
 					ContextMenuInfo menuInfo) {
 				menu.setHeaderTitle(R.string.player_options);
@@ -196,66 +235,17 @@ public class PlayerList extends Activity {
 			}
        	
         });
-        
-	   	final Object data = getLastNonConfigurationInstance();
     	
-    	if (data != null){
-    		adapter.setPlayers((ArrayList<SteamUser>)data);
-	        if (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
-	        	friendList = true;
-	        } else if (action.equals("com.minder.app.tf2backpack.VIEW_WRENCH")){
-	        	friendList = false;
-	        	this.setTitle(R.string.golden_wrench_list);
-	        } else if (action.equals("com.minder.app.tf2backpack.SEARCH")){
-	        	/*SharedPreferences playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
-	            if (playerPrefs.getString("id", null) == null){
-	            	setPlayerId = true;
-	            }*/
-	        	searchList = true;
-	        	friendList = true;
-	        	this.setTitle(R.string.search_result);
-	        	if (adapter.getCount() == 0){
-        			mList.addFooterView(noResultFooterView, null, false);
-	        	}
-	        }
-	        setAdVisibility(View.VISIBLE);
-    	} else {      
-            setAdVisibility(View.GONE);
-	        if (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
-	        	friendList = true;
-	        	//this.setTitle(R.string.friends);
-	            SharedPreferences playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
-	            
-	            String playerId = playerPrefs.getString("id", null);
-	            if (playerId != null) {
-	            	SteamUser user = new SteamUser();
-	            	user.steamdId64 = Long.parseLong(playerId);
-	            	
-	            	currentRequest = App.getDataManager().requestFriendsList(friendListListener, user);
-	            }
-	        } else if (action.equals("com.minder.app.tf2backpack.VIEW_WRENCH")){
-	        	friendList = false;
-	        	this.setTitle(R.string.golden_wrench_list);
-	        	//new DownloadWrenchListTask().execute();
-	        	setProgressBarIndeterminateVisibility(true);
-	        } else if (action.equals("com.minder.app.tf2backpack.SEARCH")){
-	        	/*SharedPreferences playerPrefs = this.getSharedPreferences("player", MODE_PRIVATE);
-	            if (playerPrefs.getString("id", null) == null){
-	            	setPlayerId = true;
-	            }*/
-	        	searchList = true;
-	        	friendList = true;
-	        	this.setTitle(R.string.search_result);
-	        	setPlayerId = getIntent().getBooleanExtra("setid", false);
-	        	searchQuery = getIntent().getStringExtra(SearchManager.QUERY);
-                new DownloadSearchListTask().execute(searchQuery);
-                setProgressBarIndeterminateVisibility(true);
-	        }
-    	}
+    	return view;
+	}
+    
+    public void refreshList() {
+    	if (adapter != null)
+    		adapter.notifyDataSetChanged();
     }
     
     private void getSettings() {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         loadAvatars = sp.getBoolean("showavatars", true);
     }
     
@@ -282,10 +272,10 @@ public class PlayerList extends Activity {
     }
     
     @Override
-    public void onRestart() {
-    	super.onRestart();
+    public void onStart() {
+    	super.onStart();
     	
-    	Log.d("PlayerList", "restart");
+    	Log.d("PlayerList", "start");
     	adapter.startBackgroundLoading();
     }
     
@@ -311,7 +301,7 @@ public class PlayerList extends Activity {
 			
 			if(loadMore && ready && !loadingMore && !nothingMoreToLoad) {
 				loadingMore = true;
-				mList.addFooterView(footerView, null, false);
+				playerList.addFooterView(footerView, null, false);
 				DownloadSearchListTask searchTask = new DownloadSearchListTask();
 				searchTask.pageNumber = ++searchPage;
 				searchTask.execute(searchQuery);
@@ -320,7 +310,7 @@ public class PlayerList extends Activity {
 	}
     
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        MenuInflater inflater = getActivity().getMenuInflater();
         if (friendList == true){
         	inflater.inflate(R.menu.friend_menu, menu);
         } else {
@@ -368,46 +358,6 @@ public class PlayerList extends Activity {
     	}
     	return false;
     }
-    
-    private AsyncTaskListener friendListListener = new AsyncTaskListener() {
-		public void onPreExecute() {
-			mProgress = ProgressDialog.show(PlayerList.this, getResources().getText(R.string.please_wait_title), getResources().getText(R.string.downloading_player_list), true, true);
-            setProgressBarIndeterminateVisibility(true);
-		}
-
-		public void onProgressUpdate(ProgressUpdate object) {
-			// nothing
-		}
-
-		@SuppressWarnings("unchecked")
-		public void onPostExecute(Object result) {
-        	if (result != null){
-        		currentRequest = 
-        			App.getDataManager().requestSteamUserInfo(
-        					getSteamUserInfoListener, 
-        					((ArrayList<SteamUser>) result));
-        		
-        		if (totalInfoDownloads == 0){
-    	    		setAdVisibility(View.VISIBLE);
-            		System.gc();
-        		}
-        		
-            	if (mProgress != null)
-            	{
-        			if (mProgress.isShowing()){
-        				try {
-        					mProgress.dismiss();
-        				} catch (Exception e) {
-        					e.printStackTrace();
-        				}
-        			}
-            	}
-        		
-            	adapter.addPlayerInfoList((ArrayList<SteamUser>) result);
-        	}
-		}
-	};
-    
 
     private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
     	public int pageNumber = 1;
@@ -461,13 +411,13 @@ public class PlayerList extends Activity {
     	
         protected void onPostExecute(ArrayList<SteamUser> result) {
         	if (result != null){
-        		currentRequest = 
+        		/*currentRequest = 
         			App.getDataManager().requestSteamUserInfo(
         					getSteamUserInfoListener, 
-        					((ArrayList<SteamUser>) result));
+        					((ArrayList<SteamUser>) result));*/
         		
         		if (totalInfoDownloads == 0){
-    	    		setProgressBarIndeterminateVisibility(false);
+        			// set progressbar visible false
     	    		setAdVisibility(View.VISIBLE);
             		System.gc();
         		}
@@ -492,14 +442,14 @@ public class PlayerList extends Activity {
 	        			}
 	        		}
         		} else {
-        			mList.removeFooterView(footerView);
-        			mList.addFooterView(noResultFooterView, null, false);
+        			playerList.removeFooterView(footerView);
+        			playerList.addFooterView(noResultFooterView, null, false);
         		}
         	}
         	workingThreads--;
         	//GetPlayerInfoRange(0, 10);
         	loadingMore = false;
-        	mList.removeFooterView(footerView);
+        	playerList.removeFooterView(footerView);
         	ready = true;
         }
         
@@ -571,25 +521,6 @@ public class PlayerList extends Activity {
             return in;     
         }
     }
-    
-    @Override
-    public Object onRetainNonConfigurationInstance() { 	
-        return adapter.getPlayers();
-    } 
-    
-    private AsyncTaskListener getSteamUserInfoListener = new AsyncTaskListener () {
-		public void onPreExecute() {
-			setProgressBarIndeterminateVisibility(true);
-		}
-
-		public void onProgressUpdate(ProgressUpdate object) {
-			adapter.notifyDataSetChanged();
-		}
-
-		public void onPostExecute(Object object) {
-			setProgressBarIndeterminateVisibility(false);
-		}
-	};
     
     // obsolete
     public static class byWrenchNumber implements java.util.Comparator<SteamUser> {

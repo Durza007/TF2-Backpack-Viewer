@@ -57,7 +57,7 @@ public class SelectBackpack extends Activity {
 					startActivityForResult(new Intent(SelectBackpack.this, GetPlayer.class).putExtra("return", true), 0);
 					break;
 				case R.id.ButtonFriends:
-					startActivity(new Intent(SelectBackpack.this, PlayerList.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
+					startActivity(new Intent(SelectBackpack.this, PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
 					finish();
 					break;
 				case R.id.ButtonCancel:
