@@ -6,19 +6,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,30 +29,24 @@ import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.Window;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
-import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
-import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
-import com.minder.app.tf2backpack.backend.DataBaseHelper;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
 
-public class PlayerList extends Activity implements ListView.OnScrollListener{
+public class PlayerList extends Activity {
 	Handler mHandler = new Handler();
 	
-	private boolean mBusy = false;
 	private boolean ready = false;
 	private boolean loadingMore = false;
 	private boolean nothingMoreToLoad = false;
@@ -114,7 +102,6 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
         }*/
         
         mList = (ListView)findViewById(android.R.id.list);
-        mList.setOnScrollListener(this);
         
         // Set up our adapter
         adapter = new PlayerAdapter(this);
@@ -330,46 +317,6 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 				searchTask.execute(searchQuery);
 			}
 		}
-	}
-
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		// TODO Auto-generated method stub
-		if (!searchList){
-	       switch (scrollState) {
-	        case OnScrollListener.SCROLL_STATE_IDLE:
-	            mBusy = false;
-	            
-	            int first = view.getFirstVisiblePosition();
-	            int count = view.getLastVisiblePosition();
-	            GetPlayerInfoRange(first, count);
-	            break;
-	        case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-	            mBusy = true;
-	            break;
-	        case OnScrollListener.SCROLL_STATE_FLING:
-	            mBusy = true;
-	            break;
-	        }
-		}
-	}
-	
-	private void GetPlayerInfoRange(int start, int count){
-		// check if array is smaller then range to update
-		/*if (mAdapter.mPlayers.size() <= count){
-			count = mAdapter.mPlayers.size() - 1;
-		}
-		if (mAdapter.mPlayers.size() <= start){
-			start = mAdapter.mPlayers.size() - 1;
-			if (start < 0) start = 0;
-		}
-        for (int i = start; i <= count; i++) {
-        	if (!mAdapter.mPlayers.get(i).fetchingData){
-        		mAdapter.mPlayers.get(i).fetchingData = true;
-            	totalInfoDownloads++;
-            	setProgressBarIndeterminateVisibility(true);
-            	new DownloadFilesTask().execute(mAdapter.mPlayers.get(i).steamdId64);
-        	}
-        }*/
 	}
     
     public boolean onCreateOptionsMenu(Menu menu) {

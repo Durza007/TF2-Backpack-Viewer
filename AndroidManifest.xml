@@ -81,7 +81,7 @@
         <!-- declare the default searchable Activity for the whole app -->
         <!--
           <meta-data android:name="android.app.default_searchable"
-               android:value=".PlayerList" />
+               android:value=".PlayerList" />
         -->
 
 
@@ -91,7 +91,7 @@
 
         <!--
           <activity android:name="com.google.ads.AdActivity"
-             android:configChanges="keyboard|keyboardHidden|orientation"/>
+             android:configChanges="keyboard|keyboardHidden|orientation"/>
         -->
         <activity
             android:name="com.google.ads.AdActivity"
@@ -134,6 +134,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".frontend.PlayerListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.minder.app.tf2backpack.frontend.DashBoard" />
+        </activity>
     </application>
 
 </manifest>
