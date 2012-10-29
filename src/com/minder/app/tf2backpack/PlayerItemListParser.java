@@ -135,7 +135,7 @@ public class PlayerItemListParser {
 		// find out if the item is equipped at the same time
 		public int ExtractBackpackPosition(long inventoryToken){
 			// awarded but not yet given
-			if (inventoryToken == 0) {
+			if (inventoryToken == 0 || (inventoryToken & 0x40000000) != 0) {
 				return -1;
 			}
 			// check if it is equipped
