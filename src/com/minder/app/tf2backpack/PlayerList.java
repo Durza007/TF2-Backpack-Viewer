@@ -796,7 +796,7 @@ public class PlayerList extends Activity implements ListView.OnScrollListener{
 		                		if (steamid) {
 		                			long id = Long.parseLong(parser.getText());
 		                			
-		                			// need to find the right player - SLOW
+		                			// need to find the right player - SLOW!
 		                			// TODO come up with better solution to this
 		                			for (Object o : params[0]) {
 		                				SteamUser s = (SteamUser)o;

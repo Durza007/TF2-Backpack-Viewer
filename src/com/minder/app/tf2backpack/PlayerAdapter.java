@@ -66,6 +66,12 @@ public class PlayerAdapter extends BaseAdapter {
 		comparator = null;
     }
     
+    @Override
+    public void notifyDataSetChanged() {
+    	sort();
+    	super.notifyDataSetChanged();
+    }
+    
     private OnImageDownloaded onBitmapLoaded = new OnImageDownloaded() {
 		public void onBitmapLoaded(Bitmap bitmap) {
 			notifyDataSetChanged();
@@ -154,7 +160,6 @@ public class PlayerAdapter extends BaseAdapter {
     
     public void addPlayer(SteamUser p) {
     	playerList.add(p);
-    	sort();
     	notifyDataSetChanged();
     }
     
@@ -220,7 +225,6 @@ public class PlayerAdapter extends BaseAdapter {
 
 	public void setComparator(Comparator<SteamUser> comparator) {
 		this.comparator = comparator;
-		sort();
 		notifyDataSetChanged();
 	}
 	
