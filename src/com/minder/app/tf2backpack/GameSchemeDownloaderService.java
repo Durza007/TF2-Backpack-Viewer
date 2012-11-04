@@ -24,7 +24,12 @@ import com.minder.app.tf2backpack.frontend.DashBoard;
 public class GameSchemeDownloaderService extends Service {
 	private static final String DEBUG_TAG = "GameSchemeDownloaderService";
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
+	private static boolean gameSchemeReady = false;
 	private Request gameSchemeRequest;
+	
+	public static boolean isGameSchemeReady() {
+		return gameSchemeReady;
+	}
  
 	// This is the old onStart method that will be called on the pre-2.0
 	// platform.  On 2.0 or later we override onStartCommand() so this
@@ -53,6 +58,8 @@ public class GameSchemeDownloaderService extends Service {
     }
     
     private void removeGameSchemeDownloaded() {
+    	gameSchemeReady = false;
+    	
     	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
     	
         Editor editor = gamePrefs.edit();
@@ -66,6 +73,8 @@ public class GameSchemeDownloaderService extends Service {
         Editor editor = gamePrefs.edit();
         editor.putInt("download_version", DataManager.CURRENT_GAMESCHEMA_VERSION);
         editor.commit();
+        
+        gameSchemeReady = true;
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	
