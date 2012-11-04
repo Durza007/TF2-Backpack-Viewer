@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,7 +16,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,8 +29,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,39 +56,18 @@ public class Backpack extends Activity {
 		}
 	}
 	
-	private static class WeaponImage {
-		public int defIndex;
-		private Bitmap image = null;
-		
-		public Bitmap getImage(){
-			return this.image;
-		}
-		
-		public WeaponImage(int defIndex, Bitmap image){
-			this.defIndex = defIndex;
-			this.image = image;
-		}
-	}
-	
-
-	
 	private final int DIALOG_UNKNOWN_ITEM = 0;
-	private final int DIALOG_STATS = 1;
 	
 	private AdView adView;
 	private BackpackView backpack;
 	private boolean addPlayerDataToView;
 	private Button newButton;
-	private Bitmap colorSplat;
-	private Bitmap colorTeamSpirit;
-	private boolean buttonChanged[];
 	private int onPageNumber;
 	private int numberOfPages = 6;
 	private boolean checkUngivenItems;
 	private TextView pageNumberText;
 	private ProgressDialog myProgressDialog;
 	private ArrayList<Item> playerItemList;
-	private ArrayList<WeaponImage> weaponImageList;
 	private String playerId;
 	private ArrayList<Item> ungivenList;
 	
@@ -136,13 +110,6 @@ public class Backpack extends Activity {
         backpack.setOnClickListener(onButtonBackpackClick);
         backpack.setOnReadyListener(onLayoutReadyListener);
         backpack.setColoredCells(coloredCells);
-        
-        Resources r = this.getResources();
-
-        colorSplat = BitmapFactory.decodeResource(r, R.drawable.color_circle);
-        colorTeamSpirit = BitmapFactory.decodeResource(r, R.drawable.color_circle_team_spirit);
-
-        buttonChanged = new boolean[50];
         
         Button nextButton = (Button)findViewById(R.id.ButtonNext);
         nextButton.setOnClickListener(onButtonBackpackClick);
@@ -334,15 +301,6 @@ public class Backpack extends Activity {
     	Log.i(Util.GetTag(), "Add data to view: " + (System.currentTimeMillis() - start) + " ms");
     }
     
-    private int FindImage(int defIndex){
-    	for(int index = 0; index < weaponImageList.size(); index++){
-    		if (weaponImageList.get(index).defIndex == defIndex){
-    			return index;
-    		}
-    	}
-    	return -1;
-    }
-    
     private void ChangePage(boolean nextPage){
     	if (nextPage == true){
     		if (onPageNumber < numberOfPages){
@@ -429,7 +387,6 @@ public class Backpack extends Activity {
                     }
                 })
                 .create();
-        case DIALOG_STATS:
         }
         return null;
     }

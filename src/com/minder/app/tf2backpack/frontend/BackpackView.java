@@ -183,7 +183,8 @@ public class BackpackView extends TableLayout {
      * @param cellIndexOffset The backpack pos offset - this view is not aware of pages
      * 		  so we need to make sure that the pos index of all items lay within 0 to 49
      */
-    public void setItems(List<Item> itemList, int cellIndexOffset) {
+    public boolean setItems(List<Item> itemList, int cellIndexOffset) {
+    	boolean allItemsWereKnown = true;
     	for (Item item : itemList) {
     		final int backpackPos = item.getBackpackPosition() - cellIndexOffset;
     		
@@ -214,10 +215,8 @@ public class BackpackView extends TableLayout {
 				Holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false));
 				Holder.imageButton.setTag(item);
 				e.printStackTrace();
-				SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this.context);
-				if (!sp.getBoolean("skipunknownitemdialog", false)){
-					//TODO showDialog(DIALOG_UNKNOWN_ITEM);
-				}
+				
+				allItemsWereKnown = false;
 			}
     		
 			if (coloredCells == true){
@@ -281,5 +280,7 @@ public class BackpackView extends TableLayout {
         		buttonsChanged[index] = false;
     		}
     	}
+    	
+    	return allItemsWereKnown;
     }
 }

@@ -7,9 +7,6 @@ import java.util.Comparator;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -46,8 +43,7 @@ public class BackpackFragment extends Fragment {
 		}
 	}
 	
-	private final int DIALOG_UNKNOWN_ITEM = 0;
-	private final int DIALOG_STATS = 1;
+	private final static int DEFAULT_NUMBER_OF_PAGES = 6;
 	
 	private SteamUser currentUser;
 
@@ -55,20 +51,19 @@ public class BackpackFragment extends Fragment {
 	private boolean addPlayerDataToView;
 	private Button newButton;
 	private int onPageNumber;
-	private int numberOfPages = 6;
+	private int numberOfPages;
 	private boolean checkUngivenItems;
 	private TextView pageNumberText;
 	private ProgressDialog myProgressDialog;
 	private ArrayList<Item> playerItemList;
-	//private ArrayList<WeaponImage> weaponImageList;
 	private ArrayList<Item> ungivenList;
 	
-	private boolean coloredCells;
 	private final Comparator<Item> comparator;
 	
 	public BackpackFragment(SteamUser user) {
 		this.currentUser = user;
 		this.comparator = new BackpackPosComparator();
+		this.numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 	}
 	
 	@Override
@@ -86,14 +81,13 @@ public class BackpackFragment extends Fragment {
 
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this.getActivity());
-		coloredCells = sp.getBoolean("backpackrarity", true);
+		final boolean coloredCells = sp.getBoolean("backpackrarity", true);
 
 		// Create the backpack grid
 		backpackView = (BackpackView) view.findViewById(R.id.TableLayoutBackPack);
-		// layout.setLayoutParams( new TableLayout.LayoutParams(4,5) );
-		// backpack.setStretchAllColumns(true);
 		backpackView.setOnClickListener(onButtonBackpackClick);
 		backpackView.setOnReadyListener(onLayoutReadyListener);
+		backpackView.setColoredCells(coloredCells);
 
 		Button nextButton = (Button) view.findViewById(R.id.ButtonNext);
 		nextButton.setOnClickListener(onButtonBackpackClick);
