@@ -284,136 +284,140 @@ public class GameSchemeParser {
 			
 			sqlExecList = new ArrayList<String>();
 			
-			/**
-			 * Fetch attributes first
-			 */
-			JSONArray attributeArray = resultObject.getJSONArray("attributes");
 			ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
-			
-			for (int index = 0; index < attributeArray.length(); index++){
-				JSONObject attributeObject = attributeArray.getJSONObject(index);
+			{
+				/**
+				 * Fetch attributes first
+				 */
+				JSONArray attributeArray = resultObject.getJSONArray("attributes");
 				
-				// Magick =)
-				JSONArray nameArray = attributeObject.names();
-				JSONArray valArray = attributeObject.toJSONArray(nameArray);
-				Attribute attribute = new Attribute();
-				
-				for (int arrayIndex = 0; arrayIndex < nameArray.length(); arrayIndex++){
-					String type = nameArray.getString(arrayIndex);
-					if (type != null){
-						if (type.equals("name")){
-							attribute.setName(valArray.getString(arrayIndex));
-						} else if (type.equals("defindex")){
-							attribute.setDefIndex(valArray.getInt(arrayIndex));
-						} else if (type.equals("description_string")){
-							attribute.setDescriptionString(valArray.getString(arrayIndex));
-						} else if (type.equals("description_format")){
-							attribute.setDescriptionFormat(valArray.getString(arrayIndex));
-						} else if (type.equals("effect_type")){
-							attribute.setEffectType(valArray.getString(arrayIndex));
-						} else if (type.equals("hidden")){
-							attribute.setHidden(valArray.getBoolean(arrayIndex));
+				for (int index = 0; index < attributeArray.length(); index++){
+					JSONObject attributeObject = attributeArray.getJSONObject(index);
+					
+					// Magick =)
+					JSONArray nameArray = attributeObject.names();
+					JSONArray valArray = attributeObject.toJSONArray(nameArray);
+					Attribute attribute = new Attribute();
+					
+					for (int arrayIndex = 0; arrayIndex < nameArray.length(); arrayIndex++){
+						String type = nameArray.getString(arrayIndex);
+						if (type != null){
+							if (type.equals("name")){
+								attribute.setName(valArray.getString(arrayIndex));
+							} else if (type.equals("defindex")){
+								attribute.setDefIndex(valArray.getInt(arrayIndex));
+							} else if (type.equals("description_string")){
+								attribute.setDescriptionString(valArray.getString(arrayIndex));
+							} else if (type.equals("description_format")){
+								attribute.setDescriptionFormat(valArray.getString(arrayIndex));
+							} else if (type.equals("effect_type")){
+								attribute.setEffectType(valArray.getString(arrayIndex));
+							} else if (type.equals("hidden")){
+								attribute.setHidden(valArray.getBoolean(arrayIndex));
+							}
 						}
 					}
+					
+					attributeList.add(attribute);
+					//dbHandler.ExecSql("INSERT INTO attributes " + attribute.getSqlInsert());
+					sqlExecList.add("INSERT INTO attributes " + attribute.getSqlInsert());
 				}
-				
-				attributeList.add(attribute);
-				//dbHandler.ExecSql("INSERT INTO attributes " + attribute.getSqlInsert());
-				sqlExecList.add("INSERT INTO attributes " + attribute.getSqlInsert());
 			}
 			
-			/**
-			 * Fetch items
-			 */
-			//itemList = new ArrayList<TF2Weapon>();
-			//JSONObject itemsObject = resultObject.getJSONObject("items");
-			JSONArray itemArray = resultObject.getJSONArray("items");			
-			imageURList = new ArrayList<ImageInfo>();
-			
-			for (int index = 0; index < itemArray.length(); index++){
-				JSONObject itemObject = itemArray.getJSONObject(index);
+			{
+				/**
+				 * Fetch items
+				 */
+				//itemList = new ArrayList<TF2Weapon>();
+				//JSONObject itemsObject = resultObject.getJSONObject("items");
+				JSONArray itemArray = resultObject.getJSONArray("items");			
+				imageURList = new ArrayList<ImageInfo>();
 				
-				// Magick =)
-				JSONArray nameArray = itemObject.names();
-				JSONArray valArray = itemObject.toJSONArray(nameArray);
-				TF2Weapon item = new TF2Weapon();
-				
-				for (int arrayIndex = 0; arrayIndex < nameArray.length(); arrayIndex++){
-					String type = nameArray.getString(arrayIndex);
-					if (type != null){
-						if (type.equals("defindex")){
-							item.setDefIndex(valArray.getInt(arrayIndex));
-						} else if (type.equals("item_type_name")){
-							item.setItemTypeName(valArray.getString(arrayIndex));
-						} else if (type.equals("item_name")){
-							item.setItemName(valArray.getString(arrayIndex));
-						} else if (type.equals("image_url")){
-							item.setImageUrl(valArray.getString(arrayIndex));
-						} else if (type.equals("item_description")){
-							item.setItemDescription(valArray.getString(arrayIndex));
-						} else if (type.equals("item_quality")){
-							item.setQuality(valArray.getInt(arrayIndex));
-						} else if (type.equals("item_slot")){
-							item.setItemSlot(valArray.getString(arrayIndex));
+				for (int index = 0; index < itemArray.length(); index++){
+					JSONObject itemObject = itemArray.getJSONObject(index);
+					
+					// Magick =)
+					JSONArray nameArray = itemObject.names();
+					JSONArray valArray = itemObject.toJSONArray(nameArray);
+					TF2Weapon item = new TF2Weapon();
+					
+					for (int arrayIndex = 0; arrayIndex < nameArray.length(); arrayIndex++){
+						String type = nameArray.getString(arrayIndex);
+						if (type != null){
+							if (type.equals("defindex")){
+								item.setDefIndex(valArray.getInt(arrayIndex));
+							} else if (type.equals("item_type_name")){
+								item.setItemTypeName(valArray.getString(arrayIndex));
+							} else if (type.equals("item_name")){
+								item.setItemName(valArray.getString(arrayIndex));
+							} else if (type.equals("image_url")){
+								item.setImageUrl(valArray.getString(arrayIndex));
+							} else if (type.equals("item_description")){
+								item.setItemDescription(valArray.getString(arrayIndex));
+							} else if (type.equals("item_quality")){
+								item.setQuality(valArray.getInt(arrayIndex));
+							} else if (type.equals("item_slot")){
+								item.setItemSlot(valArray.getString(arrayIndex));
+							}
 						}
 					}
-				}
-				
-				// temporary store paintcan color
-				int itemColor = 0;
-				// used for team paint
-				int itemColor2 = 0;
-				try {
-					//JSONObject attributesObject = itemObject.getJSONObject("attributes");
-					JSONArray itemAttributeArray = itemObject.getJSONArray("attributes");
 					
-					for (int attribIndex = 0; attribIndex < itemAttributeArray.length(); attribIndex++){
-						JSONObject attributeObject = itemAttributeArray.getJSONObject(attribIndex);
+					// temporary store paintcan color
+					int itemColor = 0;
+					// used for team paint
+					int itemColor2 = 0;
+					try {
+						//JSONObject attributesObject = itemObject.getJSONObject("attributes");
+						JSONArray itemAttributeArray = itemObject.getJSONArray("attributes");
 						
-						JSONArray attributeNameArray = attributeObject.names();
-						JSONArray attributeValArray = attributeObject.toJSONArray(attributeNameArray);
-						ItemAttribute itemAttribute = new ItemAttribute();
-						itemAttribute.setItemDefIndex(item.defIndex);
-						
-						for (int arrayIndex = 0; arrayIndex < attributeNameArray.length(); arrayIndex++){
-							String type = attributeNameArray.getString(arrayIndex);
-							if (type != null){
-								if (type.equals("name")){
-									itemAttribute.setName(attributeValArray.getString(arrayIndex));
-								} else if (type.equals("value")){
-									itemAttribute.setFloatValue((float) attributeValArray.getDouble(arrayIndex));
+						for (int attribIndex = 0; attribIndex < itemAttributeArray.length(); attribIndex++){
+							JSONObject attributeObject = itemAttributeArray.getJSONObject(attribIndex);
+							
+							JSONArray attributeNameArray = attributeObject.names();
+							JSONArray attributeValArray = attributeObject.toJSONArray(attributeNameArray);
+							ItemAttribute itemAttribute = new ItemAttribute();
+							itemAttribute.setItemDefIndex(item.defIndex);
+							
+							for (int arrayIndex = 0; arrayIndex < attributeNameArray.length(); arrayIndex++){
+								String type = attributeNameArray.getString(arrayIndex);
+								if (type != null){
+									if (type.equals("name")){
+										itemAttribute.setName(attributeValArray.getString(arrayIndex));
+									} else if (type.equals("value")){
+										itemAttribute.setFloatValue((float) attributeValArray.getDouble(arrayIndex));
+									}
+								}
+							}
+							
+							if (itemAttribute.getName().equals("set item tint RGB")){
+								itemColor = (int) itemAttribute.getFloatValue();
+								if (itemColor == 1) itemColor = 0;
+							}
+							
+							// Temporary fix for team spirit cans
+							if (itemAttribute.getName().equals("set item tint RGB 2")) {
+								itemColor2 = (int) itemAttribute.getFloatValue();
+							}
+							
+							for (Attribute a : attributeList) {
+								if (a.getName().equals(itemAttribute.getName())) {
+									itemAttribute.setAttributeDefIndex(a.getDefIndex());
+									//dbHandler.ExecSql("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
+									sqlExecList.add("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
+									break;
 								}
 							}
 						}
-						
-						if (itemAttribute.getName().equals("set item tint RGB")){
-							itemColor = (int) itemAttribute.getFloatValue();
-							if (itemColor == 1) itemColor = 0;
-						}
-						
-						// Temporary fix for team spirit cans
-						if (itemAttribute.getName().equals("set item tint RGB 2")) {
-							itemColor2 = (int) itemAttribute.getFloatValue();
-						}
-						
-						for (Attribute a : attributeList) {
-							if (a.getName().equals(itemAttribute.getName())) {
-								itemAttribute.setAttributeDefIndex(a.getDefIndex());
-								//dbHandler.ExecSql("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
-								sqlExecList.add("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
-								break;
-							}
-						}
+					} catch (Exception e) {
 					}
-				} catch (Exception e) {
+					
+					//dbHandler.ExecSql("INSERT INTO items " + item.getSqlInsert());
+					sqlExecList.add("INSERT INTO items " + item.getSqlInsert());
+							
+					imageURList.add(new ImageInfo(item.defIndex, itemColor, itemColor2, item.imageUrl));
 				}
-				
-				//dbHandler.ExecSql("INSERT INTO items " + item.getSqlInsert());
-				sqlExecList.add("INSERT INTO items " + item.getSqlInsert());
-						
-				imageURList.add(new ImageInfo(item.defIndex, itemColor, itemColor2, item.imageUrl));
+				// end fetch items
 			}
-			//System.gc();
 		} catch (Exception e) {
 			error = e;
 			e.printStackTrace();
