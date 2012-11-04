@@ -11,7 +11,7 @@ public class MemoryCache {
         if(!cache.containsKey(id))
             return null;
         SoftReference<Bitmap> ref = cache.get(id);
-        return ref.get();
+        return (ref != null ? ref.get() : null);
     }
     
     public void put(String id, Bitmap bitmap){
