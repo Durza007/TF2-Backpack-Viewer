@@ -3,6 +3,8 @@ package com.minder.app.tf2backpack.frontend;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -73,26 +75,7 @@ public class Backpack extends Activity {
 		}
 	}
 	
-	public static class Holder {
-		public static TextView textCount;
-		public static TextView textEquipped;
-		public static ImageButton imageButton;
-		public static ImageView colorSplat;
-		
-		public static void setView(View v){
-			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
-			textCount = (TextView)v.findViewById(R.id.TextViewCount);
-			textEquipped = (TextView)v.findViewById(R.id.TextViewEquipped);
-			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
-		}
-		
-		public static void clear() {
-			colorSplat = null;
-			textCount = null;
-			textEquipped = null;
-			imageButton = null;
-		}
-	}
+
 	
 	private final int DIALOG_UNKNOWN_ITEM = 0;
 	private final int DIALOG_STATS = 1;
@@ -113,6 +96,11 @@ public class Backpack extends Activity {
 	private ArrayList<WeaponImage> weaponImageList;
 	private String playerId;
 	private ArrayList<Item> ungivenList;
+	
+	
+	
+	private Comparator<Item> comparator = new BackpackPosComparator();
+	
 	
 	private boolean coloredCells;
 	//private final int defaultColor = 0xFF847569;
@@ -147,6 +135,7 @@ public class Backpack extends Activity {
         //backpack.setStretchAllColumns(true);    
         backpack.setOnClickListener(onButtonBackpackClick);
         backpack.setOnReadyListener(onLayoutReadyListener);
+        backpack.setColoredCells(coloredCells);
         
         Resources r = this.getResources();
 
@@ -240,6 +229,8 @@ public class Backpack extends Activity {
 				// handle the request
 				if (pl.getStatusCode() == 1){
 					playerItemList = pl.getItemList();
+					Collections.sort(playerItemList, Backpack.this.comparator);
+					
 					numberOfPages = pl.getNumberOfBackpackSlots() / 50;
 					SetPageNumberText();
 					checkUngivenItems = true;
@@ -297,149 +288,49 @@ public class Backpack extends Activity {
     }
     
     public void AddPlayerDataToView(){
-    	if (!backpack.isTableCreated()) {
-    		addPlayerDataToView = true;
-    		return;
-    	}
     	long start = System.currentTimeMillis();
     	
     	Log.d("NewBackpack", "AddPlayerDataToVIew");
     	
     	if (playerItemList == null) return;
-    	/*for (int index = 0; index < 50; index++){
-    		Holder.SetView(buttonList[index]);
-    		Holder.imageButton.setImageBitmap(null);
-    		Holder.textCount.setVisibility(View.GONE);
-    		Holder.textEquipped.setVisibility(View.GONE);
-    		Holder.colorSplat.setVisibility(View.GONE);
-    		Holder.imageButton.setTag(null);
-    	}*/
     	
-    	Item playerItem;
-    	weaponImageList = new ArrayList<WeaponImage>();
-    	//int imageSize = Util.GetPxFromDp(getApplicationContext(), r.getDimension(R.dimen.button_size));
-    	int imageSize = (int) (backpack.backpackCellSize);
-    	Log.d("Tf2Backpack", "Backpack cell size: " + imageSize);
-    	for (int index = 0; index < playerItemList.size(); index++){
-    		int backPackPos = playerItemList.get(index).getBackpackPosition();
+    	if (checkUngivenItems) {	
+	    	for (int index = 0; index < playerItemList.size(); index++){
+	    		final int backpackPos = playerItemList.get(index).getBackpackPosition();
+	    		
+	    		// if the item has been found but not yet given
+	    		if (backpackPos == -1) {
+	    			ungivenList.add(playerItemList.get(index));
+	    			newButton.setVisibility(View.VISIBLE);
+	    		}
+	    	}
+    	}
+    	
+    	if (!backpack.isTableCreated()) {
+    		addPlayerDataToView = true;
+    		return;
+    	}
+    	
+    	final int minIndex = (onPageNumber - 1) * 50;
+    	final int maxIndex = onPageNumber * 50 - 1;
+    	int startIndex = -1;
+    	int endIndex = -1;
+    	
+    	for (int index = 0; index < playerItemList.size(); index++) {
+    		final int backpackPos = playerItemList.get(index).getBackpackPosition();
     		
-    		// if the item has been found but not yet given
-    		if (backPackPos == -1 && checkUngivenItems) {
-    			ungivenList.add(playerItemList.get(index));
-    			newButton.setVisibility(View.VISIBLE);
+    		if (backpackPos >= minIndex && startIndex == -1) {
+    			startIndex = index;
     		}
-    		/*int pageNumber = (int) Math.floor(backPackPos / 50) + 1;
-    		if (pageNumber > numberOfPages){
-    			numberOfPages = pageNumber;
-    			SetPageNumberText();
-    		}*/
-    		if (backPackPos >= (onPageNumber - 1) * 50 && backPackPos < onPageNumber * 50){
-    			playerItem = playerItemList.get(index);
-				//int imageIndex = FindImage(playerItem.getDefIndex());
-    			int imageIndex = -1;
-				int buttonIndex = backPackPos - (onPageNumber - 1) * 50;
-				
-				Holder.setView(backpack.buttonList[buttonIndex]);
-				buttonChanged[buttonIndex] = true;
-    			try {
-    				if (imageIndex != -1){
-    					Holder.imageButton.setImageBitmap(weaponImageList.get(imageIndex).getImage());
-    				} else {
-						FileInputStream in = openFileInput(playerItem.getDefIndex() + ".png");
-						
-						Bitmap image = BitmapFactory.decodeStream(in);
-						if (image != null){
-							Bitmap newImage = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-							if (newImage != image) {
-								image.recycle();
-							}
-							image = newImage;
-						} else {
-							throw new FileNotFoundException();
-						}
-						
-						Holder.imageButton.setImageBitmap(image);
-						
-						//weaponImageList.add(new WeaponImage(playerItem.getDefIndex(), image));
-						
-						//Holder.imageButton.setImageBitmap(
-						//		weaponImageList.get(weaponImageList.size() - 1).GetImage());
-    				}
-    				
-    				if (coloredCells == true){
-	    				final int quality = playerItem.getQuality();
-	    				if (quality >=1 && quality <= 13){
-	    					if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
-	    						Holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
-	    						Holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
-	    					}
-	    				}
-    				}
-    				
-    				Holder.imageButton.setTag(index);
-    				if (playerItem.getQuantity() > 1){
-    					Holder.textCount.setVisibility(View.VISIBLE);
-    					Holder.textCount.setText(String.valueOf(playerItem.getQuantity()));
-    				} else {
-    					Holder.textCount.setVisibility(View.GONE);
-    				}
-    				
-    				if (playerItem.isEquipped()){
-    					Holder.textEquipped.setVisibility(View.VISIBLE);
-    				} else {
-    					Holder.textEquipped.setVisibility(View.GONE);
-    				}
-    				
-					int color = playerItem.getColor();
-					if (color != 0){
-						if (color == 1){		
-				    		Holder.colorSplat.setImageBitmap(colorTeamSpirit);
-							Holder.colorSplat.setVisibility(View.VISIBLE);
-				    		Holder.colorSplat.setColorFilter(null);
-						} else {
-							//ColorFilter filter = new LightingColorFilter((0xFF << 24) | color, 1);
-							Holder.colorSplat.setImageBitmap(colorSplat);
-							Holder.colorSplat.setVisibility(View.VISIBLE);
-				    		Holder.colorSplat.setColorFilter(null);
-							Holder.colorSplat.setColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP);
-						}
-					} else {
-						Holder.colorSplat.setVisibility(View.GONE);
-					}
+    		if (backpackPos <= maxIndex) {
+    			endIndex = index;
+    		} else {
+    			break;
+    		}
+    	}
+    	
+    	backpack.setItems(playerItemList.subList(startIndex, endIndex + 1), (onPageNumber - 1) * 50);
 
-				} catch (FileNotFoundException e) {
-					Holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), imageSize, imageSize, false));
-					Holder.imageButton.setTag(index);
-					e.printStackTrace();
-					SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Backpack.this);
-					if (!sp.getBoolean("skipunknownitemdialog", false)){
-						showDialog(DIALOG_UNKNOWN_ITEM);
-					}
-				}
-				Holder.clear();
-    		}
-    	}
-    	
-    	// reset anything we haven't changed
-    	final int count = buttonChanged.length;
-    	for(int index = 0; index < count; index++){
-    		if (buttonChanged[index] == false){
-        		Holder.setView(backpack.buttonList[index]);
-        		Holder.imageButton.setImageBitmap(null);
-        		if (coloredCells){
-        			Holder.imageButton.getBackground().clearColorFilter();
-        			Holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
-        		}
-        		Holder.textCount.setVisibility(View.GONE);
-        		Holder.textEquipped.setVisibility(View.GONE);
-        		Holder.colorSplat.setVisibility(View.GONE);
-        		Holder.imageButton.setTag(null);
-        		
-        		Holder.clear();
-    		}
-    		buttonChanged[index] = false;
-    	}
-    	
     	Log.i(Util.GetTag(), "Add data to view: " + (System.currentTimeMillis() - start) + " ms");
     }
     
@@ -497,7 +388,7 @@ public class Backpack extends Activity {
 						startActivity(new Intent(Backpack.this, WeaponInfo.class));*/
 						
 						Intent weaponInfoIntent = new Intent(Backpack.this, WeaponInfo.class);
-						weaponInfoIntent.putExtra("com.minder.app.tf2backpack.PlayerItemParser.Item", playerItemList.get(((Number)v.getTag()).intValue()));
+						weaponInfoIntent.putExtra("com.minder.app.tf2backpack.PlayerItemParser.Item", (Item)v.getTag());
 						startActivity(weaponInfoIntent);
 					}
 					break;
@@ -541,5 +432,12 @@ public class Backpack extends Activity {
         case DIALOG_STATS:
         }
         return null;
+    }
+    
+    private static class BackpackPosComparator implements java.util.Comparator<Item> {
+		public int compare(Item left, Item right) {
+			return left.getBackpackPosition() - right.getBackpackPosition();
+		}
+    	
     }
 }

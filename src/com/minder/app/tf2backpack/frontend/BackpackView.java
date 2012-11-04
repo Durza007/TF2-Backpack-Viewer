@@ -1,24 +1,66 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.List;
+
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.frontend.Backpack.Holder;
+import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.Item;
 
 public class BackpackView extends TableLayout {
 	public interface OnLayoutReadyListener {
 		public abstract void onReady();
 	}
 	
+	private static class Holder {
+		public static TextView textCount;
+		public static TextView textEquipped;
+		public static ImageButton imageButton;
+		public static ImageView colorSplat;
+		
+		public static void setView(View v){
+			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
+			textCount = (TextView)v.findViewById(R.id.TextViewCount);
+			textEquipped = (TextView)v.findViewById(R.id.TextViewEquipped);
+			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
+		}
+		
+		public static void clear() {
+			colorSplat = null;
+			textCount = null;
+			textEquipped = null;
+			imageButton = null;
+		}
+	}
+	
+	private final static int BACKPACK_CELL_COUNT = 50;
+	
+	private Context context;
 	public int backpackCellSize;
-	public View buttonList[];
+	private View[] buttonList;
+	private boolean coloredCells;
+	private Bitmap colorSplat;
+	private Bitmap colorTeamSpirit;
+	private boolean[] buttonsChanged; 
 	private boolean isTableCreated = false;
 	
 	private OnClickListener onClickListener;
@@ -31,21 +73,38 @@ public class BackpackView extends TableLayout {
 	public void setOnReadyListener(OnLayoutReadyListener o) {
 		onReady = o;
 	}
+	
+	public void setColoredCells(boolean useColoredCells) {
+		this.coloredCells = true;
+	}
 
 	public BackpackView(Context context) {
 		super(context);
-		this.setStretchAllColumns(true);
+		
+		init(context);
 	}
 	
 	public BackpackView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+
+		init(context);
+	}
+	
+	private void init(Context context) {
+		this.context = context;
 		this.setStretchAllColumns(true);
+		
+        Resources r = this.getResources();
+
+        colorSplat = BitmapFactory.decodeResource(r, R.drawable.color_circle);
+        colorTeamSpirit = BitmapFactory.decodeResource(r, R.drawable.color_circle_team_spirit);
 	}
 	
 	private void createTable() {
 		Log.d("BackpackView", "createTable");
         LayoutInflater mInflater = (LayoutInflater)this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        buttonList = new View[50];
+        buttonList = new View[BACKPACK_CELL_COUNT];
+        buttonsChanged = new boolean[BACKPACK_CELL_COUNT];
         
         for (int f = 0; f < 5; f++) {
             TableRow tr = new TableRow(this.getContext());
@@ -117,4 +176,110 @@ public class BackpackView extends TableLayout {
 			}
 		}
     };
+    
+    /**
+     * Set which items to display in the grid
+     * @param itemList The list of items
+     * @param cellIndexOffset The backpack pos offset - this view is not aware of pages
+     * 		  so we need to make sure that the pos index of all items lay within 0 to 49
+     */
+    public void setItems(List<Item> itemList, int cellIndexOffset) {
+    	for (Item item : itemList) {
+    		final int backpackPos = item.getBackpackPosition() - cellIndexOffset;
+    		
+    		if (backpackPos < 0 || backpackPos >= BACKPACK_CELL_COUNT)
+    			throw new ArrayIndexOutOfBoundsException("Item with bad backpack pos: " + backpackPos);
+    		
+    		Holder.setView(buttonList[backpackPos]);
+    		buttonsChanged[backpackPos] = true;
+    		
+    		// give an pointer to the item object to the cell
+			Holder.imageButton.setTag(item);
+    		try {
+				FileInputStream in = context.openFileInput(item.getDefIndex() + ".png");
+				
+				Bitmap image = BitmapFactory.decodeStream(in);
+				if (image != null){
+					Bitmap newImage = Bitmap.createScaledBitmap(image, backpackCellSize, backpackCellSize, false);
+					if (newImage != image) {
+						image.recycle();
+					}
+					image = newImage;
+				} else {
+					throw new FileNotFoundException();
+				}
+				
+				Holder.imageButton.setImageBitmap(image);
+    		} catch (FileNotFoundException e) {
+				Holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false));
+				Holder.imageButton.setTag(item);
+				e.printStackTrace();
+				SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this.context);
+				if (!sp.getBoolean("skipunknownitemdialog", false)){
+					//TODO showDialog(DIALOG_UNKNOWN_ITEM);
+				}
+			}
+    		
+			if (coloredCells == true){
+				final int quality = item.getQuality();
+				if (quality >=1 && quality <= 13){
+					if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
+						Holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
+						Holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
+					}
+				}
+			}
+			
+			if (item.getQuantity() > 1){
+				Holder.textCount.setVisibility(View.VISIBLE);
+				Holder.textCount.setText(String.valueOf(item.getQuantity()));
+			} else {
+				Holder.textCount.setVisibility(View.GONE);
+			}
+			
+			if (item.isEquipped()){
+				Holder.textEquipped.setVisibility(View.VISIBLE);
+			} else {
+				Holder.textEquipped.setVisibility(View.GONE);
+			}
+			
+			int color = item.getColor();
+			if (color != 0){
+				if (color == 1){		
+		    		Holder.colorSplat.setImageBitmap(colorTeamSpirit);
+					Holder.colorSplat.setVisibility(View.VISIBLE);
+		    		Holder.colorSplat.setColorFilter(null);
+				} else {
+					//ColorFilter filter = new LightingColorFilter((0xFF << 24) | color, 1);
+					Holder.colorSplat.setImageBitmap(colorSplat);
+					Holder.colorSplat.setVisibility(View.VISIBLE);
+		    		Holder.colorSplat.setColorFilter(null);
+					Holder.colorSplat.setColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP);
+				}
+			} else {
+				Holder.colorSplat.setVisibility(View.GONE);
+			}
+    	}
+    	
+    	// reset anything we haven't changed
+    	final int count = buttonsChanged.length;
+    	for(int index = 0; index < count; index++){
+    		if (buttonsChanged[index] == false){
+        		Holder.setView(buttonList[index]);
+        		Holder.imageButton.setImageBitmap(null);
+        		if (coloredCells){
+        			Holder.imageButton.getBackground().clearColorFilter();
+        			Holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
+        		}
+        		Holder.textCount.setVisibility(View.GONE);
+        		Holder.textEquipped.setVisibility(View.GONE);
+        		Holder.colorSplat.setVisibility(View.GONE);
+        		Holder.imageButton.setTag(null);
+        		
+        		Holder.clear();
+    		} else {
+        		buttonsChanged[index] = false;
+    		}
+    	}
+    }
 }
