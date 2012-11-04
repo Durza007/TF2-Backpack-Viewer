@@ -109,7 +109,7 @@ public class HttpConnection implements Runnable {
 	public void run() {
 		handler.sendMessage(Message.obtain(handler, HttpConnection.DID_START));
 		httpClient = new DefaultHttpClient();
-		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 25000);
+		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 5000);
 		try {
 			HttpResponse response = null;
 			switch (method) {

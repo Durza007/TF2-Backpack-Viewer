@@ -445,9 +445,18 @@ public class WeaponInfo extends Activity {
     		"Flaming Lantern",
     		"Cloudy Moon",
     		"Cauldron Bubbles",
-    		"Eerie Orbiting Fire"
+    		"Eerie Orbiting Fire",
+    		"",
+    		"",
+    		"Knifestorm",
+    		"Misty Skull",
+    		"Harvest Moon",
+    		"It's A Secret To Everybody",
+    		"Stormy 13th Hour"
     	};
-    	if ((particleEffect >= 2 && particleEffect <= 20) || (particleEffect >= 28 && particleEffect <= 40)){
+    	if ((particleEffect >= 2 && particleEffect <= 20) || 
+    			(particleEffect >= 28 && particleEffect <= 40) ||
+    			(particleEffect >= 43 && particleEffect <= 47)){
     		return particleEffects[particleEffect - 2];
     	}
     	return String.valueOf(particleEffect);
