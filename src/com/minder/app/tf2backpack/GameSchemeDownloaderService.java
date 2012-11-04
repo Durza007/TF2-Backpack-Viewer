@@ -24,10 +24,16 @@ import com.minder.app.tf2backpack.frontend.DashBoard;
 public class GameSchemeDownloaderService extends Service {
 	private static final String DEBUG_TAG = "GameSchemeDownloaderService";
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
+	private static boolean gameSchemeChecked = false;
 	private static boolean gameSchemeReady = false;
 	private Request gameSchemeRequest;
 	
 	public static boolean isGameSchemeReady() {
+		if (!gameSchemeChecked) {
+			gameSchemeChecked = true;
+			gameSchemeReady = isGameSchemeUpToDate();
+		}
+		
 		return gameSchemeReady;
 	}
  
@@ -75,6 +81,13 @@ public class GameSchemeDownloaderService extends Service {
         editor.commit();
         
         gameSchemeReady = true;
+    }
+    
+    private static boolean isGameSchemeUpToDate() {
+    	SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences("gamefiles", MODE_PRIVATE);	
+    	int version = gamePrefs.getInt("download_version", -1);
+    	
+    	return DataManager.CURRENT_GAMESCHEMA_VERSION > version;
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	

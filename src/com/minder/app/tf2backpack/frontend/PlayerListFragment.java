@@ -41,6 +41,7 @@ import com.minder.app.tf2backpack.backend.DataManager.Request;
 
 public class PlayerListFragment extends Fragment {
 	Handler mHandler = new Handler();
+	private final boolean isAboveGingerBread;
 	
 	private boolean ready = false;
 	private boolean loadingMore = false;
@@ -54,7 +55,7 @@ public class PlayerListFragment extends Fragment {
 	private AdView adView;
 	
 	private boolean setPlayerId;
-	private boolean friendList;
+	private final boolean friendList = true;
 	private boolean searchList;
 	public int searchPage = 1;
 	public String searchQuery;
@@ -70,10 +71,18 @@ public class PlayerListFragment extends Fragment {
 	private List<SteamUser> steamUserList;
 	private Request currentRequest;
 	
+	public PlayerListFragment() {
+		isAboveGingerBread = android.os.Build.VERSION.SDK_INT > 10;
+	}
+	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         this.setRetainInstance(true);
+        
+        if (!isAboveGingerBread) {
+        	this.setHasOptionsMenu(true);
+        }
         
         getSettings();
 
@@ -309,16 +318,17 @@ public class PlayerListFragment extends Fragment {
 		}
 	}
     
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getActivity().getMenuInflater();
+	@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (friendList == true){
         	inflater.inflate(R.menu.friend_menu, menu);
         } else {
         	inflater.inflate(R.menu.wrench_menu, menu);
         }
-        return true;
+        super.onCreateOptionsMenu(menu, inflater);
     }
     
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
@@ -344,7 +354,7 @@ public class PlayerListFragment extends Fragment {
 	    		/* Get the selected item out of the Adapter by its position. */
 	    		//Favorite favContexted = (Favorite) mFavList.getAdapter().getItem(menuInfo.position);
 	    		SteamUser player = (SteamUser)adapter.getItem(info.position);
-	    		//TODO startActivity(new Intent(PlayerList.this, Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
+	    		startActivity(new Intent(PlayerListFragment.this.getActivity(), Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
 	    		return true; /* true means: "we handled the event". */
 	    	}
 	    	case CONTEXTMENU_VIEW_STEAMPAGE: {
