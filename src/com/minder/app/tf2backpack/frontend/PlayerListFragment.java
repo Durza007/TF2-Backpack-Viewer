@@ -75,6 +75,7 @@ public class PlayerListFragment extends Fragment {
 		isAboveGingerBread = android.os.Build.VERSION.SDK_INT > 10;
 	}
 	
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         

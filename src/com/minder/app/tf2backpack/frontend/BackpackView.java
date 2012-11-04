@@ -11,9 +11,12 @@ import android.widget.TableRow;
 
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.frontend.Backpack.Holder;
-import com.minder.app.tf2backpack.frontend.Backpack.OnLayoutReadyListener;
 
 public class BackpackView extends TableLayout {
+	public interface OnLayoutReadyListener {
+		public abstract void onReady();
+	}
+	
 	public int backpackCellSize;
 	public View buttonList[];
 	private boolean isTableCreated = false;

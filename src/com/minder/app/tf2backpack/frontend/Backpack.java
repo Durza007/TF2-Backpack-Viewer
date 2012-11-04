@@ -44,12 +44,9 @@ import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.Item;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.frontend.BackpackView.OnLayoutReadyListener;
 
 public class Backpack extends Activity {
-	public interface OnLayoutReadyListener {
-		public abstract void onReady();
-	}
-	
 	private static class DataHolder {
 		public ArrayList<Item> playerItemList;
 		public int pageNumber;
