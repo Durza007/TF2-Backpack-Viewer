@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.SteamUser;
 
 public class SelectBackpack extends Activity {
 	private Typeface tf2TypeFace;
@@ -50,7 +51,10 @@ public class SelectBackpack extends Activity {
 				case R.id.ButtonMyBackpack:
 			        SharedPreferences playerPrefs = SelectBackpack.this.getSharedPreferences("player", MODE_PRIVATE);
 			        String playerId = playerPrefs.getString("id", null);
-			        startActivity(new Intent(SelectBackpack.this, Backpack.class).putExtra("id", playerId));
+			        SteamUser user = new SteamUser();
+			        user.steamdId64 = Long.parseLong(playerId);
+			        startActivity(new Intent(SelectBackpack.this, BackpackActivity.class)
+			        	.putExtra("com.minder.app.tf2backpack.SteamUser", user));
 			        finish();
 					break;
 				case R.id.ButtonUserId:
@@ -63,7 +67,6 @@ public class SelectBackpack extends Activity {
 				case R.id.ButtonCancel:
 					finish();
 					break;
-				
 			}
 			
 		}

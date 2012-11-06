@@ -136,6 +136,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+        <activity android:name=".frontend.BackpackActivity"></activity>
     </application>
 
 </manifest>

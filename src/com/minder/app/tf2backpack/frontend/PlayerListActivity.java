@@ -31,7 +31,7 @@ public class PlayerListActivity extends FragmentActivity {
         	return;
         }
         
-        setContentView(R.layout.activity_playerlist);
+        setContentView(R.layout.activity_generic);
         //getActionBar().setDisplayHomeAsUpEnabled(true);
         
         FragmentManager fragmentManager = this.getSupportFragmentManager();
