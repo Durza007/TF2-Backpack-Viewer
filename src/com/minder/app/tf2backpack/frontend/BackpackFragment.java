@@ -25,6 +25,7 @@ import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
+import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.Item;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
@@ -135,7 +136,8 @@ public class BackpackFragment extends Fragment {
 			// nothing
 		}
 
-		public void onPostExecute(Object object) {
+		public void onPostExecute(Request request) {
+			Object object = request.getData();
 			if (object != null) {
 				PlayerItemListParser pl = (PlayerItemListParser) object;
 

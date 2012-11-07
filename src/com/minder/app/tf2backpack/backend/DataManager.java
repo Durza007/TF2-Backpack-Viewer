@@ -36,10 +36,25 @@ public class DataManager {
 	// Inner classes
 	public static class Request {
 		private final int type;
+		private boolean finished;
+		private Object data;
 		private Exception exception;
 		
 		public Request(int type) {
 			this.type = type;
+		}
+		
+		public boolean isFinished() {
+			return this.finished;
+		}
+		
+		public Object getData() {
+			return this.data;
+		}
+		
+		private void setData(Object data) {
+			this.data = data;
+			finished = true;
 		}
 		
 		public int getType() {
@@ -206,7 +221,8 @@ public class DataManager {
 		
 		@Override
 		protected void onPostExecute(PlayerItemListParser parser) {
-			listener.onPostExecute(parser);
+			request.setData(parser);
+			listener.onPostExecute(request);
 			removeRequest(request);
 		}
 	}
@@ -310,8 +326,9 @@ public class DataManager {
 		}
     	
         protected void onPostExecute(ArrayList<SteamUser> result) {
-        	listener.onPostExecute(result);
-        	asyncWorkList.remove(request);
+        	request.setData(result);
+        	listener.onPostExecute(request);
+        	removeRequest(request);
         }
     }
     

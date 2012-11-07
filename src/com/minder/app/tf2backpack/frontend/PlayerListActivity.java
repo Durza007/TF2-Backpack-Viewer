@@ -62,7 +62,8 @@ public class PlayerListActivity extends FragmentActivity {
 		}
 
 		@SuppressWarnings("unchecked")
-		public void onPostExecute(Object result) {
+		public void onPostExecute(Request request) {
+			Object result = request.getData();
         	if (result != null){
         		currentRequest = 
         			App.getDataManager().requestSteamUserInfo(
@@ -82,7 +83,7 @@ public class PlayerListActivity extends FragmentActivity {
 			playerListFragment.refreshList();
 		}
 
-		public void onPostExecute(Object object) {
+		public void onPostExecute(Request request) {
 			//setProgressBarIndeterminateVisibility(false);
 		}
 	};

@@ -1,6 +1,5 @@
 package com.minder.app.tf2backpack;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -60,7 +59,7 @@ public class GameSchemeDownloaderService extends Service {
     	boolean refreshImages = intent.getExtras().getBoolean("refreshImages");
     	
     	// start the request
-    	App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages);
+    	gameSchemeRequest = App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages);
     }
     
     private void removeGameSchemeDownloaded() {
@@ -91,7 +90,6 @@ public class GameSchemeDownloaderService extends Service {
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	
-    	@TargetApi(16)
 		public void onPreExecute() {
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			
@@ -164,7 +162,7 @@ public class GameSchemeDownloaderService extends Service {
 			}
 		}
 
-		public void onPostExecute(Object object) {
+		public void onPostExecute(Request request) {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Removing notification");
 			
