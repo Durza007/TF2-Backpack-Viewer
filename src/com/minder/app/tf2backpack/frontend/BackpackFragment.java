@@ -108,7 +108,7 @@ public class BackpackFragment extends Fragment {
 
 		downloadPlayerData();
 
-		return null;
+		return view;
 	}
 	
     // listener used to make sure data is not added before view is ready for it
@@ -203,7 +203,7 @@ public class BackpackFragment extends Fragment {
 						startActivity(new Intent(Backpack.this, WeaponInfo.class));*/
 						
 						Intent weaponInfoIntent = new Intent(BackpackFragment.this.getActivity(), WeaponInfo.class);
-						weaponInfoIntent.putExtra("com.minder.app.tf2backpack.PlayerItemParser.Item", playerItemList.get(((Number)v.getTag()).intValue()));
+						weaponInfoIntent.putExtra("com.minder.app.tf2backpack.PlayerItemParser.Item", (Item)v.getTag());
 						startActivity(weaponInfoIntent);
 					}
 					break;
