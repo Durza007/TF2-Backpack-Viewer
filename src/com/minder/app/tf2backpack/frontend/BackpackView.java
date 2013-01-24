@@ -5,17 +5,17 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
@@ -55,6 +55,7 @@ public class BackpackView extends TableLayout {
 	private final static int BACKPACK_CELL_COUNT = 50;
 	
 	private Context context;
+	private int fixedWidth;
 	public int backpackCellSize;
 	private View[] buttonList;
 	private boolean coloredCells;
@@ -77,20 +78,34 @@ public class BackpackView extends TableLayout {
 	public void setColoredCells(boolean useColoredCells) {
 		this.coloredCells = true;
 	}
+	
+	public void setFixedWidth(int fixedWidth) {
+		this.fixedWidth = fixedWidth;
+		
+		final HorizontalScrollView.LayoutParams params = (HorizontalScrollView.LayoutParams) this.getLayoutParams();
+		params.width = fixedWidth;
+		this.setLayoutParams(params);
+	}
 
 	public BackpackView(Context context) {
 		super(context);
 		
-		init(context);
+		init(context, null);
 	}
 	
 	public BackpackView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		init(context);
+		init(context, attrs);
 	}
 	
-	private void init(Context context) {
+	public BackpackView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs);
+		
+		init(context, attrs);
+	}
+	
+	private void init(Context context, AttributeSet attrs) {
 		this.context = context;
 		this.setStretchAllColumns(true);
 		
@@ -138,8 +153,12 @@ public class BackpackView extends TableLayout {
 	@Override
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {      
         Log.d("BackpackView", "onSizeChanged h = " + h);
-      
-        backpackCellSize  = h / 5;
+        
+        if (fixedWidth != 0) {
+        	backpackCellSize = fixedWidth / 10;
+        } else {
+        	backpackCellSize  = h / 5;
+        }
         
         if (!isTableCreated) {
         	createTable();

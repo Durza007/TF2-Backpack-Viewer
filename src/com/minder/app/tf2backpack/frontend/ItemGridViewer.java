@@ -63,6 +63,10 @@ public class ItemGridViewer extends Activity {
 		
 		if (oldIitemList != null) {
 			itemAdapter.setList(oldIitemList);
+			
+			if (savedInstanceState != null) {
+				this.setTitle(savedInstanceState.getCharSequence("title"));
+			}
 		} else {
 			String action = getIntent().getAction();
 			if (action != null){
@@ -96,7 +100,6 @@ public class ItemGridViewer extends Activity {
 				finish();
 			}
 		}
-		
 		grid.setAdapter(itemAdapter);
 	}
 	
@@ -110,6 +113,13 @@ public class ItemGridViewer extends Activity {
 			startActivity(weaponInfoIntent);
 		}	
 	};
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putCharSequence("title", this.getTitle());
+	}
 	
     @Override
     public Object onRetainNonConfigurationInstance() {

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
 
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.R;
@@ -16,8 +18,10 @@ import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.frontend.PlayerListFragment.OnPlayerSelectedListener;
 
 public class PlayerListActivity extends FragmentActivity {
+	private boolean hasBackpackView;
 	private PlayerListFragment playerListFragment;
 	private Request currentRequest;
 
@@ -31,14 +35,17 @@ public class PlayerListActivity extends FragmentActivity {
         	return;
         }
         
-        setContentView(R.layout.activity_generic);
+        setContentView(R.layout.player_list_activity);
         //getActionBar().setDisplayHomeAsUpEnabled(true);
+        final View backpackView = findViewById(R.id.frameLayoutBackpackView);
+        hasBackpackView = backpackView != null;
         
         FragmentManager fragmentManager = this.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         
         playerListFragment = new PlayerListFragment();
-        fragmentTransaction.add(R.id.frameLayoutFragment, playerListFragment);
+        playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
+        fragmentTransaction.add(R.id.frameLayoutPlayerList, playerListFragment);
         fragmentTransaction.commit();
         
         SharedPreferences playerPrefs = getSharedPreferences("player", Activity.MODE_PRIVATE);
@@ -51,6 +58,23 @@ public class PlayerListActivity extends FragmentActivity {
         	currentRequest = App.getDataManager().requestFriendsList(friendListListener, user);
         }
     }
+    
+    private OnPlayerSelectedListener onPlayerSelectedListener = new OnPlayerSelectedListener() {
+		public void onPlayerSelected(SteamUser user) {
+			if (hasBackpackView) {
+		        FragmentManager fragmentManager = PlayerListActivity.this.getSupportFragmentManager();
+		        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		        
+		        final View view = findViewById(R.id.frameLayoutBackpackView);   
+		        BackpackFragment backpackFragment = BackpackFragment.newInstance(user, view.getWidth());
+		        fragmentTransaction.add(R.id.frameLayoutBackpackView, backpackFragment);
+		        fragmentTransaction.commit();
+			} else {
+		        startActivity(new Intent(PlayerListActivity.this, BackpackActivity.class)
+		        	.putExtra("com.minder.app.tf2backpack.SteamUser", user));
+			}
+		}
+	};
 
     private AsyncTaskListener friendListListener = new AsyncTaskListener() {
 		public void onPreExecute() {

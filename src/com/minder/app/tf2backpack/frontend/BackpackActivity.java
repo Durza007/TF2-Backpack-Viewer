@@ -27,7 +27,7 @@ public class BackpackActivity extends FragmentActivity {
         final FragmentManager fragmentManager = this.getSupportFragmentManager();
         final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         
-        backpackFragment = new BackpackFragment(user);
+        backpackFragment = BackpackFragment.newInstance(user);
         fragmentTransaction.add(R.id.frameLayoutFragment, backpackFragment);
         fragmentTransaction.commit();
     }

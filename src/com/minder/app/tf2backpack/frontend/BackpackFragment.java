@@ -32,21 +32,7 @@ import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.BackpackView.OnLayoutReadyListener;
 
 public class BackpackFragment extends Fragment {
-	private static class DataHolder {
-		public ArrayList<Item> playerItemList;
-		public int pageNumber;
-		public int numberOfPages;
-		
-		public DataHolder(ArrayList<Item> list, int pageNumber, int numberOfPages){
-			this.playerItemList = list;
-			this.pageNumber = pageNumber;
-			this.numberOfPages = numberOfPages;
-		}
-	}
-	
 	private final static int DEFAULT_NUMBER_OF_PAGES = 6;
-	
-	private SteamUser currentUser;
 
 	private BackpackView backpackView;
 	private boolean addPlayerDataToView;
@@ -61,11 +47,49 @@ public class BackpackFragment extends Fragment {
 	
 	private final Comparator<Item> comparator;
 	
-	public BackpackFragment(SteamUser user) {
-		this.currentUser = user;
+    /**
+     * Create a new instance of BackpackFragment, initialized to
+     * show backpack for 'user'.
+     */
+    public static BackpackFragment newInstance(SteamUser user) {
+    	final BackpackFragment f = new BackpackFragment();
+
+        // Supply user input as an argument.
+        Bundle args = new Bundle();
+        args.putParcelable("user", user);
+        f.setArguments(args);
+
+        return f;
+    }
+    
+    /**
+     * Create a new instance of BackpackFragment, initialized to
+     * show backpack for 'user' and scaled to fit on the x axis
+     */
+    public static BackpackFragment newInstance(SteamUser user, int fixedWidth) {
+    	final BackpackFragment f = new BackpackFragment();
+
+        // Supply user input as an argument.
+        Bundle args = new Bundle();
+        args.putParcelable("user", user);
+        args.putInt("fixedWidth", fixedWidth);
+        f.setArguments(args);
+
+        return f;
+    }
+    
+    public BackpackFragment() {
 		this.comparator = new BackpackPosComparator();
 		this.numberOfPages = DEFAULT_NUMBER_OF_PAGES;
-	}
+    }
+    
+    public SteamUser getSteamUser() {
+    	return getArguments().getParcelable("user");
+    }
+	
+    private int getFixedWidth() {
+    	return getArguments().getInt("fixedWidth", 0);
+    }
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -79,7 +103,7 @@ public class BackpackFragment extends Fragment {
 			Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.backpack, container, false);
-
+		
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this.getActivity());
 		final boolean coloredCells = sp.getBoolean("backpackrarity", true);
@@ -89,6 +113,10 @@ public class BackpackFragment extends Fragment {
 		backpackView.setOnClickListener(onButtonBackpackClick);
 		backpackView.setOnReadyListener(onLayoutReadyListener);
 		backpackView.setColoredCells(coloredCells);
+		
+		final int fixedWidth = getFixedWidth();
+		if (fixedWidth != 0)
+			backpackView.setFixedWidth(fixedWidth);
 
 		Button nextButton = (Button) view.findViewById(R.id.ButtonNext);
 		nextButton.setOnClickListener(onButtonBackpackClick);
@@ -235,7 +263,7 @@ public class BackpackFragment extends Fragment {
     }
     
     public void downloadPlayerData(){ 	
-    	App.getDataManager().requestPlayerItemList(asyncTasklistener, currentUser);
+    	App.getDataManager().requestPlayerItemList(asyncTasklistener, getSteamUser());
     }
     
     public void addPlayerDataToView(){

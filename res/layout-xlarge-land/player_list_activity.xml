@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout01"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color"
+    android:baselineAligned="true"
+    android:orientation="horizontal" >
+
+    <FrameLayout
+        android:id="@+id/frameLayoutPlayerList"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_gravity="bottom"
+        android:layout_weight="1" >
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/frameLayoutBackpackView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2" >
+    </FrameLayout>
+
+</LinearLayout>

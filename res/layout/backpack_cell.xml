@@ -1,9 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/FrameLayoutRoot"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/FrameLayoutRoot" android:layout_height="fill_parent" android:layout_width="fill_parent"><ImageButton android:id="@+id/ImageButtonCell" android:background="@drawable/backpack_cell" android:layout_height="fill_parent" android:layout_width="fill_parent"></ImageButton>
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewCount" android:textColor="@color/backpack_text" android:layout_marginTop="5dp" android:paddingLeft="6dp" android:paddingTop="5dp"></TextView>
+    <ImageButton
+        android:id="@+id/ImageButtonCell"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/backpack_cell" >
+    </ImageButton>
 
+    <TextView
+        android:id="@+id/TextViewCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:paddingLeft="6dp"
+        android:paddingTop="5dp"
+        android:textColor="@color/backpack_text" >
+    </TextView>
 
-<ImageView android:paddingRight="5dp" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="right" android:id="@+id/ImageViewItemColor" android:paddingTop="5dp" android:visibility="gone"></ImageView>
-<TextView android:layout_height="wrap_content" android:id="@+id/TextViewEquipped" android:text="@string/equipped" android:layout_width="wrap_content" android:layout_marginBottom="5dp" android:textSize="@dimen/backpack_text" android:textColor="@color/backpack_text" android:layout_gravity="bottom|right" android:layout_marginRight="5dp" android:visibility="gone" android:background="@drawable/bg_black"></TextView>
+    <ImageView
+        android:id="@+id/ImageViewItemColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:visibility="gone" >
+    </ImageView>
+
+    <TextView
+        android:id="@+id/TextViewEquipped"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/bg_black"
+        android:text="@string/equipped"
+        android:textColor="@color/backpack_text"
+        android:textSize="@dimen/backpack_text"
+        android:visibility="gone" >
+    </TextView>
+
 </FrameLayout>

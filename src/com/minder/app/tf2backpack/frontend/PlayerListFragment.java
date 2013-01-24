@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.ProgressDialog;
@@ -29,7 +30,9 @@ import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.google.ads.AdView;
@@ -40,6 +43,15 @@ import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 
 public class PlayerListFragment extends Fragment {
+	/**
+	 * Interface used by other classes to register notifications
+	 * when a Steam user has been selected
+	 */
+	public static interface OnPlayerSelectedListener {
+		public void onPlayerSelected(SteamUser user);
+	}
+	
+	private List<OnPlayerSelectedListener> listeners;
 	Handler mHandler = new Handler();
 	private final boolean isAboveGingerBread;
 	
@@ -65,14 +77,21 @@ public class PlayerListFragment extends Fragment {
 	private View footerView;
 	private View noResultFooterView;
 	private int totalInfoDownloads;
-	private int numberInfoDownloads;
-	private int workingThreads;
 	
 	private List<SteamUser> steamUserList;
 	private Request currentRequest;
 	
+    private OnItemClickListener clickListener = new OnItemClickListener() {
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			final SteamUser user = (SteamUser)adapter.getItem(position);
+			
+			notifyListeners(user);
+		}
+	};
+	
 	public PlayerListFragment() {
 		isAboveGingerBread = android.os.Build.VERSION.SDK_INT > 10;
+		listeners = new LinkedList<OnPlayerSelectedListener>();
 	}
 	
 	@Override
@@ -163,6 +182,9 @@ public class PlayerListFragment extends Fragment {
         
         playerList.setBackgroundResource(R.color.bg_color);
         playerList.setCacheColorHint(this.getResources().getColor(R.color.bg_color));
+        adapter.setComparator(new byPersonaState());
+        
+        playerList.setOnItemClickListener(clickListener);
         
         /*playerList.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
@@ -370,12 +392,18 @@ public class PlayerListFragment extends Fragment {
     	return false;
     }
 
+    public void addPlayerSelectedListener(OnPlayerSelectedListener listener) {
+    	listeners.add(listener);
+    }
+    
+    private void notifyListeners(SteamUser user) {
+    	for (OnPlayerSelectedListener listener : listeners) {
+    		listener.onPlayerSelected(user);
+    	}
+    }
+    
     private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
     	public int pageNumber = 1;
-    	
-    	protected void onPreExecute(){
-    		workingThreads++;
-    	}
     	
 		@Override
 		protected ArrayList<SteamUser> doInBackground(String... params) {    	
@@ -457,7 +485,6 @@ public class PlayerListFragment extends Fragment {
         			playerList.addFooterView(noResultFooterView, null, false);
         		}
         	}
-        	workingThreads--;
         	//GetPlayerInfoRange(0, 10);
         	loadingMore = false;
         	playerList.removeFooterView(footerView);

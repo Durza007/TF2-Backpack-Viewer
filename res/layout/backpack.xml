@@ -2,20 +2,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/RelativeLayoutBackpack"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:background="@color/bg_color" >
-
+
     <HorizontalScrollView
         android:id="@+id/HorizontalScrollViewBackpack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/linearLayoutControls"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_centerInParent="true" >
-
+        android:layout_centerInParent="false" >
+
         <com.minder.app.tf2backpack.frontend.BackpackView
             android:id="@+id/TableLayoutBackPack"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:fadeScrollbars="true" >
 

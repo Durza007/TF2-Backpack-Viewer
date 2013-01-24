@@ -71,4 +71,5 @@
     <string name="default_string">Default</string>
     <string name="downloading_images">Downloading images…</string>
     <string name="parsing_schema">Parsing data…</string>
+    <string name="select_backpack_in_list">&lt;-- Select a backpack to view</string>
 </resources>
