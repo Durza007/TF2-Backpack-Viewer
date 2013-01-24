@@ -29,8 +29,8 @@ public class GameSchemeDownloaderService extends Service {
 	
 	public static boolean isGameSchemeReady() {
 		if (!gameSchemeChecked) {
-			gameSchemeChecked = true;
 			gameSchemeReady = isGameSchemeUpToDate();
+			gameSchemeChecked = true;
 		}
 		
 		return gameSchemeReady;
@@ -86,7 +86,7 @@ public class GameSchemeDownloaderService extends Service {
     	SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences("gamefiles", MODE_PRIVATE);	
     	int version = gamePrefs.getInt("download_version", -1);
     	
-    	return DataManager.CURRENT_GAMESCHEMA_VERSION > version;
+    	return DataManager.CURRENT_GAMESCHEMA_VERSION == version;
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	

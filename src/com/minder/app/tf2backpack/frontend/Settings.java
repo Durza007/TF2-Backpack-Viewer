@@ -79,15 +79,6 @@ public class Settings extends PreferenceActivity {
             	return true;
             }
         });
-        
-        /*Preference clearCache = (Preference)findPreference("clearcache");
-        clearCache.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			public boolean onPreferenceClick(Preference preference) {
-				CacheManager.getInstance().clear();
-				Toast.makeText(Settings.this, R.string.cache_cleared, Toast.LENGTH_SHORT).show();
-				return true;
-			}     	
-        });*/
     }
     
     @Override
