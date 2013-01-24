@@ -377,7 +377,7 @@ public class PlayerListFragment extends Fragment {
 	    		/* Get the selected item out of the Adapter by its position. */
 	    		//Favorite favContexted = (Favorite) mFavList.getAdapter().getItem(menuInfo.position);
 	    		SteamUser player = (SteamUser)adapter.getItem(info.position);
-	    		startActivity(new Intent(PlayerListFragment.this.getActivity(), Backpack.class).putExtra("id", String.valueOf(player.steamdId64)));
+	    		startActivity(new Intent(PlayerListFragment.this.getActivity(), BackpackActivity.class).putExtra("id", String.valueOf(player.steamdId64)));
 	    		return true; /* true means: "we handled the event". */
 	    	}
 	    	case CONTEXTMENU_VIEW_STEAMPAGE: {

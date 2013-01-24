@@ -15,6 +15,7 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.SteamUser;
 
 public class Settings extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
@@ -71,7 +72,10 @@ public class Settings extends PreferenceActivity {
         Preference aboutCreator = (Preference)findPreference("aboutcreator");
         aboutCreator.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-            	startActivity(new Intent(Settings.this, Backpack.class).putExtra("id", "76561197992965248"));
+            	SteamUser user = new SteamUser();
+            	user.steamdId64 = Long.parseLong("76561197992965248");
+            	startActivity(new Intent(Settings.this, BackpackActivity.class)
+            		.putExtra("com.minder.app.tf2backpack.SteamUser", user));
             	return true;
             }
         });

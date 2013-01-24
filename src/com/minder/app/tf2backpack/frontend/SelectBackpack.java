@@ -76,7 +76,11 @@ public class SelectBackpack extends Activity {
     {
     	if (resultCode == RESULT_OK) {
     		Bundle bundle = data.getExtras();
-    		startActivity(new Intent(this, Backpack.class).putExtra("id", bundle.getString("id")));
+	        String playerId = bundle.getString("id");
+	        SteamUser user = new SteamUser();
+	        user.steamdId64 = Long.parseLong(playerId);
+    		startActivity(new Intent(this, BackpackActivity.class)
+    			.putExtra("com.minder.app.tf2backpack.SteamUser", user));
     	}
 		finish();
     }
