@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Button" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
@@ -27,13 +27,17 @@
     </style>
 
     <!-- Notification text styles -->
-    <style name="NotificationText">
+    <!-- <style name="NotificationText">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="NotificationTitle">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textStyle">bold</item>
+    </style>-->
+    <style name="NotificationText" parent="android:TextAppearance.StatusBar.EventContent" />
+    <style name="NotificationTitle" parent="android:TextAppearance.StatusBar.EventContent.Title" >
+    	<item name="android:textStyle">bold</item>
     </style>
     <!--
          If you want a slightly different color for some text,
