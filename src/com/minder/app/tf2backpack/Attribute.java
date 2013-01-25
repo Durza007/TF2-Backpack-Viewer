@@ -130,7 +130,7 @@ public class Attribute {
     	return 0;
     }
     
-	public static class ItemAttribute implements Parcelable{
+	public static class ItemAttribute implements Parcelable {
 		private int itemDefIndex;
 		private int attributeDefIndex;
 		private String name;

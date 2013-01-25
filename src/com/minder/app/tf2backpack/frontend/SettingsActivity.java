@@ -32,11 +32,14 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        if (Build.VERSION.SDK_INT < 11) {
+        setContentView(R.layout.list_layout);     
+        adView = (AdView)findViewById(R.id.ad);
+        
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
         	preHoneycombOnCreate();
         } else {
             getFragmentManager().beginTransaction()
-            	.replace(android.R.id.content, new SettingsFragment())
+            	.replace(R.id.LinearLayoutList, new SettingsFragment())
             	.commit();
         }
     }
@@ -44,15 +47,12 @@ public class SettingsActivity extends PreferenceActivity {
     @SuppressWarnings("deprecation")
 	private void preHoneycombOnCreate() {
     	Log.d("SettingsActivity", "Loading pre HC settings...");
-        setContentView(R.layout.list_layout);
-        
-        adView = (AdView)findViewById(R.id.ad);
         
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.settings);
         
-        Preference myPref = (Preference)findPreference("communityId");
-        myPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        Preference community = (Preference)findPreference("communityId");
+        community.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
             	showDialog(COMMUNITY_ID_TUTORIAL);
             	return true;

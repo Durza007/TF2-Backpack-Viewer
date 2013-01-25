@@ -1,6 +1,6 @@
 package com.minder.app.tf2backpack;
 
-public enum PersonaState { // 1 - Online, 2 - Busy, 3 - Away, 4 - Snooze
+public enum PersonaState {
 	Offline(0),
 	Online(1),
 	Busy(2),

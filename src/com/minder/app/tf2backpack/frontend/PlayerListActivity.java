@@ -63,6 +63,8 @@ public class PlayerListActivity extends FragmentActivity {
             }
         }
         
+        
+        playerListFragment.setListItemSelectable(hasBackpackView);   
     	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
     }
     
