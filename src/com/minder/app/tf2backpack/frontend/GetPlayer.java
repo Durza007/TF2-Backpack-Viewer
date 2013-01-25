@@ -329,11 +329,11 @@ public class GetPlayer extends Activity {
     private void textInputDone() {
 		if (!editTextPlayer.getText().toString().equals("")){
 			myProgressDialog = ProgressDialog.show(mContext, "Please Wait...", "Verifying player info...");
-			FetchPlayerId();
+			fetchPlayerId();
 		}
     }
     
-    private void FetchPlayerId(){
+    private void fetchPlayerId(){
 		Handler handler = new Handler() {
 			public void handleMessage(Message message) {
 				switch (message.what) {

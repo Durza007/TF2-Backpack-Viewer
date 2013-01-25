@@ -1,13 +1,16 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
@@ -17,17 +20,30 @@ import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 
-public class Settings extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
 	private final static int CONFIRMATION_DIALOG_CACHE = 2;
 	private final static int CONFIRMATION_DIALOG_HISTORY = 3;
 	
 	private AdView adView;
 	
-    @Override
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        if (Build.VERSION.SDK_INT < 11) {
+        	preHoneycombOnCreate();
+        } else {
+            getFragmentManager().beginTransaction()
+            	.replace(android.R.id.content, new SettingsFragment())
+            	.commit();
+        }
+    }
+    
+    @SuppressWarnings("deprecation")
+	private void preHoneycombOnCreate() {
+    	Log.d("SettingsActivity", "Loading pre HC settings...");
         setContentView(R.layout.list_layout);
         
         adView = (AdView)findViewById(R.id.ad);
@@ -46,7 +62,7 @@ public class Settings extends PreferenceActivity {
         Preference refresh = (Preference)findPreference("refreshfiles");
         refresh.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
-		    	Intent intent = new Intent(Settings.this, GameSchemeDownloaderService.class);
+		    	Intent intent = new Intent(SettingsActivity.this, GameSchemeDownloaderService.class);
 		    	intent.putExtra("refreshImages", true);
 		    	startService(intent);
 				return true;
@@ -74,7 +90,7 @@ public class Settings extends PreferenceActivity {
             public boolean onPreferenceClick(Preference preference) {
             	SteamUser user = new SteamUser();
             	user.steamdId64 = Long.parseLong("76561197992965248");
-            	startActivity(new Intent(Settings.this, BackpackActivity.class)
+            	startActivity(new Intent(SettingsActivity.this, BackpackActivity.class)
             		.putExtra("com.minder.app.tf2backpack.SteamUser", user));
             	return true;
             }
@@ -110,10 +126,10 @@ public class Settings extends PreferenceActivity {
     			.setMessage(R.string.alert_dialog_are_you_sure)
     			.setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
     				public void onClick(DialogInterface dialog, int whichButton) {
-    					ImageLoader il = new ImageLoader(Settings.this.getApplicationContext(), 128);
+    					ImageLoader il = new ImageLoader(SettingsActivity.this.getApplicationContext(), 128);
     					il.clearCache();
     					
-    					Toast.makeText(Settings.this, "Cache cleared", Toast.LENGTH_SHORT).show();
+    					Toast.makeText(SettingsActivity.this, "Cache cleared", Toast.LENGTH_SHORT).show();
     				}
     			}).setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
     				public void onClick(DialogInterface dialog, int whichButton) {
@@ -129,7 +145,7 @@ public class Settings extends PreferenceActivity {
         			public void onClick(DialogInterface dialog, int whichButton) {
                 		App.getDataManager().getDatabaseHandler().execSql("DELETE FROM name_history");
                 		
-                		Toast.makeText(Settings.this, "History cleared", Toast.LENGTH_SHORT).show();
+                		Toast.makeText(SettingsActivity.this, "History cleared", Toast.LENGTH_SHORT).show();
         			}
         		}).setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {

@@ -39,7 +39,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".frontend.Settings" >
+        <activity android:name="com.minder.app.tf2backpack.frontend.SettingsActivity" >
         </activity>
         <activity
             android:name=".frontend.GetPlayer"

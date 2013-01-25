@@ -100,7 +100,7 @@ public class DashBoard extends Activity {
         //AdManager.setTestDevices( new String[] { "B135E5E10665286A9FA99BA95CE926D4" } );
         
         backpackIntent = new Intent(this, SelectBackpack.class);
-        settingsIntent = new Intent(this, Settings.class);
+        settingsIntent = new Intent(this, SettingsActivity.class);
         
         backpackButton = (ImageButton)findViewById(R.id.ImageButtonBackPack);
         backpackButton.setOnClickListener(onButtonBackpackClick);
