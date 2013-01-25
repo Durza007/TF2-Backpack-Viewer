@@ -40,23 +40,37 @@ public class PlayerListActivity extends FragmentActivity {
         final View backpackView = findViewById(R.id.frameLayoutBackpackView);
         hasBackpackView = backpackView != null;
         
-        FragmentManager fragmentManager = this.getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        
-        playerListFragment = new PlayerListFragment();
-        playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
-        fragmentTransaction.add(R.id.frameLayoutPlayerList, playerListFragment);
-        fragmentTransaction.commit();
-        
-        SharedPreferences playerPrefs = getSharedPreferences("player", Activity.MODE_PRIVATE);
-        
-        String playerId = playerPrefs.getString("id", null);
-        if (playerId != null) {
-        	SteamUser user = new SteamUser();
-        	user.steamdId64 = Long.parseLong(playerId);
+        final FragmentManager fragmentManager = this.getSupportFragmentManager();
+        // check if an old fragment still exists
+        if (savedInstanceState != null) {
+        	playerListFragment = (PlayerListFragment) fragmentManager.findFragmentByTag("playerListFragment");
+        } else {
+        	playerListFragment = new PlayerListFragment();
+        	fragmentManager
+            	.beginTransaction()
+            		.add(R.id.frameLayoutPlayerList, playerListFragment, "playerListFragment")
+            		.commit();
         	
-        	currentRequest = App.getDataManager().requestFriendsList(friendListListener, user);
+        	// need to fetch friend data
+            SharedPreferences playerPrefs = getSharedPreferences("player", Activity.MODE_PRIVATE);
+            
+            String playerId = playerPrefs.getString("id", null);
+            if (playerId != null) {
+            	SteamUser user = new SteamUser();
+            	user.steamdId64 = Long.parseLong(playerId);
+            	
+            	currentRequest = App.getDataManager().requestFriendsList(friendListListener, user);
+            }
         }
+        
+    	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	
+    	playerListFragment.removePlayerSelectedListener(onPlayerSelectedListener);
     }
     
     private OnPlayerSelectedListener onPlayerSelectedListener = new OnPlayerSelectedListener() {

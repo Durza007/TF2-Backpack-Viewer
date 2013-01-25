@@ -66,7 +66,6 @@ public class PlayerListFragment extends Fragment {
 	private ProgressDialog mProgress;
 	private AdView adView;
 	
-	private boolean setPlayerId;
 	private final boolean friendList = true;
 	private boolean searchList;
 	public int searchPage = 1;
@@ -171,7 +170,7 @@ public class PlayerListFragment extends Fragment {
         playerList = (ListView)view.findViewById(android.R.id.list);
         
         // Set up our adapter
-        // TODO maybe rethink if this needs a activity?
+        // TODO maybe re-think if this needs an activity?
         adapter = new PlayerAdapter(getActivity());
         adapter.setShowAvatars(loadAvatars);
         footerView = inflater.inflate(R.layout.loading_footer, null);
@@ -185,6 +184,10 @@ public class PlayerListFragment extends Fragment {
         adapter.setComparator(new byPersonaState());
         
         playerList.setOnItemClickListener(clickListener);
+        
+        if (steamUserList != null) {
+        	adapter.setPlayers(steamUserList);
+        }
         
         /*playerList.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
@@ -394,6 +397,10 @@ public class PlayerListFragment extends Fragment {
 
     public void addPlayerSelectedListener(OnPlayerSelectedListener listener) {
     	listeners.add(listener);
+    }
+    
+    public void removePlayerSelectedListener(OnPlayerSelectedListener listener) {
+    	listeners.remove(listener);
     }
     
     private void notifyListeners(SteamUser user) {

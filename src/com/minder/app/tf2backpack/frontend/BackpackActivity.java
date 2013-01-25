@@ -24,11 +24,15 @@ public class BackpackActivity extends FragmentActivity {
     	
     	SteamUser user = getIntent().getParcelableExtra("com.minder.app.tf2backpack.SteamUser");
     	
-        final FragmentManager fragmentManager = this.getSupportFragmentManager();
-        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        
-        backpackFragment = BackpackFragment.newInstance(user);
-        fragmentTransaction.add(R.id.frameLayoutFragment, backpackFragment);
-        fragmentTransaction.commit();
+        final FragmentManager fragmentManager = this.getSupportFragmentManager();     
+        if (savedInstanceState != null) {
+        	backpackFragment = (BackpackFragment) fragmentManager.findFragmentByTag("backpackFragment");
+        } else {
+        	backpackFragment = BackpackFragment.newInstance(user);
+        	fragmentManager
+            	.beginTransaction()
+            		.add(R.id.frameLayoutFragment, backpackFragment, "backpackFragment")
+            		.commit();
+        }
     }
 }

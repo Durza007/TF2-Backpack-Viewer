@@ -134,8 +134,11 @@ public class BackpackFragment extends Fragment {
 		pageNumberText.setText(onPageNumber + "/" + numberOfPages);
 
 		ungivenList = new ArrayList<Item>();
-
-		downloadPlayerData();
+		
+		if (playerItemList == null)
+			downloadPlayerData();
+		else
+			addPlayerDataToView();
 
 		return view;
 	}
@@ -308,7 +311,11 @@ public class BackpackFragment extends Fragment {
     		}
     	}
     	
-    	backpackView.setItems(playerItemList.subList(startIndex, endIndex + 1), (onPageNumber - 1) * 50);
+    	if (startIndex == -1 || endIndex == -1) {
+    		backpackView.setItems(Collections.<Item>emptyList(), 0);
+    	} else {
+    		backpackView.setItems(playerItemList.subList(startIndex, endIndex + 1), (onPageNumber - 1) * 50);
+    	}
 
     	Log.i(Util.GetTag(), "Add data to view: " + (System.currentTimeMillis() - start) + " ms");
     }
