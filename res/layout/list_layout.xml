@@ -29,5 +29,4 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         layout="@layout/ad"/>
-
 </RelativeLayout>

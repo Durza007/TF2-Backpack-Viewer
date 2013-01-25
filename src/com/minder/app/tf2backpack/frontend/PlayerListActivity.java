@@ -51,6 +51,8 @@ public class PlayerListActivity extends FragmentActivity {
             		.add(R.id.frameLayoutPlayerList, playerListFragment, "playerListFragment")
             		.commit();
         	
+        	playerListFragment.setListItemSelectable(hasBackpackView);   
+        	
         	// need to fetch friend data
             SharedPreferences playerPrefs = getSharedPreferences("player", Activity.MODE_PRIVATE);
             
@@ -63,8 +65,6 @@ public class PlayerListActivity extends FragmentActivity {
             }
         }
         
-        
-        playerListFragment.setListItemSelectable(hasBackpackView);   
     	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
     }
     
@@ -76,7 +76,7 @@ public class PlayerListActivity extends FragmentActivity {
     }
     
     private OnPlayerSelectedListener onPlayerSelectedListener = new OnPlayerSelectedListener() {
-		public void onPlayerSelected(SteamUser user) {
+		public void onPlayerSelected(SteamUser user, int index) {
 			if (hasBackpackView) {
 		        FragmentManager fragmentManager = PlayerListActivity.this.getSupportFragmentManager();
 		        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -85,6 +85,8 @@ public class PlayerListActivity extends FragmentActivity {
 		        BackpackFragment backpackFragment = BackpackFragment.newInstance(user, view.getWidth());
 		        fragmentTransaction.add(R.id.frameLayoutBackpackView, backpackFragment);
 		        fragmentTransaction.commit();
+		        
+		        playerListFragment.setSelectedItem(index);
 			} else {
 		        startActivity(new Intent(PlayerListActivity.this, BackpackActivity.class)
 		        	.putExtra("com.minder.app.tf2backpack.SteamUser", user));

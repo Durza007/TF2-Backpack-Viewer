@@ -16,7 +16,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -48,11 +47,10 @@ public class PlayerListFragment extends Fragment {
 	 * user has been selected
 	 */
 	public static interface OnPlayerSelectedListener {
-		public void onPlayerSelected(SteamUser user);
+		public void onPlayerSelected(SteamUser user, int index);
 	}
 
 	private List<OnPlayerSelectedListener> listeners;
-	Handler mHandler = new Handler();
 	private final boolean isAboveGingerBread;
 
 	private boolean ready = false;
@@ -87,7 +85,7 @@ public class PlayerListFragment extends Fragment {
 			final SteamUser user = (SteamUser) adapter.getItem(position);
 
 			view.setPressed(true);
-			notifyListeners(user);
+			notifyListeners(user, position);
 		}
 	};
 
@@ -107,51 +105,12 @@ public class PlayerListFragment extends Fragment {
 		}
 
 		getSettings();
-
-		/*
-		 * if (adView != null) { AdRequest r = new AdRequest();
-		 * r.setTesting(true);
-		 * 
-		 * adView.loadAd(r); }
-		 */
-
-		/*
-		 * if (adapter.getPlayers().isEmpty()){ setAdVisibility(View.GONE); if
-		 * (action.equals("com.minder.app.tf2backpack.VIEW_FRIENDS")){
-		 * friendList = true; //this.setTitle(R.string.friends);
-		 * SharedPreferences playerPrefs =
-		 * getActivity().getSharedPreferences("player", Activity.MODE_PRIVATE);
-		 * 
-		 * String playerId = playerPrefs.getString("id", null); if (playerId !=
-		 * null) { SteamUser user = new SteamUser(); user.steamdId64 =
-		 * Long.parseLong(playerId);
-		 * 
-		 * currentRequest =
-		 * App.getDataManager().requestFriendsList(friendListListener, user); }
-		 * } else if (action.equals("com.minder.app.tf2backpack.VIEW_WRENCH")){
-		 * friendList = false; //this.setTitle(R.string.golden_wrench_list);
-		 * //new DownloadWrenchListTask().execute();
-		 * //setProgressBarIndeterminateVisibility(true); } else if
-		 * (action.equals("com.minder.app.tf2backpack.SEARCH")){
-		 * /*SharedPreferences playerPrefs = this.getSharedPreferences("player",
-		 * MODE_PRIVATE); if (playerPrefs.getString("id", null) == null){
-		 * setPlayerId = true; }
-		 */
-		/*
-		 * searchList = true; friendList = true;
-		 * this.setTitle(R.string.search_result); setPlayerId =
-		 * getIntent().getBooleanExtra("setid", false); searchQuery =
-		 * getIntent().getStringExtra(SearchManager.QUERY); new
-		 * DownloadSearchListTask().execute(searchQuery);
-		 * setProgressBarIndeterminateVisibility(true); } }
-		 */
 	}
 
 	/**
 	 * Sets the player-list that will be displayed by this fragment
 	 * 
-	 * @param players
-	 *            The list of players
+	 * @param players The list of players
 	 */
 	public void setPlayerList(List<SteamUser> players) {
 		this.steamUserList = players;
@@ -172,11 +131,19 @@ public class PlayerListFragment extends Fragment {
 			}
 		}
 	}
+	
+	public void setSelectedItem(int index) {
+		if (playerList != null) {
+			if (choiceModeEnabled) {
+				playerList.setItemChecked(index, true);
+			}
+		}
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.list_layout, container, false);
+		View view = inflater.inflate(R.layout.list_content, container, false);
 
 		// Look up the AdView as a resource and load a request.
 		adView = (AdView) view.findViewById(R.id.ad);
@@ -343,7 +310,7 @@ public class PlayerListFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		if (friendList == true) {
+		if (friendList) {
 			inflater.inflate(R.menu.friend_menu, menu);
 		} else {
 			inflater.inflate(R.menu.wrench_menu, menu);
@@ -405,9 +372,9 @@ public class PlayerListFragment extends Fragment {
 		listeners.remove(listener);
 	}
 
-	private void notifyListeners(SteamUser user) {
+	private void notifyListeners(SteamUser user, int index) {
 		for (OnPlayerSelectedListener listener : listeners) {
-			listener.onPlayerSelected(user);
+			listener.onPlayerSelected(user, index);
 		}
 	}
 
