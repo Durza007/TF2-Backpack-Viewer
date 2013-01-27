@@ -24,6 +24,13 @@ public class PlayerListActivity extends FragmentActivity {
 	private boolean hasBackpackView;
 	private PlayerListFragment playerListFragment;
 	private Request currentRequest;
+	
+    private void showDownloadDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        DownloadDialog editNameDialog = new DownloadDialog();
+        editNameDialog.show(fm, "download_dialog");
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,7 @@ public class PlayerListActivity extends FragmentActivity {
         }
         
     	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
+    	showDownloadDialog();
     }
     
     @Override

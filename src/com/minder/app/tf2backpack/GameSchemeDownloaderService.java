@@ -25,6 +25,7 @@ public class GameSchemeDownloaderService extends Service {
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
 	private static boolean gameSchemeChecked = false;
 	private static boolean gameSchemeReady = false;
+	private static boolean downloadingGameScheme = false;
 	private Request gameSchemeRequest;
 	
 	public static boolean isGameSchemeReady() {
@@ -34,6 +35,10 @@ public class GameSchemeDownloaderService extends Service {
 		}
 		
 		return gameSchemeReady;
+	}
+	
+	public static boolean isGameSchemeDownloading() {
+		return downloadingGameScheme;
 	}
  
 	// This is the old onStart method that will be called on the pre-2.0
@@ -91,6 +96,8 @@ public class GameSchemeDownloaderService extends Service {
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	
 		public void onPreExecute() {
+			downloadingGameScheme = true;
+			
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			
 			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
@@ -181,6 +188,7 @@ public class GameSchemeDownloaderService extends Service {
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 			
+			downloadingGameScheme = false;
 			// we are done so stop the service
 			GameSchemeDownloaderService.this.stopSelf();
 		}

@@ -32,13 +32,9 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager;
-import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
 
 public class DashBoard extends Activity {

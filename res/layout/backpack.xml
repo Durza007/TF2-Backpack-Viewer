@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/RelativeLayoutBackpack"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -20,7 +21,6 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:fadeScrollbars="true" >
-
         </com.minder.app.tf2backpack.frontend.BackpackView>
     </HorizontalScrollView>
 
@@ -56,7 +56,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="&lt;"
-            android:width="50dp" >
+            android:width="50dp"
+            tools:ignore="HardcodedText" >
         </Button>
 
         <TextView
@@ -67,7 +68,9 @@
             android:text="1/6"
             android:textColor="@color/backpack_text"
             android:textSize="34dp"
-            android:width="110dp" >
+            android:width="110dp"
+            tools:ignore="HardcodedText" >
+
         </TextView>
 
         <Button
@@ -76,7 +79,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=">"
-            android:width="50dp" >
+            android:width="50dp"
+            tools:ignore="HardcodedText" >
+
         </Button>
     </LinearLayout>
 
