@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -61,7 +60,7 @@ public class PlayerListFragment extends Fragment {
 	private final int CONTEXTMENU_VIEW_BACKPACK = 0;
 	private final int CONTEXTMENU_VIEW_STEAMPAGE = 1;
 
-	private ProgressDialog mProgress;
+	//private ProgressDialog mProgress;
 	private AdView adView;
 
 	private final boolean friendList = true;
@@ -69,6 +68,8 @@ public class PlayerListFragment extends Fragment {
 	public int searchPage = 1;
 	public String searchQuery;
 
+	private View progressContainer;
+	private View listContainer;
 	private boolean choiceModeEnabled = false;
 	private ListView playerList;
 	private PlayerAdapter adapter;
@@ -117,6 +118,8 @@ public class PlayerListFragment extends Fragment {
 
 		if (adapter != null) {
 			adapter.setPlayers(players);
+			progressContainer.setVisibility(View.GONE);
+			listContainer.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -147,6 +150,9 @@ public class PlayerListFragment extends Fragment {
 
 		// Look up the AdView as a resource and load a request.
 		adView = (AdView) view.findViewById(R.id.ad);
+		
+		listContainer = view.findViewById(R.id.listContainer);
+		progressContainer = view.findViewById(R.id.progressContainer);
 
 		playerList = (ListView) view.findViewById(android.R.id.list);
 		setListItemSelectable(choiceModeEnabled);
@@ -170,6 +176,9 @@ public class PlayerListFragment extends Fragment {
 
 		if (steamUserList != null) {
 			adapter.setPlayers(steamUserList);
+		} else {
+			progressContainer.setVisibility(View.VISIBLE);
+			listContainer.setVisibility(View.GONE);
 		}
 
 		/*
@@ -256,17 +265,6 @@ public class PlayerListFragment extends Fragment {
 		// cancel any ongoing work
 		if (currentRequest != null) {
 			App.getDataManager().cancelRequest(currentRequest);
-		}
-
-		// remove dialog if it is showing
-		if (mProgress != null) {
-			if (mProgress.isShowing()) {
-				try {
-					mProgress.dismiss();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -444,16 +442,6 @@ public class PlayerListFragment extends Fragment {
 					// set progressbar visible false
 					setAdVisibility(View.VISIBLE);
 					System.gc();
-				}
-
-				if (mProgress != null) {
-					if (mProgress.isShowing()) {
-						try {
-							mProgress.dismiss();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
 				}
 
 				nothingMoreToLoad = true;
