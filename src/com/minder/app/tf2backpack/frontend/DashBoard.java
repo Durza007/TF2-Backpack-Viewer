@@ -35,7 +35,7 @@ import android.widget.TextView;
 import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.backend.DataManager;
-import com.minder.app.tf2backpack.frontend.NewsList.NewsItem;
+import com.minder.app.tf2backpack.frontend.NewsFragment.NewsItem;
 
 public class DashBoard extends Activity {
 	private final int DIALOG_DOWNLOAD_GAMEFILES = 0;
@@ -196,7 +196,8 @@ public class DashBoard extends Activity {
     
     OnClickListener onNewsItemClick = new OnClickListener(){
 		public void onClick(View v) {
-			startActivity(new Intent(DashBoard.this, NewsList.class));
+			// TODO this aint ok
+			startActivity(new Intent(DashBoard.this, NewsFragment.class));
 		}
     };
     

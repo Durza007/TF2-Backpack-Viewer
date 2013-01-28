@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -18,7 +17,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.GridView;
 
 import com.google.ads.AdView;
@@ -104,10 +102,7 @@ public class ItemGridViewer extends Activity {
 	}
 	
 	OnClickListener clickListener = new OnClickListener() {
-		public void onClick(View v) {
-			/*Util.setTempItem((Item)itemAdapter.getItem((Integer)v.getTag()));
-			startActivity(new Intent(ItemGridViewer.this, WeaponInfo.class));*/
-			
+		public void onClick(View v) {	
 			Intent weaponInfoIntent = new Intent(ItemGridViewer.this, WeaponInfo.class);
 			weaponInfoIntent.putExtra("com.minder.app.tf2backpack.PlayerItemParser.Item", (Item)itemAdapter.getItem((Integer)v.getTag()));
 			startActivity(weaponInfoIntent);
