@@ -6,12 +6,12 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,12 +20,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -36,7 +36,7 @@ import android.widget.Toast;
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.R;
 
-public class NewsList extends Activity {
+public class NewsList extends Fragment {
 	public static class NewsItem {
 		private String title;
 		private String url;
@@ -98,7 +98,7 @@ public class NewsList extends Activity {
 			TextView content;
 		}
 		
-        private ArrayList<NewsItem> mNews = new ArrayList<NewsItem>();
+        private List<NewsItem> newsList;
         
         private LayoutInflater mInflater;        
         private Context mContext;
@@ -106,14 +106,15 @@ public class NewsList extends Activity {
         public NewsAdapter(Context c) {
             mContext = c;
             mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            newsList = new ArrayList<NewsItem>();
         }
 
         public int getCount() {
-            return mNews.size();
+            return newsList.size();
         }
 
         public Object getItem(int position) {
-            return mNews.get(position);
+            return newsList.get(position);
         }
 
         public long getItemId(int position) {
@@ -137,7 +138,7 @@ public class NewsList extends Activity {
             	holder = (ViewHolder) convertView.getTag();
             }
             
-            NewsItem item = mNews.get(position);
+            NewsItem item = newsList.get(position);
             
             holder.title.setText(item.getTitle());
             holder.date.setText(item.getDate());
@@ -146,97 +147,74 @@ public class NewsList extends Activity {
             }
             
             return convertView;
-            
-            /*if (convertView == null) {
-                text = (TextView)mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-            } else {
-                text = (TextView)convertView;
-            }
-            
-            if (mPlayers.get(position).steamName != null){
-                text.setText(mPlayers.get(position).steamName);
-            } else {
-            	text.setText(R.string.loading);
-            }          
-
-            return text;*/
         }
-
-        /*public void clearNews() {
-        	mNews.clear();
-            notifyDataSetChanged();
-        }*/
         
         private void addNews(NewsItem p) {
-        	mNews.add(p);
+        	newsList.add(p);
         	notifyDataSetChanged();
+        }
+        
+        public void setNewsList(List<NewsItem> list) {
+        	this.newsList = list;
         }
 	}
 	
-	private ProgressDialog mProgress;
+	private ProgressDialog progressDialog;
 	
-	private ListView mList;
-	private NewsAdapter mAdapter;
+	private ListView newsList;
+	private NewsAdapter adapter;
 	private AdView adView;
 	
-	@SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        this.setTitle("News");
-        
-        setContentView(R.layout.list_layout);
-        
+
+		this.setRetainInstance(true);
+    }
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.list_layout, container, false);
+		
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)findViewById(R.id.ad);
+        adView = (AdView)view.findViewById(R.id.ad);
         
-        mList = (ListView)findViewById(android.R.id.list);
+        newsList = (ListView)view.findViewById(android.R.id.list);
         
         // Set up our adapter
-        mAdapter = new NewsAdapter(this);
-        mList.setAdapter(mAdapter);
+        adapter = new NewsAdapter(getActivity());
+        newsList.setAdapter(adapter);
         
-        mList.setBackgroundResource(R.color.bg_color);
-        mList.setCacheColorHint(this.getResources().getColor(R.color.bg_color));
+        newsList.setBackgroundResource(R.color.bg_color);
+        newsList.setCacheColorHint(this.getResources().getColor(R.color.bg_color));
         
-        mList.setOnItemClickListener(new OnItemClickListener() {
+        newsList.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				NewsItem item = (NewsItem)mAdapter.getItem(arg2);
+				NewsItem item = (NewsItem)adapter.getItem(arg2);
 				startActivity(new Intent().setData(Uri.parse(item.getUrl())).setAction("android.intent.action.VIEW"));
 			}
 		});
         
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        	//this.getSharedPreferences("com.minder.app.tf2backpack.preferences", MODE_PRIVATE);
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
-    	final Object data = getLastNonConfigurationInstance();
-    	
-    	if (data != null){
-    		mAdapter.mNews = (ArrayList<NewsItem>)data;
-    		mAdapter.notifyDataSetChanged();
-    	} else {
-    		new DownloadNewsTask().execute(sp.getString("newscount", "10"));
-    	}
-    	
-        /*if (adView != null) {
-        	adView.loadAd(new AdRequest());
-        }*/
-    }
+        if (adapter.isEmpty())
+        	new DownloadNewsTask().execute(sp.getString("newscount", "10"));
+		
+		return view;
+	}
     
 	@Override
     public void onResume(){
     	super.onResume();
-    	mAdapter.notifyDataSetChanged();
     }
     
     @Override
     public void onStop(){
     	super.onStop();
     	
-    	if (mProgress != null) mProgress.dismiss();
+    	if (progressDialog != null) progressDialog.dismiss();
     }
     
     @Override
@@ -252,8 +230,8 @@ public class NewsList extends Activity {
     	
         protected void onPreExecute() {
         	error = 0;
-        	mProgress = null;
-        	mProgress = ProgressDialog.show(NewsList.this, "Please wait...", "Downloading news data...", true);
+        	progressDialog = null;
+        	progressDialog = ProgressDialog.show(getActivity(), "Please wait...", "Downloading news data...", true);
         }
     	
 		@Override
@@ -341,25 +319,18 @@ public class NewsList extends Activity {
 		}
 		
 		protected void onProgressUpdate(NewsItem... item) {
-			mAdapter.addNews(item[0]);
+			adapter.addNews(item[0]);
 		}
 		
         protected void onPostExecute(Void result) {
-        	mProgress.dismiss();
+        	progressDialog.dismiss();
         	// handle errors if we got some
         	if (error == 1){
-        		Toast.makeText(NewsList.this, R.string.no_steam_api, Toast.LENGTH_LONG).show();
+        		Toast.makeText(getActivity(), R.string.no_steam_api, Toast.LENGTH_LONG).show();
         	} else if (error == 2){
-        		Toast.makeText(NewsList.this, R.string.failed_download, Toast.LENGTH_LONG).show();
+        		Toast.makeText(getActivity(), R.string.failed_download, Toast.LENGTH_LONG).show();
         	}
-        	
-        	if (error != 0) finish();
         }
     	
     }
-    
-    @Override
-    public Object onRetainNonConfigurationInstance() { 
-        return mAdapter.mNews;
-    } 
 }
