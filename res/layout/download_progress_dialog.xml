@@ -45,7 +45,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/progressBarDownload"
-        android:layout_marginTop="6dp"
-        android:text="HURR" />
+        android:layout_marginTop="12dp"
+        android:text="@string/dismiss" />
 
 </RelativeLayout>

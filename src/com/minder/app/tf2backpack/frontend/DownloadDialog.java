@@ -68,8 +68,13 @@ public class DownloadDialog extends DialogFragment implements Runnable {
     }
 
 	public void run() {
+		if (!GameSchemeDownloaderService.isGameSchemeDownloading())
+			getDialog().dismiss();
+		
 		textViewTask.setText(GameSchemeDownloaderService.currentTaskStringId);
 		if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_images) {
+			// update progressbar
+			progressBar.setIndeterminate(false);
 			progressBar.setMax(GameSchemeDownloaderService.totalImages);
 			progressBar.setProgress(GameSchemeDownloaderService.currentAmountImages);
 			
@@ -77,6 +82,8 @@ public class DownloadDialog extends DialogFragment implements Runnable {
 			textViewImageCount.setText(GameSchemeDownloaderService.currentAmountImages 
 					+ "/" 
 					+ GameSchemeDownloaderService.totalImages);
+		} else {
+			progressBar.setIndeterminate(true);
 		}
 		
 		if (keepUpdating) {

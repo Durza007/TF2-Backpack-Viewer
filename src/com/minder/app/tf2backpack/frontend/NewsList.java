@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -37,7 +36,7 @@ import android.widget.Toast;
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.R;
 
-public class NewsList extends Activity{
+public class NewsList extends Activity {
 	public static class NewsItem {
 		private String title;
 		private String url;
@@ -173,8 +172,6 @@ public class NewsList extends Activity{
         	notifyDataSetChanged();
         }
 	}
-	
-	Handler mHandler = new Handler();
 	
 	private ProgressDialog mProgress;
 	

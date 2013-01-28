@@ -42,8 +42,6 @@ public class DashBoard extends Activity {
 	private final int DIALOG_PROGRESS = 1;
 	private final int DIALOG_UPDATE_GAMEFILES = 2;
 	
-	private final BitmapFactory.Options mBitmapOptions = new BitmapFactory.Options();
-	
 	private ImageButton backpackButton;
 	private ImageButton settingsButton;
 	private ImageButton friendsButton;
@@ -63,8 +61,6 @@ public class DashBoard extends Activity {
 	private int totalDownloads;
 	private int numberOfDownloads;
 	private boolean resetImages;
-	
-	//private WorkerSystem workerSystem;
 	
     /** Called when the activity is first created. */
     @Override
@@ -90,8 +86,6 @@ public class DashBoard extends Activity {
                 }
             }
         });*/
-        
-        mBitmapOptions.inScaled = false;
         
         //AdManager.setTestDevices( new String[] { "B135E5E10665286A9FA99BA95CE926D4" } );
         

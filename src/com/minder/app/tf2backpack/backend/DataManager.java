@@ -105,7 +105,7 @@ public class DataManager {
 		Request request = new Request(TYPE_PLAYER_ITEM_LIST);
 		GetPlayerItems asyncTask = new GetPlayerItems(listener, request);
 		
-		asyncTask.execute(player);
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, player);
 		
 		return request;
 	}
@@ -114,7 +114,6 @@ public class DataManager {
 		Request request = new Request(TYPE_FRIEND_LIST);
 		GetFriendListTask asyncTask = new GetFriendListTask(listener, request);
 		
-		//asyncTask.execute(player);
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, player);
 		
 		return request;
@@ -125,7 +124,7 @@ public class DataManager {
 		Request request = new Request(TYPE_PLAYER_INFO);
 		GetPlayerInfo asyncTask = new GetPlayerInfo(listener, request);
 		
-		asyncTask.execute(players);
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, players);
 		
 		return request;
 	}

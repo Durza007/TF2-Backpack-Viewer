@@ -72,9 +72,7 @@
             android:summary="@string/whats_new"
             android:title="@string/changelog" >
             <Preference
-                android:layout="@layout/changelog_list"
-                android:summary="@string/changelog_text"
-                android:title="@string/changelog" />
+                android:layout="@layout/changelog_list"/>
         </PreferenceScreen>
 
         <Preference

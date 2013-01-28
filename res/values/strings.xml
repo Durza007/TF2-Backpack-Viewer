@@ -74,4 +74,5 @@
     <string name="select_backpack_in_list">&lt;-- Select a backpack to view</string>
     <string name="whats_new">Whats new!</string>
     <string name="download">Download</string>
+    <string name="dismiss">Dismiss</string>
 </resources>
