@@ -36,7 +36,7 @@ import android.widget.Toast;
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.R;
 
-public class NewsList extends Fragment {
+public class NewsFragment extends Fragment {
 	public static class NewsItem {
 		private String title;
 		private String url;
