@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
@@ -73,7 +75,6 @@ public class PlayerListActivity extends FragmentActivity {
         }
         
     	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
-    	showDownloadDialog();
     }
     
     @Override
@@ -83,8 +84,14 @@ public class PlayerListActivity extends FragmentActivity {
     	playerListFragment.removePlayerSelectedListener(onPlayerSelectedListener);
     }
     
-    private OnPlayerSelectedListener onPlayerSelectedListener = new OnPlayerSelectedListener() {
-		public void onPlayerSelected(SteamUser user, int index) {
+    /**
+     * Shows the backpack for a given user. Will highlight selection if in tablet
+     * mode. Will check if game-scheme is ready and if not display an appropriate dialog
+     * @param user The user whose backpack to show
+     * @param index The index of the user in the user list
+     */
+    private void showBackpack(SteamUser user, int index) {
+    	if (GameSchemeDownloaderService.isGameSchemeReady()) {
 			if (hasBackpackView) {
 		        FragmentManager fragmentManager = PlayerListActivity.this.getSupportFragmentManager();
 		        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -99,6 +106,16 @@ public class PlayerListActivity extends FragmentActivity {
 		        startActivity(new Intent(PlayerListActivity.this, BackpackActivity.class)
 		        	.putExtra("com.minder.app.tf2backpack.SteamUser", user));
 			}
+    	} else {
+    		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
+    			showDownloadDialog();
+    		}
+    	}
+    }
+    
+    private OnPlayerSelectedListener onPlayerSelectedListener = new OnPlayerSelectedListener() {
+		public void onPlayerSelected(SteamUser user, int index) {
+			showBackpack(user, index);
 		}
 	};
 

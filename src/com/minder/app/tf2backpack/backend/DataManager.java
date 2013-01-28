@@ -22,9 +22,9 @@ import android.graphics.Canvas;
 import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.util.Log;
 
+import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.R;
@@ -114,7 +114,8 @@ public class DataManager {
 		Request request = new Request(TYPE_FRIEND_LIST);
 		GetFriendListTask asyncTask = new GetFriendListTask(listener, request);
 		
-		asyncTask.execute(player);
+		//asyncTask.execute(player);
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, player);
 		
 		return request;
 	}
@@ -133,7 +134,7 @@ public class DataManager {
 		Request request = new Request(TYPE_SCHEMA_FILES);	
 		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request, refreshImages);
 		
-		asyncTask.execute();
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		
 		return request;
 	}

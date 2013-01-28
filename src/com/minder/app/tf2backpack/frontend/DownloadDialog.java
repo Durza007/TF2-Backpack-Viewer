@@ -1,6 +1,8 @@
 package com.minder.app.tf2backpack.frontend;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +12,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 
-public class DownloadDialog extends DialogFragment {
+public class DownloadDialog extends DialogFragment implements Runnable {
+	private final Handler updateHandler;
+	private boolean keepUpdating;
 	private TextView textViewTask;
 	private ProgressBar progressBar;
 	private TextView textViewImageCount;
@@ -24,6 +29,7 @@ public class DownloadDialog extends DialogFragment {
 	};
 	
 	public DownloadDialog() {
+		updateHandler = new Handler();
 	}
 	
     @Override
@@ -41,8 +47,40 @@ public class DownloadDialog extends DialogFragment {
     	
     	textViewImageCount.setVisibility(View.GONE);
     	progressBar.setMax(100);
-    	progressBar.setProgress(35);
+    	progressBar.setProgress(0);	
     	
         return view;
     }
+    
+    @Override
+    public void onStart() {
+    	super.onStart();
+    	
+    	keepUpdating = true;
+    	this.run();
+    }
+    
+    @Override
+    public void onStop() {
+    	super.onStop();
+    	
+    	keepUpdating = false;
+    }
+
+	public void run() {
+		textViewTask.setText(GameSchemeDownloaderService.currentTaskStringId);
+		if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_images) {
+			progressBar.setMax(GameSchemeDownloaderService.totalImages);
+			progressBar.setProgress(GameSchemeDownloaderService.currentAmountImages);
+			
+			textViewImageCount.setVisibility(View.VISIBLE);
+			textViewImageCount.setText(GameSchemeDownloaderService.currentAmountImages 
+					+ "/" 
+					+ GameSchemeDownloaderService.totalImages);
+		}
+		
+		if (keepUpdating) {
+			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + 1000);
+		}
+	}
 }

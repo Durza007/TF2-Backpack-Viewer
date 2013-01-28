@@ -25,7 +25,12 @@ public class GameSchemeDownloaderService extends Service {
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
 	private static boolean gameSchemeChecked = false;
 	private static boolean gameSchemeReady = false;
+	
 	private static boolean downloadingGameScheme = false;
+	public static int totalImages;
+	public static int currentAmountImages;
+	public static int currentTaskStringId;
+	
 	private Request gameSchemeRequest;
 	
 	public static boolean isGameSchemeReady() {
@@ -109,6 +114,8 @@ public class GameSchemeDownloaderService extends Service {
             .setContentIntent(pendingIntent)
             .setTicker(getResources().getText(R.string.starting_download));
 			
+			currentTaskStringId = R.string.starting_download;
+			
 			Notification notification = builder.build();
 			notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
                     R.layout.download_progress_notification);
@@ -139,6 +146,8 @@ public class GameSchemeDownloaderService extends Service {
 				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.parsing_schema));
 				
+				currentTaskStringId = R.string.parsing_schema;
+				
 				if (BuildConfig.DEBUG)
 					Log.d(DEBUG_TAG, "Updating notification");
 				
@@ -161,6 +170,10 @@ public class GameSchemeDownloaderService extends Service {
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.downloading_images));
 				notification.contentView.setViewVisibility(R.id.textViewExtra, View.VISIBLE);
 				notification.contentView.setTextViewText(R.id.textViewExtra, progress.count + "/" + progress.totalCount);
+				
+				currentTaskStringId = R.string.downloading_images;
+				currentAmountImages = progress.count;
+				totalImages = progress.totalCount;
 				
 				if (BuildConfig.DEBUG)
 					Log.d(DEBUG_TAG, "Updating notification");
