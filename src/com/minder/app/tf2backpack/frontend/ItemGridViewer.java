@@ -43,16 +43,12 @@ public class ItemGridViewer extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-        /*if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-        }*/
 		
 		setContentView(R.layout.item_grid);
 		
 		adView = (AdView)findViewById(R.id.ad);
 		
-		GridView grid = (GridView)findViewById(R.id.gridViewItems);
+		final GridView grid = (GridView)findViewById(R.id.gridViewItems);
 		itemAdapter = new ItemAdapter(this, true);
 		itemAdapter.setOnClickListener(clickListener);
 

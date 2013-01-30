@@ -12,7 +12,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -188,6 +187,11 @@ public class NewsFragment extends Fragment {
         // Set up our adapter
         if (adapter == null)
         	adapter = new NewsAdapter(getActivity());
+        
+        final TextView header = new TextView(getActivity());
+        header.setText(R.string.recent_news);
+        header.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+        newsList.addHeaderView(header);
         
         newsList.setAdapter(adapter);
         

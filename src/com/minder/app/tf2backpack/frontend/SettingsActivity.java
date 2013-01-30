@@ -39,7 +39,7 @@ public class SettingsActivity extends PreferenceActivity {
         	preHoneycombOnCreate();
         } else {
             getFragmentManager().beginTransaction()
-            	.replace(android.R.id.list, new SettingsFragment())
+            	.replace(R.id.listContainer, new SettingsFragment())
             	.commit();
         }
     }

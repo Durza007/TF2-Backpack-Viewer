@@ -9,7 +9,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.minder.app.tf2backpack.ItemListSelect;
 import com.minder.app.tf2backpack.R;
 
 public class DashboardFragment extends Fragment {	

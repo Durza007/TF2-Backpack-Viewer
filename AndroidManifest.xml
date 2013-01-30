@@ -127,7 +127,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".ItemListSelect" >
+        <activity android:name=".frontend.ItemListSelect" >
         </activity>
 
         <service android:name=".GameSchemeDownloaderService" >
