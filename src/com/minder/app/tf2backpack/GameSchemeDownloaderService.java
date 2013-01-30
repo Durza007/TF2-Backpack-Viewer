@@ -18,7 +18,7 @@ import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
-import com.minder.app.tf2backpack.frontend.DashBoard;
+import com.minder.app.tf2backpack.frontend.DashboardActivity;
 
 public class GameSchemeDownloaderService extends Service {
 	private static final String DEBUG_TAG = "GameSchemeDownloaderService";
@@ -105,7 +105,7 @@ public class GameSchemeDownloaderService extends Service {
 			
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			
-			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashboardActivity.class);
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			
 			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
@@ -131,7 +131,7 @@ public class GameSchemeDownloaderService extends Service {
 		}
 
 		public void onProgressUpdate(ProgressUpdate progress) {	
-			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashboardActivity.class);
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			
 			if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
@@ -186,7 +186,7 @@ public class GameSchemeDownloaderService extends Service {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Removing notification");
 			
-			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashBoard.class);
+			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashboardActivity.class);
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			
 			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.minder.app.tf2backpack.frontend.DashBoard;
+import com.minder.app.tf2backpack.frontend.DashboardActivity;
 import com.minder.app.tf2backpack.frontend.GetPlayer;
 
 public class Main extends Activity {
@@ -20,7 +20,7 @@ public class Main extends Activity {
 
 		String playerId = playerPrefs.getString("id", null);
 		if (playerId != null) {
-			startActivity(new Intent(this, DashBoard.class));
+			startActivity(new Intent(this, DashboardActivity.class));
 			finish();
 		} else {
 			startActivityForResult(new Intent(this, GetPlayer.class).putExtra(
@@ -35,7 +35,7 @@ public class Main extends Activity {
 			editor.putString("name", bundle.getString("name"));
 			editor.putString("id", bundle.getString("id"));
 			editor.commit();
-			startActivity(new Intent(this, DashBoard.class));
+			startActivity(new Intent(this, DashboardActivity.class));
 		}
 		finish();
 	}

@@ -210,7 +210,8 @@ public class ItemGridViewer extends Activity {
                 .setMessage(R.string.message_unknown_item)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                    	startActivity(new Intent(ItemGridViewer.this, DashBoard.class).setAction("com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES"));
+                    	// TODO FIX! this is not how we do things now
+                    	startActivity(new Intent(ItemGridViewer.this, DashboardActivity.class).setAction("com.minder.app.tf2backpack.DOWNLOAD_GAMEFILES"));
                     	finish();
                     }
                 })

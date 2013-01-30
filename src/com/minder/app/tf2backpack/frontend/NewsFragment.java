@@ -159,11 +159,12 @@ public class NewsFragment extends Fragment {
         }
 	}
 	
-	private ProgressDialog progressDialog;
-	
 	private ListView newsList;
 	private NewsAdapter adapter;
 	private AdView adView;
+
+	private View listContainer;
+	private View progressContainer;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,10 +175,13 @@ public class NewsFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.list_layout, container, false);
+		View view = inflater.inflate(R.layout.list_content, container, false);
 		
         // Look up the AdView as a resource and load a request.
         adView = (AdView)view.findViewById(R.id.ad);
+        
+		listContainer = view.findViewById(R.id.listContainer);
+		progressContainer = view.findViewById(R.id.progressContainer);
         
         newsList = (ListView)view.findViewById(android.R.id.list);
         
@@ -199,8 +203,14 @@ public class NewsFragment extends Fragment {
         
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
-        if (adapter.isEmpty())
+        if (adapter.isEmpty()) {
         	new DownloadNewsTask().execute(sp.getString("newscount", "10"));
+			progressContainer.setVisibility(View.VISIBLE);
+			listContainer.setVisibility(View.GONE);
+        } else {
+			progressContainer.setVisibility(View.GONE);
+			listContainer.setVisibility(View.VISIBLE);
+        }
 		
 		return view;
 	}
@@ -213,8 +223,6 @@ public class NewsFragment extends Fragment {
     @Override
     public void onStop(){
     	super.onStop();
-    	
-    	if (progressDialog != null) progressDialog.dismiss();
     }
     
     @Override
@@ -230,8 +238,6 @@ public class NewsFragment extends Fragment {
     	
         protected void onPreExecute() {
         	error = 0;
-        	progressDialog = null;
-        	progressDialog = ProgressDialog.show(getActivity(), "Please wait...", "Downloading news data...", true);
         }
     	
 		@Override
@@ -323,13 +329,15 @@ public class NewsFragment extends Fragment {
 		}
 		
         protected void onPostExecute(Void result) {
-        	progressDialog.dismiss();
         	// handle errors if we got some
         	if (error == 1){
         		Toast.makeText(getActivity(), R.string.no_steam_api, Toast.LENGTH_LONG).show();
         	} else if (error == 2){
         		Toast.makeText(getActivity(), R.string.failed_download, Toast.LENGTH_LONG).show();
         	}
+        	
+			progressContainer.setVisibility(View.GONE);
+			listContainer.setVisibility(View.VISIBLE);
         }
     	
     }

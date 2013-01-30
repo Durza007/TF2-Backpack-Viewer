@@ -1,89 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/TableLayoutDashBoard"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/bg_color" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <TableRow
-        android:id="@+id/TableRowDashBoard1"
-        android:layout_width="wrap_content"
+    <fragment
+        android:id="@+id/fragment1"
+        android:name="com.minder.app.tf2backpack.frontend.DashboardFragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center" >
+        tools:layout="@layout/main_menu" />
 
-        <ImageButton
-            android:id="@+id/ImageButtonBackPack"
-            style="@style/dash_board_button_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/backpack" >
-        </ImageButton>
-
-        <ImageButton
-            android:id="@+id/ImageButtonMyFriends"
-            style="@style/dash_board_button_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/friends2" >
-        </ImageButton>
-    </TableRow>
-
-    <TableRow
-        android:id="@+id/TableRowDashBoard2"
-        android:layout_width="wrap_content"
+    <fragment
+        android:id="@+id/fragment2"
+        android:name="com.minder.app.tf2backpack.frontend.NewsFragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center" >
+        tools:layout="@layout/list_layout" />
 
-        <ImageButton
-            android:id="@+id/ImageButtonCatalouge"
-            style="@style/dash_board_button_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/catalog_book" >
-        </ImageButton>
-
-        <ImageButton
-            android:id="@+id/ImageButtonSettings"
-            style="@style/dash_board_button_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/glyph_options" >
-        </ImageButton>
-    </TableRow>
-
-    <LinearLayout
-        android:id="@+id/LinearLayoutNews"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/cell_button_plain"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/TextViewNewsHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/recent_news"
-            android:textAppearance="?android:attr/textAppearanceLarge" >
-        </TextView>
-
-        <TextView
-            android:id="@+id/TextViewNewsTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/loading"
-            android:textAppearance="?android:attr/textAppearanceMedium" >
-        </TextView>
-
-        <TextView
-            android:id="@+id/TextViewNewsDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall" >
-        </TextView>
-    </LinearLayout>
-
-</TableLayout>
+</LinearLayout>

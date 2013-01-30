@@ -30,8 +30,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".frontend.DashBoard"
-            android:launchMode="singleTop" >
+            android:name=".frontend.DashboardActivity"
+            android:launchMode="singleTask" >
         </activity>
         <activity android:name=".frontend.Backpack" >
             <intent-filter>
