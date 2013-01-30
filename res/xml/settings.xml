@@ -68,8 +68,8 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="About" >
         <Preference
-            android:summary="Whats new"
-            android:title="Changelog" >
+            android:summary="@string/whats_new"
+            android:title="@string/changelog" >
             <intent android:action="com.minder.app.tf2backpack.CHANGELOG" />
         </Preference>
         <Preference

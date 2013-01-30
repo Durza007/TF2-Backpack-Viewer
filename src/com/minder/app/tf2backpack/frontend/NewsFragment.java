@@ -186,7 +186,9 @@ public class NewsFragment extends Fragment {
         newsList = (ListView)view.findViewById(android.R.id.list);
         
         // Set up our adapter
-        adapter = new NewsAdapter(getActivity());
+        if (adapter == null)
+        	adapter = new NewsAdapter(getActivity());
+        
         newsList.setAdapter(adapter);
         
         newsList.setBackgroundResource(R.color.bg_color);
@@ -195,7 +197,6 @@ public class NewsFragment extends Fragment {
         newsList.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
-				// TODO Auto-generated method stub
 				NewsItem item = (NewsItem)adapter.getItem(arg2);
 				startActivity(new Intent().setData(Uri.parse(item.getUrl())).setAction("android.intent.action.VIEW"));
 			}

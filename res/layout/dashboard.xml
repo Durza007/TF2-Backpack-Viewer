@@ -3,20 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_color"
     android:orientation="vertical" >
 
     <fragment
         android:id="@+id/fragment1"
         android:name="com.minder.app.tf2backpack.frontend.DashboardFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         tools:layout="@layout/main_menu" />
 
     <fragment
         android:id="@+id/fragment2"
         android:name="com.minder.app.tf2backpack.frontend.NewsFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:layout="@layout/list_layout" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:layout="@layout/list_content" />
 
 </LinearLayout>

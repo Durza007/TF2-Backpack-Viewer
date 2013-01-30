@@ -32,14 +32,14 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.list_layout);     
+        setContentView(R.layout.list_content);     
         adView = (AdView)findViewById(R.id.ad);
         
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
         	preHoneycombOnCreate();
         } else {
             getFragmentManager().beginTransaction()
-            	.replace(R.id.LinearLayoutList, new SettingsFragment())
+            	.replace(android.R.id.list, new SettingsFragment())
             	.commit();
         }
     }
