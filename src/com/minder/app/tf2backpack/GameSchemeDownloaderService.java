@@ -56,9 +56,10 @@ public class GameSchemeDownloaderService extends Service {
 		return currentGameSchemeImagesIsHighres;
 	}
 	
-	public static void startGameSchemeDownload(Activity starterActivity, boolean refreshImages) {
+	public static void startGameSchemeDownload(Activity starterActivity, boolean refreshImages, boolean highresImages) {
     	Intent intent = new Intent(starterActivity, GameSchemeDownloaderService.class);
     	intent.putExtra("refreshImages", refreshImages);
+    	intent.putExtra("highresImages", highresImages);
     	starterActivity.startService(intent);
 	}
  

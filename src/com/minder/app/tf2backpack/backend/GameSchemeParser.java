@@ -350,13 +350,8 @@ public class GameSchemeParser {
 								item.setItemTypeName(valArray.getString(arrayIndex));
 							} else if (type.equals("item_name")){
 								item.setItemName(valArray.getString(arrayIndex));
-							} else if (type.equals("image_url") || type.equals("image_url_large")){
-								if (highresImages && type.equals("image_url_large")) {
-									item.setImageUrl(valArray.getString(arrayIndex));
-								}
-								if (item.getImageUrl().length() == 0) {
-									item.setImageUrl(valArray.getString(arrayIndex));
-								}
+							} else if (!highresImages && (type.equals("image_url")) || (highresImages && type.equals("image_url_large"))){
+								item.setImageUrl(valArray.getString(arrayIndex));
 							} else if (type.equals("item_description")){
 								item.setItemDescription(valArray.getString(arrayIndex));
 							} else if (type.equals("item_quality")){

@@ -74,7 +74,9 @@ public class DownloadGameSchemeDialog extends DialogFragment {
 	
 	private OnClickListener downloadClickListener = new OnClickListener() {	
 		public void onClick(View v) {
-			GameSchemeDownloaderService.startGameSchemeDownload(getActivity(), checkBoxResetImages.isChecked());
+			GameSchemeDownloaderService.startGameSchemeDownload(getActivity(), 
+					checkBoxResetImages.isChecked(),
+					checkBoxHighresImages.isChecked());
 			DownloadGameSchemeDialog.this.dismiss();
 		}
 	};
