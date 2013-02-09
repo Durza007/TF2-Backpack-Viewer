@@ -7,7 +7,7 @@
     android:orientation="horizontal" >
 
     <fragment
-        android:id="@+id/fragment1"
+        android:id="@+id/fragmentDashboard"
         android:name="com.minder.app.tf2backpack.frontend.DashboardFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -15,7 +15,7 @@
         tools:layout="@layout/main_menu" />
 
     <fragment
-        android:id="@+id/fragment2"
+        android:id="@+id/fragmentNews"
         android:name="com.minder.app.tf2backpack.frontend.NewsFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"

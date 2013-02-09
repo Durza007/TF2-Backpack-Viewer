@@ -428,10 +428,10 @@ public class GetPlayer extends Activity {
 		if (newId.equals(id)){
 			id = java.net.URLEncoder.encode(id);
 			new HttpConnection(handler)
-				.getSpecificLines("http://steamcommunity.com/id/" + id + "/?xml=1", 2);
+				.getSpecificLines("http://steamcommunity.com/id/" + id + "/?xml=1", 4);
 		} else {
 			new HttpConnection(handler)
-				.getSpecificLines("http://steamcommunity.com/profiles/" + newId + "/?xml=1", 2);
+				.getSpecificLines("http://steamcommunity.com/profiles/" + newId + "/?xml=1", 4);
 		}
     }
     

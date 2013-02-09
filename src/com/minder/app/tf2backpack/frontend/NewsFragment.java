@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -36,6 +37,10 @@ import com.google.ads.AdView;
 import com.minder.app.tf2backpack.R;
 
 public class NewsFragment extends Fragment {
+	public static interface NewsHeaderClickedListener {
+		public void onNewsHeaderClicked();
+	}
+	
 	public static class NewsItem {
 		private String title;
 		private String url;
@@ -158,6 +163,7 @@ public class NewsFragment extends Fragment {
         }
 	}
 	
+	private List<NewsHeaderClickedListener> headerListeners;
 	private ListView newsList;
 	private NewsAdapter adapter;
 	private AdView adView;
@@ -169,6 +175,8 @@ public class NewsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 		this.setRetainInstance(true);
+		
+		headerListeners = new LinkedList<NewsHeaderClickedListener>();
     }
 	
 	@Override
@@ -199,10 +207,14 @@ public class NewsFragment extends Fragment {
         newsList.setCacheColorHint(this.getResources().getColor(R.color.bg_color));
         
         newsList.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+			public void onItemClick(AdapterView<?> arg0, View view, int index,
 					long arg3) {
-				NewsItem item = (NewsItem)adapter.getItem(arg2);
-				startActivity(new Intent().setData(Uri.parse(item.getUrl())).setAction("android.intent.action.VIEW"));
+				if (index == 0) {
+					notifyHeaderListeners();
+				} else {
+					NewsItem item = (NewsItem)adapter.getItem(index - 1);
+					startActivity(new Intent().setData(Uri.parse(item.getUrl())).setAction("android.intent.action.VIEW"));
+				}
 			}
 		});
         
@@ -235,6 +247,20 @@ public class NewsFragment extends Fragment {
     	super.onDestroy();
     	if (adView != null) {
     		adView.destroy();
+    	}
+    }
+    
+    public void addNewsHeaderClickedListener(NewsHeaderClickedListener listener) {
+    	headerListeners.add(listener);
+    }
+    
+    public void removeNewsHeaderClickedListener(NewsHeaderClickedListener listener) {
+    	headerListeners.remove(listener);
+    }
+    
+    private void notifyHeaderListeners() {
+    	for (NewsHeaderClickedListener l : headerListeners) {
+    		l.onNewsHeaderClicked();
     	}
     }
 
