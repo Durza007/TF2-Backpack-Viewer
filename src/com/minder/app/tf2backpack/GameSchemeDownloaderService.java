@@ -120,7 +120,9 @@ public class GameSchemeDownloaderService extends Service {
     	return DataManager.CURRENT_GAMESCHEMA_VERSION == version;
     }
     
-    AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {  	
+    AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {
+    	private Notification notification;
+    	
 		public void onPreExecute() {
 			downloadingGameScheme = true;
 			
@@ -137,7 +139,7 @@ public class GameSchemeDownloaderService extends Service {
 			
 			currentTaskStringId = R.string.starting_download;
 			
-			Notification notification = builder.build();
+			notification = builder.build();
 			notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
                     R.layout.download_progress_notification);
 			notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
@@ -156,14 +158,6 @@ public class GameSchemeDownloaderService extends Service {
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			
 			if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
-				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
-				.setOngoing(true)
-				.setSmallIcon(android.R.drawable.stat_sys_download)
-	            .setContentIntent(pendingIntent);
-				
-				Notification notification = builder.build();
-				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
-	                    R.layout.download_progress_notification);
 				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.parsing_schema));
 				
@@ -179,14 +173,6 @@ public class GameSchemeDownloaderService extends Service {
 				// this means game files are downloaded
 				saveGameSchemeDownloaded();
 
-				final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
-				.setOngoing(true)
-				.setSmallIcon(android.R.drawable.stat_sys_download)
-	            .setContentIntent(pendingIntent);
-				
-				Notification notification = builder.build();
-				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
-	                    R.layout.download_progress_notification);
 				notification.contentView.setProgressBar(R.id.progressBarDownload, progress.totalCount, progress.count, false);
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.downloading_images));
 				notification.contentView.setViewVisibility(R.id.textViewExtra, View.VISIBLE);
