@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,9 +23,13 @@ import com.minder.app.tf2backpack.frontend.DashboardActivity;
 
 public class GameSchemeDownloaderService extends Service {
 	private static final String DEBUG_TAG = "GameSchemeDownloaderService";
+	private static final String PREF_NAME = "gamefiles";
+	private static final String PREF_DOWNLOAD_VERSION = "download_version";
+	private static final String PREF_DOWNLOAD_HIGHRES = "download_highres";
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
 	private static boolean gameSchemeChecked = false;
 	private static boolean gameSchemeReady = false;
+	private static boolean currentGameSchemeImagesIsHighres;
 	
 	private static boolean downloadingGameScheme = false;
 	public static int totalImages;
@@ -32,6 +37,7 @@ public class GameSchemeDownloaderService extends Service {
 	public static int currentTaskStringId;
 	
 	private Request gameSchemeRequest;
+	private boolean downloadHighresImages;
 	
 	public static boolean isGameSchemeReady() {
 		if (!gameSchemeChecked) {
@@ -44,6 +50,16 @@ public class GameSchemeDownloaderService extends Service {
 	
 	public static boolean isGameSchemeDownloading() {
 		return downloadingGameScheme;
+	}
+	
+	public static boolean isCurrentGameSchemeHighres() {
+		return currentGameSchemeImagesIsHighres;
+	}
+	
+	public static void startGameSchemeDownload(Activity starterActivity, boolean refreshImages) {
+    	Intent intent = new Intent(starterActivity, GameSchemeDownloaderService.class);
+    	intent.putExtra("refreshImages", refreshImages);
+    	starterActivity.startService(intent);
 	}
  
 	// This is the old onStart method that will be called on the pre-2.0
@@ -67,34 +83,38 @@ public class GameSchemeDownloaderService extends Service {
     
     private void handleCommand(Intent intent) {
     	boolean refreshImages = intent.getExtras().getBoolean("refreshImages");
+    	downloadHighresImages = intent.getExtras().getBoolean("highresImages");
     	
     	// start the request
-    	gameSchemeRequest = App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages);
+    	gameSchemeRequest = App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages, downloadHighresImages);
     }
     
     private void removeGameSchemeDownloaded() {
     	gameSchemeReady = false;
     	
-    	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
+    	SharedPreferences gamePrefs = this.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
     	
         Editor editor = gamePrefs.edit();
-        editor.putInt("download_version", 0);
+        editor.putInt(PREF_DOWNLOAD_VERSION, 0);
         editor.commit();
     }
     
     private void saveGameSchemeDownloaded() {
-    	SharedPreferences gamePrefs = this.getSharedPreferences("gamefiles", MODE_PRIVATE);
+    	SharedPreferences gamePrefs = this.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
     	
         Editor editor = gamePrefs.edit();
-        editor.putInt("download_version", DataManager.CURRENT_GAMESCHEMA_VERSION);
+        editor.putInt(PREF_DOWNLOAD_VERSION, DataManager.CURRENT_GAMESCHEMA_VERSION);
+        editor.putBoolean(PREF_DOWNLOAD_HIGHRES, downloadHighresImages);
         editor.commit();
         
         gameSchemeReady = true;
+        currentGameSchemeImagesIsHighres = downloadHighresImages;
     }
     
     private static boolean isGameSchemeUpToDate() {
-    	SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences("gamefiles", MODE_PRIVATE);	
-    	int version = gamePrefs.getInt("download_version", -1);
+    	SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);	
+    	int version = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
+    	currentGameSchemeImagesIsHighres = gamePrefs.getBoolean(PREF_DOWNLOAD_HIGHRES, false);
     	
     	return DataManager.CURRENT_GAMESCHEMA_VERSION == version;
     }

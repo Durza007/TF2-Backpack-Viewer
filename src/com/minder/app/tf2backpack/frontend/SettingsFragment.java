@@ -1,14 +1,13 @@
 package com.minder.app.tf2backpack.frontend;
 
-import com.minder.app.tf2backpack.GameSchemeDownloaderService;
-import com.minder.app.tf2backpack.R;
-
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceFragment;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceFragment;
+
+import com.minder.app.tf2backpack.R;
 
 @TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
@@ -22,9 +21,9 @@ public class SettingsFragment extends PreferenceFragment {
         Preference refresh = (Preference)findPreference("refreshfiles");
         refresh.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
-		    	Intent intent = new Intent(getActivity(), GameSchemeDownloaderService.class);
-		    	intent.putExtra("refreshImages", true);
-		    	getActivity().startService(intent);
+				Intent intent = new Intent(getActivity(), DashboardActivity.class);
+				intent.setAction("download_gamescheme");
+				startActivity(intent);
 				return true;
 			}
 		});

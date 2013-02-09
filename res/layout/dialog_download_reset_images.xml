@@ -4,7 +4,50 @@
   android:orientation="vertical"
   android:layout_width="match_parent"
   android:layout_height="match_parent" android:gravity="center_horizontal">
-    <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/gamescheme_downloadinfo" android:gravity="center_horizontal" android:textAppearance="?android:attr/textAppearanceMedium"></TextView>
-    <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/reset_images" android:id="@+id/checkBoxRefreshImages" android:textAppearance="?android:attr/textAppearanceMedium"></CheckBox>
+
+    <TextView
+        android:id="@+id/textViewMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/gamescheme_downloadinfo"
+        android:textAppearance="?android:attr/textAppearanceMedium" >
+</TextView>
+
+    <CheckBox
+        android:id="@+id/checkBoxRefreshImages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="@string/reset_images"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <CheckBox
+        android:id="@+id/checkBoxHighres"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="@string/download_highres_images" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="6dp" >
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/alert_dialog_cancel" />
+
+        <Button
+            android:id="@+id/buttonDownload"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/download" />
+
+    </LinearLayout>
     
 </LinearLayout>

@@ -129,9 +129,9 @@ public class DataManager {
 		return request;
 	}
 	
-	public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages) {
+	public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages, boolean downloadHighresImages) {
 		Request request = new Request(TYPE_SCHEMA_FILES);	
-		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request, refreshImages);
+		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request, refreshImages, downloadHighresImages);
 		
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		
@@ -536,6 +536,7 @@ public class DataManager {
 		private final AsyncTaskListener listener;
 		private final Request request;
 		private final boolean refreshImages;
+		private final boolean highresImages;
 		
 		private final Object imageListLock = new Object();
 		private ArrayList<ImageInfo> imageUrlList;
@@ -549,10 +550,11 @@ public class DataManager {
 		private Bitmap teamPaintRed;
 		private Bitmap teamPaintBlue;
 		
-		public DownloadSchemaFiles(AsyncTaskListener listener, Request request, boolean refreshImages) {
+		public DownloadSchemaFiles(AsyncTaskListener listener, Request request, boolean refreshImages, boolean downloadHighresImages) {
 			this.listener = listener;
 			this.request = request;
 			this.refreshImages = refreshImages;
+			this.highresImages = downloadHighresImages;
 		}
 		
 		@Override
@@ -575,7 +577,7 @@ public class DataManager {
 				publishProgress(new ProgressUpdate(PROGRESS_PARSING_SCHEMA, 0, 0));
 				
 				GameSchemeParser gs = 
-					new GameSchemeParser(data, context);
+					new GameSchemeParser(data, context, highresImages);
 				// set to null as soon as possible since it is holding >2 MB
 				data = null;
 				
@@ -663,7 +665,7 @@ public class DataManager {
 	    private class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
 	        public void uncaughtException(Thread thread, Throwable ex) {
-	            Log.e("UncaughtException", "Got an uncaught exception: "+ex.toString());
+	            Log.e("UncaughtException", "Got an uncaught exception: " + ex.toString());
 	            if(ex.getClass().equals(OutOfMemoryError.class))
 	            {
 	                try {
@@ -700,6 +702,7 @@ public class DataManager {
 			}
 			
 			public void run() {
+				// TODO: probably remove this? can't remember why it is here
 				Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
 				while (true) {
 					ImageInfo imageInfo = null;
@@ -709,7 +712,7 @@ public class DataManager {
 						} else {
 							break;
 						}
-						imageListLock.notify();
+						imageListLock.notifyAll();
 					}
 					
 					// TODO Better image download error handling
@@ -732,7 +735,7 @@ public class DataManager {
 					synchronized (resultLock) {
 						downloadedImages++;
 						if (downloadedImages >= valueSinceLastProgressUpdate + VALUE_DIFF_FOR_PROGRESS_UPDATE)
-							resultLock.notify();
+							resultLock.notifyAll();
 					}
 				}
 				

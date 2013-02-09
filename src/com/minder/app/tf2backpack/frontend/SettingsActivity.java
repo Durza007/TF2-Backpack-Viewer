@@ -62,9 +62,9 @@ public class SettingsActivity extends PreferenceActivity {
         Preference refresh = (Preference)findPreference("refreshfiles");
         refresh.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
-		    	Intent intent = new Intent(SettingsActivity.this, GameSchemeDownloaderService.class);
-		    	intent.putExtra("refreshImages", true);
-		    	startService(intent);
+				Intent intent = new Intent(SettingsActivity.this, DashboardActivity.class);
+				intent.setAction("download_gamescheme");
+				startActivity(intent);
 				return true;
 			}
 		});

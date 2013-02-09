@@ -163,8 +163,8 @@ public class GameSchemeParser {
 		return imageURList;
 	}
 	
-	public GameSchemeParser(String data, Context context, boolean test){
-/*		DataBaseHelper db = new DataBaseHelper(context);
+	/*public GameSchemeParser(String data, Context context, boolean test){
+	DataBaseHelper db = new DataBaseHelper(context);
 		SQLiteDatabase sqlDb = db.getWritableDatabase();
 		
 		// removes everything from database, else we would get duplicates
@@ -263,10 +263,10 @@ public class GameSchemeParser {
 			e.printStackTrace();
 		}*/
 		//sqlDb.close();
-	}
+	//}
 	
 	
-	public GameSchemeParser(String data, Context context){		
+	public GameSchemeParser(String data, Context context, boolean highresImages){		
 		long start = System.currentTimeMillis();
 		
 		mContext = context;
@@ -336,7 +336,7 @@ public class GameSchemeParser {
 				for (int index = 0; index < itemArray.length(); index++){
 					JSONObject itemObject = itemArray.getJSONObject(index);
 					
-					// Magick =)
+					// Magic =)
 					JSONArray nameArray = itemObject.names();
 					JSONArray valArray = itemObject.toJSONArray(nameArray);
 					TF2Weapon item = new TF2Weapon();
@@ -350,8 +350,13 @@ public class GameSchemeParser {
 								item.setItemTypeName(valArray.getString(arrayIndex));
 							} else if (type.equals("item_name")){
 								item.setItemName(valArray.getString(arrayIndex));
-							} else if (type.equals("image_url")){
-								item.setImageUrl(valArray.getString(arrayIndex));
+							} else if (type.equals("image_url") || type.equals("image_url_large")){
+								if (highresImages && type.equals("image_url_large")) {
+									item.setImageUrl(valArray.getString(arrayIndex));
+								}
+								if (item.getImageUrl().length() == 0) {
+									item.setImageUrl(valArray.getString(arrayIndex));
+								}
 							} else if (type.equals("item_description")){
 								item.setItemDescription(valArray.getString(arrayIndex));
 							} else if (type.equals("item_quality")){

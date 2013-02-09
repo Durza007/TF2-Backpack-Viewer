@@ -56,7 +56,7 @@
     <string name="cache_cleared">Cache Cleared!</string>
     <string name="clear_cache">Clear Cache</string>
     <string name="clear_cache_info">Clears all cache files the app has downloaded</string>
-    <string name="reset_images">Refresh Images</string>
+    <string name="reset_images">Redownload Images</string>
     <string name="equipped">Equipped</string>
     <string name="starting_download">Starting download…</string>
     <string name="menu_sort_by_persona_state">Sort by status</string>
@@ -75,4 +75,5 @@
     <string name="whats_new">Whats new!</string>
     <string name="download">Download</string>
     <string name="dismiss">Dismiss</string>
+    <string name="download_highres_images">Download High-res images (65MB!!!)</string>
 </resources>
