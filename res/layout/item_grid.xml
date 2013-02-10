@@ -12,8 +12,10 @@
         android:layout_above="@+id/includeAd"
         android:layout_alignParentTop="true"
         android:cacheColorHint="@color/bg_color"
+        android:columnWidth="100dp"
         android:fastScrollEnabled="true"
-        android:numColumns="3" >
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth" >
     </GridView>
 
     <include

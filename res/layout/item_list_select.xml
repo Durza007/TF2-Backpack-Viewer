@@ -3,8 +3,12 @@
     android:id="@+id/itemListSelectGridView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_color"
+    android:columnWidth="100dp"
     android:horizontalSpacing="6dp"
-    android:numColumns="auto_fit" android:verticalSpacing="4dp" android:stretchMode="columnWidth" android:columnWidth="100dp" android:background="@color/bg_color">
+    android:numColumns="auto_fit"
+    android:stretchMode="columnWidth"
+    android:verticalSpacing="4dp" >
 
     <!-- Preview: listitem=@layout/item_list_item -->
 
