@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -20,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.widget.GridView;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.ItemAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
@@ -74,21 +74,21 @@ public class ItemGridViewer extends Activity {
 						finish();
 					}		
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_ITEMS")){
-					new LoadAllItems().execute(ITEM_FILTER_NONE);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_NONE);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_HATS")){
-					new LoadAllItems().execute(ITEM_FILTER_HATS);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_HATS);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_DEFAULT")){
-					new LoadAllItems().execute(ITEM_FILTER_DEFAULT);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_DEFAULT);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_TOOLS")){
-					new LoadAllItems().execute(ITEM_FILTER_TOOLS);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_TOOLS);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_MISC")){
-					new LoadAllItems().execute(ITEM_FILTER_MISC);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_MISC);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_PRIMARY")){
-					new LoadAllItems().execute(ITEM_FILTER_PRIMARY);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_PRIMARY);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_SECONDARY")){
-					new LoadAllItems().execute(ITEM_FILTER_SECONDARY);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_SECONDARY);
 				} else if (action.equals("com.minder.app.tf2backpack.VIEW_ALL_MELEE")){
-					new LoadAllItems().execute(ITEM_FILTER_MELEE);
+					new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_MELEE);
 				}
 			} else {
 				finish();

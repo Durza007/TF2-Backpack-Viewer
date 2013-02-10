@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -34,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
+import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.R;
 
 public class NewsFragment extends Fragment {
@@ -221,7 +221,7 @@ public class NewsFragment extends Fragment {
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
         if (adapter.isEmpty()) {
-        	new DownloadNewsTask().execute(sp.getString("newscount", "10"));
+        	new DownloadNewsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, sp.getString("newscount", "10"));
 			progressContainer.setVisibility(View.VISIBLE);
 			listContainer.setVisibility(View.GONE);
         } else {
