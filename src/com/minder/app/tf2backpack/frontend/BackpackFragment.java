@@ -34,7 +34,9 @@ import com.minder.app.tf2backpack.frontend.BackpackView.OnLayoutReadyListener;
 public class BackpackFragment extends Fragment {
 	private final static int DEFAULT_NUMBER_OF_PAGES = 6;
 
+	private boolean retainInstance;
 	private BackpackView backpackView;
+	private SteamUser currentSteamUser;
 	private boolean addPlayerDataToView;
 	private Button newButton;
 	private int onPageNumber;
@@ -53,6 +55,7 @@ public class BackpackFragment extends Fragment {
      */
     public static BackpackFragment newInstance(SteamUser user) {
     	final BackpackFragment f = new BackpackFragment();
+    	f.retainInstance = true;
 
         // Supply user input as an argument.
         Bundle args = new Bundle();
@@ -65,9 +68,11 @@ public class BackpackFragment extends Fragment {
     /**
      * Create a new instance of BackpackFragment, initialized to
      * show backpack for 'user' and scaled to fit on the x axis
+     * @param retainInstance 
      */
-    public static BackpackFragment newInstance(SteamUser user, int fixedWidth) {
+    public static BackpackFragment newInstance(SteamUser user, int fixedWidth, boolean retainInstance) {
     	final BackpackFragment f = new BackpackFragment();
+    	f.retainInstance = retainInstance;
 
         // Supply user input as an argument.
         Bundle args = new Bundle();
@@ -81,10 +86,22 @@ public class BackpackFragment extends Fragment {
     public BackpackFragment() {
 		this.comparator = new BackpackPosComparator();
 		this.numberOfPages = DEFAULT_NUMBER_OF_PAGES;
+		this.retainInstance = true;
     }
     
     public SteamUser getSteamUser() {
-    	return getArguments().getParcelable("user");
+    	return currentSteamUser;
+    }
+    
+    /**
+     * Change SteamUser to display. Call this only after fragment is
+     * up and running
+     * @param user The user whose backpack to display
+     */
+    public void setSteamUser(SteamUser user) {
+    	currentSteamUser = user;
+    	
+        downloadPlayerData();
     }
 	
     private int getFixedWidth() {
@@ -95,7 +112,7 @@ public class BackpackFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		this.setRetainInstance(true);
+		this.setRetainInstance(retainInstance);
 	}
 	
 	@Override
@@ -135,6 +152,7 @@ public class BackpackFragment extends Fragment {
 
 		ungivenList = new ArrayList<Item>();
 		
+		currentSteamUser = getArguments().getParcelable("user");
 		if (playerItemList == null)
 			downloadPlayerData();
 		else
@@ -167,6 +185,7 @@ public class BackpackFragment extends Fragment {
 			// nothing
 		}
 
+
 		public void onPostExecute(Request request) {
 			Object object = request.getData();
 			if (object != null) {
@@ -192,6 +211,11 @@ public class BackpackFragment extends Fragment {
 								R.string.unknown_error, Toast.LENGTH_SHORT)
 								.show();
 					}
+					numberOfPages = 1;
+					onPageNumber = 1;
+					setPageNumberText();
+					playerItemList.clear();
+					addPlayerDataToView();
 				}
 			} else {
 				// TODO handle exception

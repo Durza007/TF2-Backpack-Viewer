@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
@@ -31,16 +33,18 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        setTitle(R.string.settings);
         setContentView(R.layout.list_content);     
         adView = (AdView)findViewById(R.id.ad);
         
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
         	preHoneycombOnCreate();
         } else {
-            getFragmentManager().beginTransaction()
-            	.replace(R.id.listContainer, new SettingsFragment())
+            if (savedInstanceState == null){
+                getFragmentManager().beginTransaction()
+            	.replace(R.id.listLayout, new SettingsFragment())
             	.commit();
+            }
         }
     }
     
@@ -98,14 +102,26 @@ public class SettingsActivity extends PreferenceActivity {
     }
     
     @Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	
+    public void onDestroy(){ 	
     	if (adView != null) {
     		adView.destroy();
     	}
+    	super.onDestroy();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; go home
+                Intent intent = new Intent(this, DashboardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     
     @Override
     protected Dialog onCreateDialog(int id) {

@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -342,6 +343,7 @@ public class GetPlayer extends Activity {
 					}
 					case HttpConnection.DID_SUCCEED: {
 						String textId = (String)message.obj;
+						Log.d("GetPlayer", textId);
 						int idStartIndex = textId.indexOf("<steamID64>");
 						int idEndIndex = textId.indexOf("</steamID64>");
 						
@@ -428,10 +430,10 @@ public class GetPlayer extends Activity {
 		if (newId.equals(id)){
 			id = java.net.URLEncoder.encode(id);
 			new HttpConnection(handler)
-				.getSpecificLines("http://steamcommunity.com/id/" + id + "/?xml=1", 4);
+				.getSpecificLines("http://steamcommunity.com/id/" + id + "/?xml=1", 10);
 		} else {
 			new HttpConnection(handler)
-				.getSpecificLines("http://steamcommunity.com/profiles/" + newId + "/?xml=1", 4);
+				.getSpecificLines("http://steamcommunity.com/profiles/" + newId + "/?xml=1", 10);
 		}
     }
     

@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 public class PlayerAdapter extends BaseAdapter {	
 	private class ViewHolder {
+		ViewGroup container;
 		ImageView avatar;
 		ImageView state;
 		TextView text;
@@ -34,6 +35,7 @@ public class PlayerAdapter extends BaseAdapter {
     private ImageLoader imageLoader;
     private Bitmap defaultImage;
     private int imageSize;
+    private int selectedIndex;
     private boolean showAvatars = false;
     
     private Comparator<SteamUser> comparator;
@@ -51,20 +53,18 @@ public class PlayerAdapter extends BaseAdapter {
         
         //imageSize = activity.getResources().getDimensionPixelSize(android.R.attr.listPreferredItemHeight);
         
-        imageLoader = new ImageLoader(activity, imageSize);
-        
+        imageLoader = new ImageLoader(activity, imageSize);     
 		defaultImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.avatar_64blank);
 		
 		{ // scale the bitmap
-			Bitmap newImage = Bitmap.createScaledBitmap(defaultImage, imageSize, imageSize, false);
-				
+			Bitmap newImage = Bitmap.createScaledBitmap(defaultImage, imageSize, imageSize, false);			
 			if (newImage != defaultImage) {
 				defaultImage.recycle();
-			}
-				
+			}			
 			defaultImage = newImage;
 		}
 		
+		selectedIndex = -1;
 		comparator = null;
     }
     
@@ -99,6 +99,7 @@ public class PlayerAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
+            holder.container = (ViewGroup)convertView.findViewById(R.id.RelativeLayoutItem);
             holder.avatar = (ImageView)convertView.findViewById(R.id.imageViewAvatar);
             holder.state = (ImageView)convertView.findViewById(R.id.imageViewState);
             holder.text = (TextView)convertView.findViewById(R.id.text1);
@@ -107,6 +108,14 @@ public class PlayerAdapter extends BaseAdapter {
             convertView.setTag(holder);
         } else {
         	holder = (ViewHolder)convertView.getTag();
+        }
+        
+        if (position == selectedIndex) {
+        	holder.container.setBackgroundResource(R.color.button_color);
+        	holder.text.setTextAppearance(activity, android.R.style.TextAppearance_DeviceDefault_Large_Inverse);
+        } else {
+        	holder.container.setBackgroundResource(0);
+        	holder.text.setTextAppearance(activity, android.R.style.TextAppearance_DeviceDefault_Large);
         }
         
         SteamUser player = playerList.get(position);
@@ -241,5 +250,10 @@ public class PlayerAdapter extends BaseAdapter {
 
 	public void setShowAvatars(Boolean showAvatars) {
 		this.showAvatars = showAvatars;
+	}
+
+	public void setSelectedItem(int index) {
+		selectedIndex = index;
+		notifyDataSetChanged();
 	}
 }

@@ -62,9 +62,10 @@ public class HttpConnection {
 	
 	/**
 	 * Executes the http request
+	 * 
 	 * @return The data - null if it failed
 	 */
-	public Object execute() {	
+	public Object execute() {
 		HttpResponse response = null;
 		try {
 			response = httpClient.execute(new HttpGet(url));
@@ -79,7 +80,7 @@ public class HttpConnection {
 			}
 			exception = e;
 		}
-		
+
 		Object result = null;
 		if (response != null) {
 			try {

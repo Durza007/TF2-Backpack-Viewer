@@ -68,6 +68,12 @@ public class DownloadDialog extends DialogFragment implements Runnable {
     }
 
 	public void run() {
+		if (keepUpdating) {
+			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + 1000);
+		} else {
+			return;
+		}
+		
 		if (!GameSchemeDownloaderService.isGameSchemeDownloading())
 			getDialog().dismiss();
 		
@@ -84,10 +90,6 @@ public class DownloadDialog extends DialogFragment implements Runnable {
 					+ GameSchemeDownloaderService.totalImages);
 		} else {
 			progressBar.setIndeterminate(true);
-		}
-		
-		if (keepUpdating) {
-			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + 1000);
 		}
 	}
 }

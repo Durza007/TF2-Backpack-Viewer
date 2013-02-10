@@ -138,7 +138,7 @@ public class PlayerListFragment extends Fragment {
 	public void setSelectedItem(int index) {
 		if (playerList != null) {
 			if (choiceModeEnabled) {
-				playerList.setItemChecked(index, true);
+				adapter.setSelectedItem(index);
 			}
 		}
 	}
@@ -173,63 +173,15 @@ public class PlayerListFragment extends Fragment {
 		adapter.setComparator(new byPersonaState());
 
 		playerList.setOnItemClickListener(clickListener);
+		
+		setListItemSelectable(choiceModeEnabled);
 
 		if (steamUserList != null) {
 			adapter.setPlayers(steamUserList);
 		} else {
 			progressContainer.setVisibility(View.VISIBLE);
 			listContainer.setVisibility(View.GONE);
-		}
-
-		/*
-		 * playerList.setOnItemClickListener(new OnItemClickListener() { public
-		 * void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
-		 * { // TODO This is NOT a good solution final SteamUser player =
-		 * (SteamUser)adapter.getItem(arg2); if (player.steamdId64 == 0){ //
-		 * this only happens when we search Log.v("PlayerList",
-		 * "64-bit id missing - fetching"); Handler handler = new Handler() {
-		 * public void handleMessage(Message message) { switch (message.what) {
-		 * case HttpConnection.DID_START: { break; } case
-		 * HttpConnection.DID_SUCCEED: { String textId = (String)message.obj;
-		 * int idStartIndex = textId.indexOf("<steamID64>"); int idEndIndex =
-		 * textId.indexOf("</steamID64>");
-		 * 
-		 * // check if player id was present if (idStartIndex == -1){
-		 * idStartIndex = textId.indexOf("![CDATA["); idEndIndex =
-		 * textId.indexOf("]]"); if (idStartIndex == -1){ //TODO
-		 * Toast.makeText(PlayerList.this, "Failed to verify player",
-		 * Toast.LENGTH_LONG).show(); } else { //TODO
-		 * Toast.makeText(PlayerList.this, textId.substring(idStartIndex + 8,
-		 * idEndIndex), Toast.LENGTH_LONG).show(); }
-		 * 
-		 * } else { if (setPlayerId) { Intent result = new Intent();
-		 * result.putExtra("name", ""); result.putExtra("id",
-		 * textId.substring(idStartIndex + 11, idEndIndex)); setResult(RESULT_OK
-		 * , result);
-		 * 
-		 * /*SharedPreferences playerPrefs =
-		 * PlayerList.this.getSharedPreferences("player", MODE_PRIVATE); Editor
-		 * editor = playerPrefs.edit(); editor.putString("id",
-		 * textId.substring(idStartIndex + 11, idEndIndex)); editor.commit();
-		 * startActivity(new Intent(PlayerList.this, Main.class));
-		 */
-		/*
-		 * finish(); } else { startActivity(new Intent(PlayerList.this,
-		 * Backpack.class).putExtra("id", textId.substring(idStartIndex + 11,
-		 * idEndIndex))); } } break; } case HttpConnection.DID_ERROR: { break; }
-		 * } } };
-		 * 
-		 * new HttpConnection(handler)
-		 * .getSpecificLines("http://steamcommunity.com/id/" +
-		 * player.communityId + "/?xml=1", 2); } else { if (setPlayerId) {
-		 * Intent result = new Intent(); result.putExtra("name",
-		 * player.steamName); result.putExtra("id",
-		 * String.valueOf(player.steamdId64)); setResult(RESULT_OK , result);
-		 * 
-		 * finish(); } else { startActivity(new Intent(PlayerList.this,
-		 * Backpack.class).putExtra("id", String.valueOf(player.steamdId64))); }
-		 * } } });
-		 */
+		}	 
 
 		playerList
 				.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
@@ -376,8 +328,7 @@ public class PlayerListFragment extends Fragment {
 		}
 	}
 
-	private class DownloadSearchListTask extends
-			AsyncTask<String, Void, ArrayList<SteamUser>> {
+	private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
 		public int pageNumber = 1;
 
 		@Override

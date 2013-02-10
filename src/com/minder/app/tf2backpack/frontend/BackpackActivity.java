@@ -1,9 +1,12 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
@@ -14,11 +17,11 @@ public class BackpackActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-    	
-        /*requestWindowFeature(Window.FEATURE_NO_TITLE);
+    	    
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }*/
+        	requestWindowFeature(Window.FEATURE_NO_TITLE);
+            //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
     	
     	setContentView(R.layout.activity_generic);
     	

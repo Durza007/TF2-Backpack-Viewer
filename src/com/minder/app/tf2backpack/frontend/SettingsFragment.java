@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.minder.app.tf2backpack.R;
 
@@ -14,7 +17,9 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
+        this.setRetainInstance(true);
+        
         // Load the preferences from an XML resource
         this.addPreferencesFromResource(R.xml.settings);
         

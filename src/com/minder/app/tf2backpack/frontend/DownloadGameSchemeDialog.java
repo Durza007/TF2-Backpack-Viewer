@@ -78,6 +78,9 @@ public class DownloadGameSchemeDialog extends DialogFragment {
 					checkBoxResetImages.isChecked(),
 					checkBoxHighresImages.isChecked());
 			DownloadGameSchemeDialog.this.dismiss();
+			
+			DownloadDialog dialog = new DownloadDialog();
+			dialog.show(getActivity().getSupportFragmentManager(), "download_dialog");
 		}
 	};
 }

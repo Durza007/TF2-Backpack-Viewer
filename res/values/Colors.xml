@@ -1,4 +1,5 @@
 <resources>
 	<color name="bg_color">#2A2725</color>
 	<color name="backpack_text">#C94F39</color>
+	<color name="button_color">#F3E9C5</color>
 </resources>
