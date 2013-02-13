@@ -3,6 +3,18 @@ package com.minder.app.tf2backpack.frontend;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.ads.AdView;
+import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.PlayerAdapter;
+import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.backend.AsyncTaskListener;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.backend.DataManager.Request;
+import com.minder.app.tf2backpack.frontend.PlayerListFragment.byPersonaState;
+import com.minder.app.tf2backpack.frontend.PlayerListFragment.byPlayerName;
+import com.minder.app.tf2backpack.frontend.PlayerListFragment.byWrenchNumber;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -11,28 +23,21 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
 
-import com.google.ads.AdView;
-import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.PlayerAdapter;
-import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.SteamUser;
-import com.minder.app.tf2backpack.backend.DataManager.Request;
-
-public class PlayerListFragment extends Fragment {
+public class SearchFragment extends Fragment {
 	private List<OnPlayerSelectedListener> listeners;
 	private final boolean isAboveGingerBread;
 
@@ -44,17 +49,13 @@ public class PlayerListFragment extends Fragment {
 	private final int CONTEXTMENU_VIEW_BACKPACK = 0;
 	private final int CONTEXTMENU_VIEW_STEAMPAGE = 1;
 
-	//private ProgressDialog mProgress;
 	private AdView adView;
 
-	private final boolean friendList = true;
-	private boolean searchList;
 	public int searchPage = 1;
 	public String searchQuery;
 
 	private View progressContainer;
 	private View listContainer;
-	private boolean choiceModeEnabled = false;
 	private ListView playerList;
 	private PlayerAdapter adapter;
 	private View footerView;
@@ -71,8 +72,15 @@ public class PlayerListFragment extends Fragment {
 			notifyListeners(user, position);
 		}
 	};
+	
+	public static SearchFragment createInstance(String searchTerm) {
+		final SearchFragment fragment = new SearchFragment();
+		fragment.searchQuery = searchTerm;
+		
+		return fragment;
+	}
 
-	public PlayerListFragment() {
+	public SearchFragment() {
 		isAboveGingerBread = android.os.Build.VERSION.SDK_INT > 10;
 		listeners = new LinkedList<OnPlayerSelectedListener>();
 	}
@@ -90,41 +98,6 @@ public class PlayerListFragment extends Fragment {
 		getSettings();
 	}
 
-	/**
-	 * Sets the player-list that will be displayed by this fragment
-	 * 
-	 * @param players The list of players
-	 */
-	public void setPlayerList(List<SteamUser> players) {
-		this.steamUserList = players;
-
-		if (adapter != null) {
-			adapter.setPlayers(players);
-			progressContainer.setVisibility(View.GONE);
-			listContainer.setVisibility(View.VISIBLE);
-		}
-	}
-
-	public void setListItemSelectable(boolean select) {
-		choiceModeEnabled = select;
-
-		if (playerList != null) {
-			if (choiceModeEnabled) {
-				playerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-			} else {
-				playerList.setChoiceMode(ListView.CHOICE_MODE_NONE);
-			}
-		}
-	}
-	
-	public void setSelectedItem(int index) {
-		if (playerList != null) {
-			if (choiceModeEnabled) {
-				adapter.setSelectedItem(index);
-			}
-		}
-	}
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -137,7 +110,6 @@ public class PlayerListFragment extends Fragment {
 		progressContainer = view.findViewById(R.id.progressContainer);
 
 		playerList = (ListView) view.findViewById(android.R.id.list);
-		setListItemSelectable(choiceModeEnabled);
 
 		// Set up our adapter
 		// TODO maybe re-think if this needs an activity?
@@ -147,21 +119,18 @@ public class PlayerListFragment extends Fragment {
 		playerList.addFooterView(footerView, null, false);
 		playerList.setAdapter(adapter);
 		playerList.removeFooterView(footerView);
-
 		playerList.setBackgroundResource(R.color.bg_color);
 		playerList.setCacheColorHint(this.getResources().getColor(
 				R.color.bg_color));
-		adapter.setComparator(new byPersonaState());
+		//adapter.setComparator(new byPersonaState());
 
 		playerList.setOnItemClickListener(clickListener);
-		
-		setListItemSelectable(choiceModeEnabled);
 
 		if (steamUserList != null) {
 			adapter.setPlayers(steamUserList);
 		} else {
-			progressContainer.setVisibility(View.VISIBLE);
-			listContainer.setVisibility(View.GONE);
+			steamUserList = new LinkedList<SteamUser>();
+			App.getDataManager().requestSteamUserSearch(getUserSearchListener, searchQuery, searchPage);
 		}	 
 
 		playerList
@@ -226,26 +195,20 @@ public class PlayerListFragment extends Fragment {
 
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		if (searchList) {
-			boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
+		boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
 
-			if (loadMore && ready && !loadingMore && !nothingMoreToLoad) {
-				loadingMore = true;
-				playerList.addFooterView(footerView, null, false);
-				/*DownloadSearchListTask searchTask = new DownloadSearchListTask();
-				searchTask.pageNumber = ++searchPage;
-				searchTask.execute(searchQuery);*/
-			}
+		if (loadMore && ready && !loadingMore && !nothingMoreToLoad) {
+			loadingMore = true;
+			playerList.addFooterView(footerView, null, false);
+			/*DownloadSearchListTask searchTask = new DownloadSearchListTask();
+			searchTask.pageNumber = ++searchPage;
+			searchTask.execute(searchQuery);*/
 		}
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		if (friendList) {
-			inflater.inflate(R.menu.friend_menu, menu);
-		} else {
-			inflater.inflate(R.menu.wrench_menu, menu);
-		}
+		inflater.inflate(R.menu.friend_menu, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
@@ -277,7 +240,7 @@ public class PlayerListFragment extends Fragment {
 			// Favorite favContexted = (Favorite)
 			// mFavList.getAdapter().getItem(menuInfo.position);
 			SteamUser player = (SteamUser) adapter.getItem(info.position);
-			startActivity(new Intent(PlayerListFragment.this.getActivity(),
+			startActivity(new Intent(SearchFragment.this.getActivity(),
 					BackpackActivity.class).putExtra("id",
 					String.valueOf(player.steamdId64)));
 			return true; /* true means: "we handled the event". */
@@ -308,51 +271,22 @@ public class PlayerListFragment extends Fragment {
 			listener.onPlayerSelected(user, index);
 		}
 	}
-
-	// obsolete
-	public static class byWrenchNumber implements
-			java.util.Comparator<SteamUser> {
-		public int compare(SteamUser boy, SteamUser girl) {
-			return boy.wrenchNumber - girl.wrenchNumber;
+	
+    private AsyncTaskListener getUserSearchListener = new AsyncTaskListener () {
+		public void onPreExecute() {
+			progressContainer.setVisibility(View.VISIBLE);
+			listContainer.setVisibility(View.GONE);
 		}
-	}
 
-	public static class byPlayerName implements java.util.Comparator<SteamUser> {
-		public int compare(SteamUser boy, SteamUser girl) {
-			if (boy.steamName != null && girl.steamName != null) {
-				return boy.steamName.compareToIgnoreCase(girl.steamName);
-			} else {
-				return 0;
-			}
+		public void onProgressUpdate(ProgressUpdate object) {
 		}
-	}
 
-	public static class byPersonaState implements
-			java.util.Comparator<SteamUser> {
-		public int compare(SteamUser boy, SteamUser girl) {
-			int boyState = boy.personaState.value;
-			int girlState = girl.personaState.value;
-
-			if (boyState > 1)
-				boyState = 1;
-			if (girlState > 1)
-				girlState = 1;
-
-			if (boy.gameId.length() > 0)
-				boyState = 2;
-			if (girl.gameId.length() > 0)
-				girlState = 2;
-
-			// sort by name secondly
-			if (boyState == girlState) {
-				if (boy.steamName != null && girl.steamName != null) {
-					return boy.steamName.compareToIgnoreCase(girl.steamName);
-				} else {
-					return 0;
-				}
-			}
-
-			return girlState - boyState;
+		@SuppressWarnings("unchecked")
+		public void onPostExecute(Request request) {
+			steamUserList.addAll((List<SteamUser>) request.getData());
+			adapter.notifyDataSetChanged();
+			progressContainer.setVisibility(View.GONE);
+			listContainer.setVisibility(View.VISIBLE);
 		}
-	}
+	};
 }

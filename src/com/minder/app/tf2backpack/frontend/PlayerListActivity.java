@@ -20,7 +20,6 @@ import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
-import com.minder.app.tf2backpack.frontend.PlayerListFragment.OnPlayerSelectedListener;
 
 public class PlayerListActivity extends FragmentActivity {
 	private boolean hasBackpackView;
