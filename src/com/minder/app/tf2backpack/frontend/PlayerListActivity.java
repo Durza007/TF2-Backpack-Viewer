@@ -6,14 +6,12 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
@@ -184,4 +182,5 @@ public class PlayerListActivity extends FragmentActivity {
 			//setProgressBarIndeterminateVisibility(false);
 		}
 	};
+
 }

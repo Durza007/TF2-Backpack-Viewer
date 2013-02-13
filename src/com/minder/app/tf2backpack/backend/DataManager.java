@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -78,6 +82,7 @@ public class DataManager {
 	private final static int TYPE_PLAYER_INFO = 9;
 	private final static int TYPE_PLAYER_ITEM_LIST = 10;
 	private final static int TYPE_SCHEMA_FILES = 11;
+	private final static int TYPE_PLAYER_SEARCH = 12;
 	
 	private Context context;
 	
@@ -120,7 +125,7 @@ public class DataManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Request requestSteamUserInfo(AsyncTaskListener listener, ArrayList<SteamUser> players) {
+	public Request requestSteamUserInfo(AsyncTaskListener listener, List<SteamUser> players) {
 		Request request = new Request(TYPE_PLAYER_INFO);
 		GetPlayerInfo asyncTask = new GetPlayerInfo(listener, request);
 		
@@ -134,6 +139,15 @@ public class DataManager {
 		DownloadSchemaFiles asyncTask = new DownloadSchemaFiles(listener, request, refreshImages, downloadHighresImages);
 		
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		
+		return request;
+	}
+	
+	public Request requestSteamUserSearch(AsyncTaskListener listener, String searchTerm, int pageNumber) {
+		Request request = new Request(TYPE_PLAYER_SEARCH);
+		DownloadSearchListTask asyncTask = new DownloadSearchListTask(listener, request, pageNumber);
+		
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchTerm);
 		
 		return request;
 	}
@@ -332,7 +346,7 @@ public class DataManager {
         }
     }
     
-    private class GetPlayerInfo extends AsyncTask<ArrayList<SteamUser>, SteamUser[], Void> {
+    private class GetPlayerInfo extends AsyncTask<List<SteamUser>, SteamUser[], Void> {
     	private final static int ID_CHUNK_SIZE = 50;
     	private final static int PUBLISH_BUFFER_SIZE = 5;
 		private final AsyncTaskListener listener;
@@ -349,7 +363,7 @@ public class DataManager {
     	}
     	
 		@Override
-		protected Void doInBackground(final ArrayList<SteamUser>... params) {
+		protected Void doInBackground(final List<SteamUser>... params) {
 			if (BuildConfig.DEBUG) {
 				Log.d("DataManager", "GetPlayerInfo - start");
 			}
@@ -808,4 +822,146 @@ public class DataManager {
 			}
 		}
     }
+    
+	private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
+		private final AsyncTaskListener listener;
+		private final Request request;
+		private final int pageNumber;
+		
+		public DownloadSearchListTask(AsyncTaskListener listener, Request request,int pageNumber) {
+			this.listener = listener;
+			this.request = request;
+			this.pageNumber = pageNumber;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			listener.onPreExecute();
+		}
+
+		@Override
+		protected ArrayList<SteamUser> doInBackground(String... params) {
+			ArrayList<SteamUser> players = new ArrayList<SteamUser>();
+
+			String data = downloadText("http://steamcommunity.com/actions/Search?p="
+					+ pageNumber + "&T=Account&K=\"" + params[0] + "\"");
+
+			int curIndex = 0;
+			SteamUser newPlayer;
+			while (curIndex < data.length()) {
+				int index = data
+						.indexOf(
+								"<a class=\"linkTitle\" href=\"http://steamcommunity.com/profiles/",
+								curIndex);
+				if (index != -1) {
+					int endIndex = data.indexOf("\">", index);
+					newPlayer = new SteamUser();
+					newPlayer.steamdId64 = Long.parseLong(data.substring(
+							index + 62, endIndex));
+
+					index = data.indexOf("</a>", endIndex);
+					newPlayer.steamName = data.substring(endIndex + 2, index);
+
+					players.add(newPlayer);
+					curIndex = index;
+				} else {
+					index = data
+							.indexOf(
+									"<a class=\"linkTitle\" href=\"http://steamcommunity.com/id/",
+									curIndex);
+					if (index != -1) {
+						int endIndex = data.indexOf("\">", index);
+						newPlayer = new SteamUser();
+						newPlayer.communityId = data.substring(index + 56,
+								endIndex);
+
+						index = data.indexOf("</a>", endIndex);
+						newPlayer.steamName = data.substring(endIndex + 2,
+								index);
+
+						players.add(newPlayer);
+						curIndex = index;
+					}
+					break;
+				}
+			}
+
+			return players;
+		}
+
+		protected void onPostExecute(ArrayList<SteamUser> result) {
+			if (result != null) {
+				/*
+				 * currentRequest = App.getDataManager().requestSteamUserInfo(
+				 * getSteamUserInfoListener, ((ArrayList<SteamUser>) result));
+				 */
+				request.data = result;
+				listener.onPostExecute(request);
+				removeRequest(request);
+			}
+		}
+
+		private String downloadText(String URL) {
+			int BUFFER_SIZE = 2000;
+			InputStream in = null;
+			try {
+				in = openHttpConnection(URL);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return "";
+			}
+
+			if (in != null) {
+				InputStreamReader isr = new InputStreamReader(in);
+				int charRead;
+				String str = "";
+				char[] inputBuffer = new char[BUFFER_SIZE];
+				try {
+					while ((charRead = isr.read(inputBuffer)) > 0) {
+						// ---convert the chars to a String---
+						String readString = String.copyValueOf(inputBuffer, 0,
+								charRead);
+						str += readString;
+						inputBuffer = new char[BUFFER_SIZE];
+					}
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return "";
+				}
+				return str;
+			}
+			return "";
+		}
+
+		private InputStream openHttpConnection(String urlString)
+				throws IOException {
+			InputStream in = null;
+			int response = -1;
+
+			URL url = new URL(urlString);
+			URLConnection conn = url.openConnection();
+
+			if (!(conn instanceof HttpURLConnection))
+				throw new IOException("Not an HTTP connection");
+
+			try {
+				HttpURLConnection httpConn = (HttpURLConnection) conn;
+				httpConn.setAllowUserInteraction(false);
+				httpConn.setInstanceFollowRedirects(true);
+				httpConn.setRequestMethod("GET");
+				httpConn.connect();
+
+				response = httpConn.getResponseCode();
+				if (response == HttpURLConnection.HTTP_OK) {
+					in = httpConn.getInputStream();
+				}
+			} catch (Exception ex) {
+				throw new IOException("Error connecting");
+			}
+			return in;
+		}
+	}
 }

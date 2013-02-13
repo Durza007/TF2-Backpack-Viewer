@@ -1,19 +1,11 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -74,8 +66,6 @@ public class PlayerListFragment extends Fragment {
 	private ListView playerList;
 	private PlayerAdapter adapter;
 	private View footerView;
-	private View noResultFooterView;
-	private int totalInfoDownloads;
 
 	private List<SteamUser> steamUserList;
 	private Request currentRequest;
@@ -162,7 +152,6 @@ public class PlayerListFragment extends Fragment {
 		adapter = new PlayerAdapter(getActivity());
 		adapter.setShowAvatars(loadAvatars);
 		footerView = inflater.inflate(R.layout.loading_footer, null);
-		noResultFooterView = inflater.inflate(R.layout.noresult_footer, null);
 		playerList.addFooterView(footerView, null, false);
 		playerList.setAdapter(adapter);
 		playerList.removeFooterView(footerView);
@@ -251,9 +240,9 @@ public class PlayerListFragment extends Fragment {
 			if (loadMore && ready && !loadingMore && !nothingMoreToLoad) {
 				loadingMore = true;
 				playerList.addFooterView(footerView, null, false);
-				DownloadSearchListTask searchTask = new DownloadSearchListTask();
+				/*DownloadSearchListTask searchTask = new DownloadSearchListTask();
 				searchTask.pageNumber = ++searchPage;
-				searchTask.execute(searchQuery);
+				searchTask.execute(searchQuery);*/
 			}
 		}
 	}
@@ -328,155 +317,6 @@ public class PlayerListFragment extends Fragment {
 		}
 	}
 
-	private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
-		public int pageNumber = 1;
-
-		@Override
-		protected ArrayList<SteamUser> doInBackground(String... params) {
-			totalInfoDownloads = 0;
-			ArrayList<SteamUser> players = new ArrayList<SteamUser>();
-
-			String data = DownloadText("http://steamcommunity.com/actions/Search?p="
-					+ pageNumber + "&T=Account&K=\"" + params[0] + "\"");
-
-			int curIndex = 0;
-			SteamUser newPlayer;
-			while (curIndex < data.length()) {
-				int index = data
-						.indexOf(
-								"<a class=\"linkTitle\" href=\"http://steamcommunity.com/profiles/",
-								curIndex);
-				if (index != -1) {
-					int endIndex = data.indexOf("\">", index);
-					newPlayer = new SteamUser();
-					newPlayer.steamdId64 = Long.parseLong(data.substring(
-							index + 62, endIndex));
-
-					index = data.indexOf("</a>", endIndex);
-					newPlayer.steamName = data.substring(endIndex + 2, index);
-
-					players.add(newPlayer);
-					curIndex = index;
-				} else {
-					index = data
-							.indexOf(
-									"<a class=\"linkTitle\" href=\"http://steamcommunity.com/id/",
-									curIndex);
-					if (index != -1) {
-						int endIndex = data.indexOf("\">", index);
-						newPlayer = new SteamUser();
-						newPlayer.communityId = data.substring(index + 56,
-								endIndex);
-
-						index = data.indexOf("</a>", endIndex);
-						newPlayer.steamName = data.substring(endIndex + 2,
-								index);
-
-						players.add(newPlayer);
-						curIndex = index;
-					}
-					break;
-				}
-			}
-
-			return players;
-		}
-
-		protected void onPostExecute(ArrayList<SteamUser> result) {
-			if (result != null) {
-				/*
-				 * currentRequest = App.getDataManager().requestSteamUserInfo(
-				 * getSteamUserInfoListener, ((ArrayList<SteamUser>) result));
-				 */
-
-				if (totalInfoDownloads == 0) {
-					// set progressbar visible false
-					setAdVisibility(View.VISIBLE);
-					System.gc();
-				}
-
-				nothingMoreToLoad = true;
-				if (result.size() > 0) {
-					for (SteamUser p : result) {
-						if (adapter.addPlayerInfo(p)) {
-							nothingMoreToLoad = false;
-						}
-					}
-				} else {
-					playerList.removeFooterView(footerView);
-					playerList.addFooterView(noResultFooterView, null, false);
-				}
-			}
-			// GetPlayerInfoRange(0, 10);
-			loadingMore = false;
-			playerList.removeFooterView(footerView);
-			ready = true;
-		}
-
-		private String DownloadText(String URL) {
-			int BUFFER_SIZE = 2000;
-			InputStream in = null;
-			try {
-				in = OpenHttpConnection(URL);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				return "";
-			}
-
-			if (in != null) {
-				InputStreamReader isr = new InputStreamReader(in);
-				int charRead;
-				String str = "";
-				char[] inputBuffer = new char[BUFFER_SIZE];
-				try {
-					while ((charRead = isr.read(inputBuffer)) > 0) {
-						// ---convert the chars to a String---
-						String readString = String.copyValueOf(inputBuffer, 0,
-								charRead);
-						str += readString;
-						inputBuffer = new char[BUFFER_SIZE];
-					}
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return "";
-				}
-				return str;
-			}
-			return "";
-		}
-
-		private InputStream OpenHttpConnection(String urlString)
-				throws IOException {
-			InputStream in = null;
-			int response = -1;
-
-			URL url = new URL(urlString);
-			URLConnection conn = url.openConnection();
-
-			if (!(conn instanceof HttpURLConnection))
-				throw new IOException("Not an HTTP connection");
-
-			try {
-				HttpURLConnection httpConn = (HttpURLConnection) conn;
-				httpConn.setAllowUserInteraction(false);
-				httpConn.setInstanceFollowRedirects(true);
-				httpConn.setRequestMethod("GET");
-				httpConn.connect();
-
-				response = httpConn.getResponseCode();
-				if (response == HttpURLConnection.HTTP_OK) {
-					in = httpConn.getInputStream();
-				}
-			} catch (Exception ex) {
-				throw new IOException("Error connecting");
-			}
-			return in;
-		}
-	}
-
 	// obsolete
 	public static class byWrenchNumber implements
 			java.util.Comparator<SteamUser> {
@@ -521,12 +361,6 @@ public class PlayerListFragment extends Fragment {
 			}
 
 			return girlState - boyState;
-		}
-	}
-
-	private void setAdVisibility(int visibility) {
-		if (adView != null) {
-			adView.setVisibility(visibility);
 		}
 	}
 }
