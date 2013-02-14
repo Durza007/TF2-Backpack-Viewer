@@ -58,7 +58,7 @@ public class SelectBackpack extends Activity {
 			        finish();
 					break;
 				case R.id.ButtonUserId:
-					startActivityForResult(new Intent(SelectBackpack.this, GetPlayer.class).putExtra("return", true), 0);
+					startActivityForResult(new Intent(SelectBackpack.this, SelectPlayerActivity.class).putExtra("return", true), 0);
 					break;
 				case R.id.ButtonFriends:
 					startActivity(new Intent(SelectBackpack.this, PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
@@ -75,12 +75,11 @@ public class SelectBackpack extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
     	if (resultCode == RESULT_OK) {
-    		Bundle bundle = data.getExtras();
-	        String playerId = bundle.getString("id");
-	        SteamUser user = new SteamUser();
-	        user.steamdId64 = Long.parseLong(playerId);
-    		startActivity(new Intent(this, BackpackActivity.class)
-    			.putExtra("com.minder.app.tf2backpack.SteamUser", user));
+	        final SteamUser user = data.getExtras().getParcelable("user");
+	        if (user != null) {
+	    		startActivity(new Intent(this, BackpackActivity.class)
+	    			.putExtra("com.minder.app.tf2backpack.SteamUser", user));
+	        }
     	}
 		finish();
     }

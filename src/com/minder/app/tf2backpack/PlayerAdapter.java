@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class PlayerAdapter extends BaseAdapter {	
@@ -189,7 +188,7 @@ public class PlayerAdapter extends BaseAdapter {
     }
     
     public boolean addPlayerInfo(SteamUser p){
-    	if (p != null){
+    	if (p != null) {
         	for (SteamUser baseP : playerList) {
         		if (baseP.steamdId64 == p.steamdId64){
         			/*int index = mPlayers.indexOf(baseP);

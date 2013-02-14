@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.minder.app.tf2backpack.frontend.DashboardActivity;
-import com.minder.app.tf2backpack.frontend.GetPlayer;
+import com.minder.app.tf2backpack.frontend.SelectPlayerActivity;
 
 public class Main extends Activity {
 	private SharedPreferences playerPrefs;
@@ -23,7 +23,7 @@ public class Main extends Activity {
 			startActivity(new Intent(this, DashboardActivity.class));
 			finish();
 		} else {
-			startActivityForResult(new Intent(this, GetPlayer.class).putExtra(
+			startActivityForResult(new Intent(this, SelectPlayerActivity.class).putExtra(
 					"title", "Enter your user name"), 0);
 		}
 	}
@@ -31,11 +31,13 @@ public class Main extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK) {
 			SharedPreferences.Editor editor = playerPrefs.edit();
-			Bundle bundle = data.getExtras();
-			editor.putString("name", bundle.getString("name"));
-			editor.putString("id", bundle.getString("id"));
-			editor.commit();
-			startActivity(new Intent(this, DashboardActivity.class));
+			SteamUser user = data.getExtras().getParcelable("user");
+			
+			if (user != null) {
+				editor.putLong("id", user.steamdId64);
+				editor.commit();
+				startActivity(new Intent(this, DashboardActivity.class));
+			}
 		}
 		finish();
 	}

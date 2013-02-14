@@ -3,15 +3,11 @@ package com.minder.app.tf2backpack.frontend;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
@@ -19,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -39,9 +36,10 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
 
-public class GetPlayer extends Activity {
+public class SelectPlayerFragment extends Fragment {
     private class ItemAutoTextAdapter extends CursorAdapter implements AdapterView.OnItemClickListener {
     	
     	/**
@@ -179,50 +177,70 @@ public class GetPlayer extends Activity {
 		    editTextPlayer.setSelection(name.length());
 		}
     }
-	
+    
+    public static interface OnSearchClickedListener {
+    	public void onSearchClicked(String searchQuery);
+    }
 	
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
 	
+	private OnPlayerSelectedListener playerSelectedListener;
+	private OnSearchClickedListener searchClickedListener;
 	private Typeface tf2Secondary;
 	private Button buttonOk;
 	private AutoCompleteTextView editTextPlayer;
 	private ProgressDialog myProgressDialog;
-	private Context mContext;
 	private AdView adView;
 	
-	private boolean setSteamId;
+	public void setPlayerSelectedListener(OnPlayerSelectedListener listener) {
+		this.playerSelectedListener = listener;
+	}
 	
-    /** Called when the activity is first created. */
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.enter_user_id);
+	private void notifyPlayerSelectedListener(SteamUser user) {
+		if (playerSelectedListener != null)
+			playerSelectedListener.onPlayerSelected(user, 0);
+	}
+	
+	public void setSearchClickedListener(OnSearchClickedListener listener) {
+		this.searchClickedListener = listener;
+	}
+	
+	private void notifySearchClickedListener(String searchQuery) {
+		if (searchClickedListener != null) {
+			searchClickedListener.onSearchClicked(searchQuery);
+		}
+	}
     
-        Bundle extras = getIntent().getExtras();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    	super.onCreateView(inflater, container, savedInstanceState);
+    	final View view = inflater.inflate(R.layout.enter_user_id, container);
+        
+        /*Bundle extras = getIntent().getExtras();
         if(extras != null){
         	String title = extras.getString("title");
         	if (title != null){
         		this.setTitle(title);
+        		
         	}
-        }
+        }*/
         
-        if (getIntent().getAction() != null){
+        /*if (getIntent().getAction() != null){
 	        if (getIntent().getAction().equals("com.minder.app.tf2backpack.SET_STEAMID")){
 	        	setSteamId = true;
 	        } else {
 	        	setSteamId = false;
 	        }
-        }
+        }*/
         
-        mContext = this;
+        tf2Secondary = Typeface.createFromAsset(getActivity().getAssets(), "fonts/TF2secondary.ttf");
         
-        tf2Secondary = Typeface.createFromAsset(getAssets(), "fonts/TF2secondary.ttf");
-        
-        TextView textView = (TextView)findViewById(R.id.user_id_textView);
+        TextView textView = (TextView)view.findViewById(R.id.user_id_textView);
         textView.setTypeface(tf2Secondary, 0);
         
-        editTextPlayer = (AutoCompleteTextView)findViewById(R.id.EditTextSteamId);
+        editTextPlayer = (AutoCompleteTextView)view.findViewById(R.id.EditTextSteamId);
         
-        ItemAutoTextAdapter adapter = new ItemAutoTextAdapter(this);
+        ItemAutoTextAdapter adapter = new ItemAutoTextAdapter(getActivity());
         editTextPlayer.setAdapter(adapter);
         editTextPlayer.setOnItemClickListener(adapter);
         editTextPlayer.setThreshold(1);
@@ -239,23 +257,26 @@ public class GetPlayer extends Activity {
             }
         });
         
-        buttonOk = (Button)findViewById(R.id.ButtonOk);
+        buttonOk = (Button)view.findViewById(R.id.ButtonOk);
         buttonOk.setOnClickListener(onButtonOkClick);
         
-        Button buttonSearch = (Button)findViewById(R.id.buttonSearch);
+        Button buttonSearch = (Button)view.findViewById(R.id.buttonSearch);
         buttonSearch.setOnClickListener(onButtonSearchClick);
         
         // Look up the AdView as a resource and load a request.
-        adView = (AdView)findViewById(R.id.ad);
+        adView = (AdView)view.findViewById(R.id.ad);
         /*if (adView != null) {
         	adView.loadAd(new AdRequest());
         }*/
         
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean dontShowInfo = sp.getBoolean("community_info_dont_show", false);
         if (!dontShowInfo) {
-        	showDialog(COMMUNITY_ID_TUTORIAL);
+        	// TODO deprecated stuff
+        	getActivity().showDialog(COMMUNITY_ID_TUTORIAL);
         }
+    	
+    	return null;
     }
     
     @Override
@@ -291,29 +312,26 @@ public class GetPlayer extends Activity {
     
     OnClickListener onButtonSearchClick = new OnClickListener(){
 		public void onClick(View v) {
-			if (!editTextPlayer.getText().toString().equals("")){
-				Intent intent = new Intent(GetPlayer.this, PlayerListActivity.class);
-				intent.setAction("com.minder.app.tf2backpack.SEARCH");
-				intent.putExtra(SearchManager.QUERY, editTextPlayer.getText().toString());
-
-				intent.putExtra("setid", true);		
-				startActivityForResult(intent, 0);
-			} else {
-				onSearchRequested();
+			final String searchQuery = editTextPlayer.getText().toString();
+			if (!searchQuery.equals("")){
+				notifySearchClickedListener(searchQuery);
 			}
 		}
     };
     
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-    	if (resultCode == RESULT_OK) {
-			if(setSteamId == false){
-				setResult(RESULT_OK , data);
+    	if (resultCode == Activity.RESULT_OK) {
+    		// TODO handle this!
+    		notifyPlayerSelectedListener(null);
+    		
+			/*if(setSteamId == false){
+				setResult(Activity.RESULT_OK , data);
 				
 				Bundle bundle = data.getExtras();
 				storeName(bundle.getString("name"));
 			} else {
-				SharedPreferences playerPrefs = GetPlayer.this.getSharedPreferences("player", MODE_PRIVATE);
+				SharedPreferences playerPrefs = getActivity().getSharedPreferences("player", Activity.MODE_PRIVATE);
 	    		SharedPreferences.Editor editor = playerPrefs.edit();
 	    		Bundle bundle = data.getExtras();
 	    		editor.putString("name", bundle.getString("name"));
@@ -321,15 +339,13 @@ public class GetPlayer extends Activity {
 	    		editor.commit();
 	    		
 	    		storeName(bundle.getString("name"));
-			}
-			
-	    	finish();
+			}*/
     	}
     }
     
     private void textInputDone() {
 		if (!editTextPlayer.getText().toString().equals("")){
-			myProgressDialog = ProgressDialog.show(mContext, "Please Wait...", "Verifying player info...");
+			myProgressDialog = ProgressDialog.show(getActivity(), "Please Wait...", "Verifying player info...");
 			fetchPlayerId();
 		}
     }
@@ -362,24 +378,30 @@ public class GetPlayer extends Activity {
 								}
 					    	}
 							if (idStartIndex == -1){
-								Toast.makeText(GetPlayer.this, "Failed to verify player", Toast.LENGTH_LONG).show();
+								Toast.makeText(getActivity(), "Failed to verify player", Toast.LENGTH_LONG).show();
 							} else {
-								Toast.makeText(GetPlayer.this, textId.substring(idStartIndex + 8, idEndIndex), Toast.LENGTH_LONG).show();
+								Toast.makeText(getActivity(), textId.substring(idStartIndex + 8, idEndIndex), Toast.LENGTH_LONG).show();
 							}
 							
-						} else {	
-							if(setSteamId == false){
+						} else {
+			    			// TODO check this!
+			    			SteamUser user = new SteamUser();
+			    			user.steamName = editTextPlayer.getText().toString();
+			    			user.steamdId64 = Long.parseLong(textId.substring(idStartIndex + 11, idEndIndex));
+			    			notifyPlayerSelectedListener(user);
+							
+							/*if(setSteamId == false){
 								Intent result = new Intent();
 								result.putExtra("name", editTextPlayer.getText());
 								result.putExtra("id", textId.substring(idStartIndex + 11, idEndIndex));
 								setResult(RESULT_OK , result);
 							} else {
-								SharedPreferences playerPrefs = GetPlayer.this.getSharedPreferences("player", MODE_PRIVATE);
+								SharedPreferences playerPrefs = getActivity().getSharedPreferences("player", MODE_PRIVATE);
 					    		SharedPreferences.Editor editor = playerPrefs.edit();
 					    		editor.putString("name", editTextPlayer.getText().toString());
 					    		editor.putString("id", textId.substring(idStartIndex + 11, idEndIndex));
 					    		editor.commit();
-							}
+							}*/
 					    	if (myProgressDialog != null)
 					    	{
 								if (myProgressDialog.isShowing()){
@@ -392,21 +414,20 @@ public class GetPlayer extends Activity {
 					    	}
 							
 					    	storeName(editTextPlayer.getText().toString());
-							finish();
 						}
 						break;
 					}
 					case HttpConnection.DID_ERROR: {
 						Exception e = (Exception) message.obj;
 						e.printStackTrace();
-						if (Internet.isOnline(GetPlayer.this)){
+						if (Internet.isOnline(getActivity())){
 							if (e instanceof UnknownHostException){
-								Toast.makeText(GetPlayer.this, R.string.no_steam_api, Toast.LENGTH_LONG).show();
+								Toast.makeText(getActivity(), R.string.no_steam_api, Toast.LENGTH_LONG).show();
 							} else {
-								Toast.makeText(GetPlayer.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+								Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 							}
 						} else {
-							Toast.makeText(GetPlayer.this, R.string.no_internet, Toast.LENGTH_LONG).show();
+							Toast.makeText(getActivity(), R.string.no_internet, Toast.LENGTH_LONG).show();
 						}
 	        			try {
 	        				myProgressDialog.dismiss();
@@ -467,29 +488,21 @@ public class GetPlayer extends Activity {
     	return id;
     }
     
-    @Override
-    protected Dialog onCreateDialog(int id) {
+    /*@Override
+    public Dialog onCreateDialog(int id) {
         switch (id) {
         case COMMUNITY_ID_TUTORIAL:
-            return new AlertDialog.Builder(this)
+            return new AlertDialog.Builder(getActivity())
                 .setIcon(R.drawable.ic_dialog_info)
                 .setTitle(R.string.community_id)
                 .setMessage(R.string.tutorial_how_to_set_community_id)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                    	/*gameSchemePref = GameSchemeDownloader.this.getSharedPreferences("gamescheme", MODE_PRIVATE);
-                    	GameSchemeDownloader.this.setContentView(R.layout.downloader);
-                    	
-                    	downloadText = (TextView)findViewById(R.id.TextViewDownloadStatus);
-                    	
-                    	imageDownloadProgress = (ProgressBar)findViewById(R.id.ProgressBarImageDownload);
-                    	imageDownloadProgress.setProgress(0);
-                    	Download();*/
                     }
                 })
                 .setNeutralButton(R.string.alert_dialog_dont_show_again, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+                    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     	Editor editor = sp.edit();
                     	editor.putBoolean("community_info_dont_show", true);
                     	editor.commit();
@@ -497,10 +510,10 @@ public class GetPlayer extends Activity {
                 }).create();
         }
         return null;
-    }
+    }*/
     
     private void storeName(String name) {
-    	Thread thread = new Thread(new SaveNameToDb(getApplicationContext(), name));
+    	Thread thread = new Thread(new SaveNameToDb(App.getAppContext(), name));
     	thread.setDaemon(true);
     	thread.start();
     }

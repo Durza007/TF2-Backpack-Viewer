@@ -32,13 +32,14 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class SearchFragment extends Fragment {
-	private List<OnPlayerSelectedListener> listeners;
+public class SearchFragment extends Fragment implements OnScrollListener {
+	private OnPlayerSelectedListener listener;
 	private final boolean isAboveGingerBread;
 
 	private boolean ready = false;
@@ -59,6 +60,7 @@ public class SearchFragment extends Fragment {
 	private ListView playerList;
 	private PlayerAdapter adapter;
 	private View footerView;
+	private View noResultFooterView;
 
 	private List<SteamUser> steamUserList;
 	private Request currentRequest;
@@ -69,20 +71,36 @@ public class SearchFragment extends Fragment {
 			final SteamUser user = (SteamUser) adapter.getItem(position);
 
 			view.setPressed(true);
-			notifyListeners(user, position);
+			notifyListener(user, position);
 		}
 	};
-	
+
 	public static SearchFragment createInstance(String searchTerm) {
 		final SearchFragment fragment = new SearchFragment();
 		fragment.searchQuery = searchTerm;
-		
+
 		return fragment;
+	}
+
+	public void newSearchQuery(String searchQuery) {
+		this.searchQuery = searchQuery;
+		this.searchPage = 1;
+		steamUserList.clear();
+		adapter.clearPlayers();
+		adapter.notifyDataSetChanged();
+		
+		setLoadingFooterVisible(false);
+		setNoResultFooterVisible(false);
+
+		progressContainer.setVisibility(View.VISIBLE);
+		listContainer.setVisibility(View.GONE);
+
+		currentRequest = App.getDataManager().requestSteamUserSearch(
+				getUserSearchListener, searchQuery, searchPage);
 	}
 
 	public SearchFragment() {
 		isAboveGingerBread = android.os.Build.VERSION.SDK_INT > 10;
-		listeners = new LinkedList<OnPlayerSelectedListener>();
 	}
 
 	@Override
@@ -105,7 +123,7 @@ public class SearchFragment extends Fragment {
 
 		// Look up the AdView as a resource and load a request.
 		adView = (AdView) view.findViewById(R.id.ad);
-		
+
 		listContainer = view.findViewById(R.id.listContainer);
 		progressContainer = view.findViewById(R.id.progressContainer);
 
@@ -116,22 +134,31 @@ public class SearchFragment extends Fragment {
 		adapter = new PlayerAdapter(getActivity());
 		adapter.setShowAvatars(loadAvatars);
 		footerView = inflater.inflate(R.layout.loading_footer, null);
+		noResultFooterView = inflater.inflate(R.layout.noresult_footer, null);
 		playerList.addFooterView(footerView, null, false);
+		playerList.addFooterView(noResultFooterView);
 		playerList.setAdapter(adapter);
-		playerList.removeFooterView(footerView);
+		// playerList.removeFooterView(footerView);
+		setLoadingFooterVisible(false);
+		setNoResultFooterVisible(false);
+
 		playerList.setBackgroundResource(R.color.bg_color);
 		playerList.setCacheColorHint(this.getResources().getColor(
 				R.color.bg_color));
-		//adapter.setComparator(new byPersonaState());
+		// adapter.setComparator(new byPersonaState());
 
 		playerList.setOnItemClickListener(clickListener);
+		playerList.setOnScrollListener(this);
 
 		if (steamUserList != null) {
 			adapter.setPlayers(steamUserList);
 		} else {
+			progressContainer.setVisibility(View.VISIBLE);
+			listContainer.setVisibility(View.GONE);
 			steamUserList = new LinkedList<SteamUser>();
-			App.getDataManager().requestSteamUserSearch(getUserSearchListener, searchQuery, searchPage);
-		}	 
+			currentRequest = App.getDataManager().requestSteamUserSearch(
+					getUserSearchListener, searchQuery, searchPage);
+		}
 
 		playerList
 				.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
@@ -147,6 +174,29 @@ public class SearchFragment extends Fragment {
 				});
 
 		return view;
+	}
+
+	private void setLoadingFooterVisible(boolean show) {
+		/*
+		 * if (show) playerList.addFooterView(footerView, null, false); else
+		 * playerList.removeFooterView(footerView);
+		 */
+		if (show)
+			footerView.setVisibility(View.VISIBLE);
+		else
+			footerView.setVisibility(View.GONE);
+	}
+
+	private void setNoResultFooterVisible(boolean show) {
+		/*if (show)
+			playerList.addFooterView(noResultFooterView, null, false);
+		else
+			playerList.removeFooterView(noResultFooterView);*/
+		
+		if (show)
+			noResultFooterView.setVisibility(View.VISIBLE);
+		else
+			noResultFooterView.setVisibility(View.GONE);
 	}
 
 	public void refreshList() {
@@ -193,16 +243,20 @@ public class SearchFragment extends Fragment {
 		}
 	}
 
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		// not interested in this event
+	}
+
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
 
 		if (loadMore && ready && !loadingMore && !nothingMoreToLoad) {
 			loadingMore = true;
-			playerList.addFooterView(footerView, null, false);
-			/*DownloadSearchListTask searchTask = new DownloadSearchListTask();
-			searchTask.pageNumber = ++searchPage;
-			searchTask.execute(searchQuery);*/
+			setLoadingFooterVisible(true);
+
+			currentRequest = App.getDataManager().requestSteamUserSearch(
+					getUserSearchListener, searchQuery, ++searchPage);
 		}
 	}
 
@@ -258,24 +312,16 @@ public class SearchFragment extends Fragment {
 		return false;
 	}
 
-	public void addPlayerSelectedListener(OnPlayerSelectedListener listener) {
-		listeners.add(listener);
+	public void setPlayerSelectedListener(OnPlayerSelectedListener listener) {
+		this.listener = listener;
 	}
 
-	public void removePlayerSelectedListener(OnPlayerSelectedListener listener) {
-		listeners.remove(listener);
+	private void notifyListener(SteamUser user, int index) {
+		listener.onPlayerSelected(user, index);
 	}
 
-	private void notifyListeners(SteamUser user, int index) {
-		for (OnPlayerSelectedListener listener : listeners) {
-			listener.onPlayerSelected(user, index);
-		}
-	}
-	
-    private AsyncTaskListener getUserSearchListener = new AsyncTaskListener () {
+	private AsyncTaskListener getUserSearchListener = new AsyncTaskListener() {
 		public void onPreExecute() {
-			progressContainer.setVisibility(View.VISIBLE);
-			listContainer.setVisibility(View.GONE);
 		}
 
 		public void onProgressUpdate(ProgressUpdate object) {
@@ -283,10 +329,30 @@ public class SearchFragment extends Fragment {
 
 		@SuppressWarnings("unchecked")
 		public void onPostExecute(Request request) {
-			steamUserList.addAll((List<SteamUser>) request.getData());
-			adapter.notifyDataSetChanged();
-			progressContainer.setVisibility(View.GONE);
-			listContainer.setVisibility(View.VISIBLE);
+			final Object data = request.getData();
+			if (data != null) {
+				final List<SteamUser> list = (List<SteamUser>) data;
+
+				progressContainer.setVisibility(View.GONE);
+				listContainer.setVisibility(View.VISIBLE);
+
+				nothingMoreToLoad = true;
+				if (list.size() > 0) {
+					for (SteamUser p : list) {
+						if (adapter.addPlayerInfo(p)) {
+							steamUserList.add(p);
+							nothingMoreToLoad = false;
+						}
+					}
+				} else {
+					setLoadingFooterVisible(false);
+					setNoResultFooterVisible(true);
+				}
+
+			}
+			setLoadingFooterVisible(false);
+			loadingMore = false;
+			ready = true;
 		}
 	};
 }

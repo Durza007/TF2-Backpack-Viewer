@@ -44,6 +44,7 @@ public class BackpackFragment extends Fragment {
 	private boolean checkUngivenItems;
 	private TextView pageNumberText;
 	private ProgressDialog myProgressDialog;
+	private boolean dataDownloaded;
 	private ArrayList<Item> playerItemList;
 	private ArrayList<Item> ungivenList;
 	
@@ -87,6 +88,10 @@ public class BackpackFragment extends Fragment {
 		this.comparator = new BackpackPosComparator();
 		this.numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 		this.retainInstance = true;
+		this.dataDownloaded = false;
+		
+		this.playerItemList = new ArrayList<Item>();
+		this.ungivenList = new ArrayList<Item>();
     }
     
     public SteamUser getSteamUser() {
@@ -149,11 +154,9 @@ public class BackpackFragment extends Fragment {
 		pageNumberText.setTypeface(Typeface.createFromAsset(getActivity()
 				.getAssets(), "fonts/TF2Build.ttf"), 0);
 		pageNumberText.setText(onPageNumber + "/" + numberOfPages);
-
-		ungivenList = new ArrayList<Item>();
 		
 		currentSteamUser = getArguments().getParcelable("user");
-		if (playerItemList == null)
+		if (!dataDownloaded)
 			downloadPlayerData();
 		else
 			addPlayerDataToView();
@@ -188,12 +191,15 @@ public class BackpackFragment extends Fragment {
 
 		public void onPostExecute(Request request) {
 			Object object = request.getData();
+			
+			dataDownloaded = true;
 			if (object != null) {
 				PlayerItemListParser pl = (PlayerItemListParser) object;
 
 				// handle the request
 				if (pl.getStatusCode() == 1) {
-					playerItemList = pl.getItemList();
+					playerItemList.clear();
+					playerItemList.addAll(pl.getItemList());
 					Collections.sort(playerItemList, BackpackFragment.this.comparator);
 					
 					numberOfPages = pl.getNumberOfBackpackSlots() / 50;
@@ -298,9 +304,9 @@ public class BackpackFragment extends Fragment {
     	
     	Log.d("NewBackpack", "AddPlayerDataToVIew");
     	
-    	if (playerItemList == null) return;
-    	
-    	if (checkUngivenItems) {	
+    	if (checkUngivenItems) {
+    		ungivenList.clear();
+    		
 	    	for (int index = 0; index < playerItemList.size(); index++){
 	    		final int backpackPos = playerItemList.get(index).getBackpackPosition();
 	    		

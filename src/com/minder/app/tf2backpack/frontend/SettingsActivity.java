@@ -10,14 +10,12 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;

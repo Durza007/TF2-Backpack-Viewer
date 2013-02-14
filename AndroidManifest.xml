@@ -43,17 +43,6 @@
         <activity android:name=".frontend.SettingsActivity" >
         </activity>
         <activity
-            android:name=".frontend.GetPlayer"
-            android:configChanges="orientation"
-            android:windowSoftInputMode="adjustResize" >
-            <intent-filter>
-                <action android:name="com.minder.app.tf2backpack.GET_STEAMID" />
-                <action android:name="com.minder.app.tf2backpack.SET_STEAMID" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".frontend.SelectBackpack"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
@@ -138,6 +127,7 @@
             </intent-filter>
         </service>
         <activity android:name=".frontend.BackpackActivity"></activity>
+        <activity android:name=".frontend.SelectPlayerActivity"></activity>
     </application>
 
 </manifest>
