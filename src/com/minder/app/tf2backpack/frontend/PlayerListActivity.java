@@ -52,7 +52,7 @@ public class PlayerListActivity extends FragmentActivity {
         final FragmentManager fragmentManager = this.getSupportFragmentManager();
         // check if an old fragment still exists
         if (savedInstanceState != null) {
-        	playerListFragment = (PlayerListFragment) fragmentManager.findFragmentByTag("playerListFragment");
+        	playerListFragment = (PlayerListFragment)fragmentManager.findFragmentByTag("playerListFragment");
         	if (!hasBackpackView) {
         		BackpackFragment bp = (BackpackFragment)fragmentManager.findFragmentByTag("backpackFragment");
         		

@@ -1,10 +1,10 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.lang.ref.WeakReference;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -184,8 +184,8 @@ public class SelectPlayerFragment extends Fragment {
 	
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
 	
-	private OnPlayerSelectedListener playerSelectedListener;
-	private OnSearchClickedListener searchClickedListener;
+	private WeakReference<OnPlayerSelectedListener> playerSelectedListener;
+	private WeakReference<OnSearchClickedListener> searchClickedListener;
 	private Typeface tf2Secondary;
 	private Button buttonOk;
 	private AutoCompleteTextView editTextPlayer;
@@ -193,22 +193,31 @@ public class SelectPlayerFragment extends Fragment {
 	private AdView adView;
 	
 	public void setPlayerSelectedListener(OnPlayerSelectedListener listener) {
-		this.playerSelectedListener = listener;
+		this.playerSelectedListener = new WeakReference<OnPlayerSelectedListener>(listener);
 	}
 	
 	private void notifyPlayerSelectedListener(SteamUser user) {
-		if (playerSelectedListener != null)
-			playerSelectedListener.onPlayerSelected(user, 0);
+		OnPlayerSelectedListener l = playerSelectedListener.get();
+		if (l != null)
+			l.onPlayerSelected(user, 0);
 	}
 	
 	public void setSearchClickedListener(OnSearchClickedListener listener) {
-		this.searchClickedListener = listener;
+		this.searchClickedListener = new WeakReference<OnSearchClickedListener>(listener);
 	}
 	
 	private void notifySearchClickedListener(String searchQuery) {
-		if (searchClickedListener != null) {
-			searchClickedListener.onSearchClicked(searchQuery);
+		OnSearchClickedListener l = searchClickedListener.get();
+		if (l != null) {
+			l.onSearchClicked(searchQuery);
 		}
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		this.setRetainInstance(true);
 	}
     
     @Override

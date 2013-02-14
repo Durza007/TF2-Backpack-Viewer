@@ -3,6 +3,8 @@ package com.minder.app.tf2backpack.frontend;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
@@ -22,14 +24,61 @@ public class SelectPlayerActivity extends FragmentActivity {
 		// check if we have double-pane layout
 		hasDoublePane = null != findViewById(R.id.frameLayoutSearch);;
 		
-		selectPlayerFragment = new SelectPlayerFragment();
-		selectPlayerFragment.setPlayerSelectedListener(playerSelectedListener);
-		selectPlayerFragment.setSearchClickedListener(searchClickedListener);
-		
-		getSupportFragmentManager()
-			.beginTransaction()
-			.add(R.id.frameLayoutSelectPlayer, selectPlayerFragment, "selectPlayerFragment")
-			.commit();
+		if (savedInstanceState != null) {
+			final FragmentManager fragmentManager = this.getSupportFragmentManager();
+			final boolean hadDoublePane = savedInstanceState.getBoolean("hadDoublePane");
+			
+			selectPlayerFragment = (SelectPlayerFragment)fragmentManager.findFragmentByTag("selectPlayerFragment");
+			searchFragment = (SearchFragment)fragmentManager.findFragmentByTag("searchFragment");
+			
+			selectPlayerFragment.setPlayerSelectedListener(playerSelectedListener);
+			selectPlayerFragment.setSearchClickedListener(searchClickedListener);
+			
+			// check if we are going from double-pane to
+			// single-pane view
+			if (searchFragment != null) {
+				searchFragment.setPlayerSelectedListener(playerSelectedListener);
+				
+				if (hadDoublePane && !hasDoublePane) {
+					fragmentManager
+						.beginTransaction()
+						.remove(searchFragment)
+						.commit();
+					
+					fragmentManager.executePendingTransactions();
+					
+					fragmentManager
+						.beginTransaction()
+						.add(R.id.frameLayoutSelectPlayer, searchFragment, "searchFragment")
+						.addToBackStack(null)
+						.commit();
+				} else if (!hadDoublePane && hasDoublePane) {
+					fragmentManager.popBackStack();
+					
+					fragmentManager.executePendingTransactions();
+					
+					fragmentManager
+						.beginTransaction()
+						.add(R.id.frameLayoutSearch, searchFragment, "searchFragment")
+						.commit();
+				}
+			}		
+		} else {
+			selectPlayerFragment = new SelectPlayerFragment();
+			selectPlayerFragment.setPlayerSelectedListener(playerSelectedListener);
+			selectPlayerFragment.setSearchClickedListener(searchClickedListener);
+			
+			getSupportFragmentManager()
+				.beginTransaction()
+				.add(R.id.frameLayoutSelectPlayer, selectPlayerFragment, "selectPlayerFragment")
+				.commit();
+		}
+	}
+	
+	@Override
+	protected void onSaveInstanceState (Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("hadDoublePane", hasDoublePane);
 	}
 	
 	private OnPlayerSelectedListener playerSelectedListener = new OnPlayerSelectedListener() {	
@@ -61,7 +110,7 @@ public class SelectPlayerActivity extends FragmentActivity {
 				
 				getSupportFragmentManager()
 					.beginTransaction()
-					.replace(R.id.frameLayoutSelectPlayer, fragment, "searchFragment")
+					.add(R.id.frameLayoutSelectPlayer, fragment, "searchFragment")
 					.addToBackStack(null)
 					.commit();		
 			}

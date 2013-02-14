@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class SearchFragment extends Fragment implements OnScrollListener {
-	private OnPlayerSelectedListener listener;
+	private WeakReference<OnPlayerSelectedListener> listener;
 	private final boolean isAboveGingerBread;
 
 	private boolean ready = false;
@@ -177,10 +178,6 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	}
 
 	private void setLoadingFooterVisible(boolean show) {
-		/*
-		 * if (show) playerList.addFooterView(footerView, null, false); else
-		 * playerList.removeFooterView(footerView);
-		 */
 		if (show)
 			footerView.setVisibility(View.VISIBLE);
 		else
@@ -188,11 +185,6 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	}
 
 	private void setNoResultFooterVisible(boolean show) {
-		/*if (show)
-			playerList.addFooterView(noResultFooterView, null, false);
-		else
-			playerList.removeFooterView(noResultFooterView);*/
-		
 		if (show)
 			noResultFooterView.setVisibility(View.VISIBLE);
 		else
@@ -313,11 +305,13 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	}
 
 	public void setPlayerSelectedListener(OnPlayerSelectedListener listener) {
-		this.listener = listener;
+		this.listener = new WeakReference<OnPlayerSelectedListener>(listener);
 	}
 
 	private void notifyListener(SteamUser user, int index) {
-		listener.onPlayerSelected(user, index);
+		OnPlayerSelectedListener l = listener.get();
+		if (l != null)
+			l.onPlayerSelected(user, index);
 	}
 
 	private AsyncTaskListener getUserSearchListener = new AsyncTaskListener() {
