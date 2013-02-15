@@ -53,6 +53,7 @@ public class PlayerListActivity extends FragmentActivity {
         // check if an old fragment still exists
         if (savedInstanceState != null) {
         	playerListFragment = (PlayerListFragment)fragmentManager.findFragmentByTag("playerListFragment");
+        	
         	if (!hasBackpackView) {
         		BackpackFragment bp = (BackpackFragment)fragmentManager.findFragmentByTag("backpackFragment");
         		
@@ -66,8 +67,6 @@ public class PlayerListActivity extends FragmentActivity {
             		.add(R.id.frameLayoutPlayerList, playerListFragment, "playerListFragment")
             		.commit();
         	
-        	playerListFragment.setListItemSelectable(hasBackpackView);   
-        	
         	// need to fetch friend data
             SharedPreferences playerPrefs = getSharedPreferences("player", Activity.MODE_PRIVATE);
             
@@ -80,6 +79,7 @@ public class PlayerListActivity extends FragmentActivity {
             }
         }
         
+    	playerListFragment.setListItemSelectable(hasBackpackView);
     	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
     }
     

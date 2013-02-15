@@ -1,6 +1,7 @@
 package com.minder.app.tf2backpack.frontend;
 
 import java.lang.ref.WeakReference;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
@@ -455,6 +456,8 @@ public class SelectPlayerFragment extends Fragment {
 							Toast.makeText(getActivity(),
 									R.string.no_steam_api, Toast.LENGTH_LONG)
 									.show();
+						} else if (e instanceof SocketTimeoutException) {
+							Toast.makeText(getActivity(), R.string.connection_timed_out, Toast.LENGTH_LONG).show();
 						} else {
 							Toast.makeText(getActivity(),
 									e.getLocalizedMessage(), Toast.LENGTH_LONG)
@@ -569,7 +572,5 @@ public class SelectPlayerFragment extends Fragment {
 			sqlDb.close();
 			db.close();
 		}
-
 	}
-
 }
