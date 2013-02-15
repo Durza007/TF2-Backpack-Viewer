@@ -853,6 +853,8 @@ public class DataManager {
 						.indexOf(
 								"<a class=\"linkTitle\" href=\"http://steamcommunity.com/profiles/",
 								curIndex);
+				
+				int avatarIndex = data.indexOf("<img src=\"http://media.steampowered.com/steamcommunity/public/images/avatars/", curIndex);
 				if (index != -1) {
 					int endIndex = data.indexOf("\">", index);
 					newPlayer = new SteamUser();
@@ -881,9 +883,14 @@ public class DataManager {
 
 						players.add(newPlayer);
 						curIndex = index;
+					} else {
+						break;
 					}
-					break;
 				}
+				
+				// get avatar
+				int endIndex = data.indexOf("\" />", avatarIndex);
+				newPlayer.avatarUrl = data.substring(avatarIndex + 10, endIndex);
 			}
 
 			return players;

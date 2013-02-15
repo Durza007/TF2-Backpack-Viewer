@@ -129,6 +129,8 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 		progressContainer = view.findViewById(R.id.progressContainer);
 
 		playerList = (ListView) view.findViewById(android.R.id.list);
+		final View root = view.findViewById(R.id.frameLayoutRoot);
+		root.setBackgroundResource(R.color.bg_color);
 
 		// Set up our adapter
 		// TODO maybe re-think if this needs an activity?

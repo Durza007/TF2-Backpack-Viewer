@@ -1,10 +1,12 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
@@ -105,14 +107,16 @@ public class SelectPlayerActivity extends FragmentActivity {
 					searchFragment.newSearchQuery(searchQuery);
 				}
 			} else {
-				final SearchFragment fragment = SearchFragment.createInstance(searchQuery);
-				fragment.setPlayerSelectedListener(playerSelectedListener);
-				
-				getSupportFragmentManager()
-					.beginTransaction()
-					.add(R.id.frameLayoutSelectPlayer, fragment, "searchFragment")
-					.addToBackStack(null)
-					.commit();		
+				if (getSupportFragmentManager().findFragmentByTag("searchFragment") == null) {
+					searchFragment = SearchFragment.createInstance(searchQuery);
+					searchFragment.setPlayerSelectedListener(playerSelectedListener);
+					
+					getSupportFragmentManager()
+						.beginTransaction()
+						.add(R.id.frameLayoutSelectPlayer, searchFragment, "searchFragment")
+						.addToBackStack(null)
+						.commit();		
+				}
 			}
 		}
 	};
