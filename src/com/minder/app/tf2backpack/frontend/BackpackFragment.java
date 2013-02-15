@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,13 +33,19 @@ import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.BackpackView.OnLayoutReadyListener;
 
 public class BackpackFragment extends Fragment {
+	public static interface OnFullscreenClickListener {
+		public void onFullscreenButtonClicked();
+	}
+	
 	private final static int DEFAULT_NUMBER_OF_PAGES = 6;
 
+	private WeakReference<OnFullscreenClickListener> listener;
 	private boolean retainInstance;
 	private BackpackView backpackView;
 	private SteamUser currentSteamUser;
 	private boolean addPlayerDataToView;
 	private Button newButton;
+	private Button fullscreenButton;
 	private int onPageNumber;
 	private int numberOfPages;
 	private boolean checkUngivenItems;
@@ -92,6 +99,8 @@ public class BackpackFragment extends Fragment {
 		
 		this.playerItemList = new ArrayList<Item>();
 		this.ungivenList = new ArrayList<Item>();
+		
+		listener = new WeakReference<OnFullscreenClickListener>(null);
     }
     
     public SteamUser getSteamUser() {
@@ -111,6 +120,24 @@ public class BackpackFragment extends Fragment {
 	
     private int getFixedWidth() {
     	return getArguments().getInt("fixedWidth", 0);
+    }
+    
+    public void setFullscreenClickListener(OnFullscreenClickListener listener) {
+    	this.listener = new WeakReference<OnFullscreenClickListener>(listener);
+    	
+    	if (fullscreenButton != null) {
+	    	if (listener != null) {
+	    		fullscreenButton.setVisibility(View.VISIBLE);
+	    	} else {
+	    		fullscreenButton.setVisibility(View.GONE);
+	    	}
+    	}
+    }
+    
+    private void notifyFullscreenClickListener() {
+    	OnFullscreenClickListener l = listener.get();
+    	if (l != null)
+    		l.onFullscreenButtonClicked();
     }
 	
 	@Override
@@ -148,6 +175,11 @@ public class BackpackFragment extends Fragment {
 
 		newButton = (Button) view.findViewById(R.id.buttonNew);
 		newButton.setOnClickListener(onButtonBackpackClick);
+		
+		fullscreenButton = (Button) view.findViewById(R.id.buttonFullscreen);
+		fullscreenButton.setOnClickListener(onFullscreenClickListener);
+		if (listener.get() == null)
+			fullscreenButton.setVisibility(View.GONE);
 
 		onPageNumber = 1;
 		pageNumberText = (TextView) view.findViewById(R.id.TextViewPageNumber);
@@ -165,7 +197,7 @@ public class BackpackFragment extends Fragment {
 	}
 	
     // listener used to make sure data is not added before view is ready for it
-    OnLayoutReadyListener onLayoutReadyListener = new OnLayoutReadyListener() {
+    private OnLayoutReadyListener onLayoutReadyListener = new OnLayoutReadyListener() {
 		public void onReady() {
 			if (addPlayerDataToView) {
 				addPlayerDataToView = false;
@@ -175,6 +207,12 @@ public class BackpackFragment extends Fragment {
 			}
 		}  	
     };
+    
+    private OnClickListener onFullscreenClickListener = new OnClickListener() {	
+		public void onClick(View v) {
+			notifyFullscreenClickListener();
+		}
+	};
 
 	AsyncTaskListener asyncTasklistener = new AsyncTaskListener() {
 		public void onPreExecute() {
@@ -217,7 +255,7 @@ public class BackpackFragment extends Fragment {
 								R.string.unknown_error, Toast.LENGTH_SHORT)
 								.show();
 					}
-					numberOfPages = 1;
+					numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 					onPageNumber = 1;
 					setPageNumberText();
 					playerItemList.clear();

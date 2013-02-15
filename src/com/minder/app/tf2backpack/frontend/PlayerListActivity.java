@@ -20,6 +20,7 @@ import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.frontend.BackpackFragment.OnFullscreenClickListener;
 
 public class PlayerListActivity extends FragmentActivity {
 	private boolean hasBackpackView;
@@ -115,6 +116,7 @@ public class PlayerListActivity extends FragmentActivity {
 			        
 			        final View view = findViewById(R.id.frameLayoutBackpackView);   
 			        backpackFragment = BackpackFragment.newInstance(user, view.getWidth(), false);
+			        backpackFragment.setFullscreenClickListener(onFullscreenClickedListener);
 			        fragmentTransaction.add(R.id.frameLayoutBackpackView, backpackFragment, "backpackFragment");
 			        fragmentTransaction.commit();
 				} else {
@@ -137,6 +139,12 @@ public class PlayerListActivity extends FragmentActivity {
     private OnPlayerSelectedListener onPlayerSelectedListener = new OnPlayerSelectedListener() {
 		public void onPlayerSelected(SteamUser user, int index) {
 			showBackpack(user, index);
+		}
+	};
+	
+	private OnFullscreenClickListener onFullscreenClickedListener = new OnFullscreenClickListener() {	
+		public void onFullscreenButtonClicked() {
+
 		}
 	};
 

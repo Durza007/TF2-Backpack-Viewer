@@ -51,6 +51,15 @@
         </include>
 
         <Button
+            android:id="@+id/buttonFullscreen"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:text="⇱"
+            android:textSize="16dip" />
+
+        <Button
             android:id="@+id/ButtonPrevious"
             style="@style/Button"
             android:layout_width="wrap_content"
