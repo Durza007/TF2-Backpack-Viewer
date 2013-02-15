@@ -1,6 +1,6 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.util.LinkedList;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import android.content.Intent;
@@ -33,7 +33,7 @@ import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 
 public class PlayerListFragment extends Fragment {
-	private List<OnPlayerSelectedListener> listeners;
+	private WeakReference<OnPlayerSelectedListener> listener;
 	private final boolean isAboveGingerBread;
 
 	private boolean ready = false;
@@ -74,7 +74,6 @@ public class PlayerListFragment extends Fragment {
 
 	public PlayerListFragment() {
 		isAboveGingerBread = android.os.Build.VERSION.SDK_INT > 10;
-		listeners = new LinkedList<OnPlayerSelectedListener>();
 	}
 
 	@Override
@@ -295,17 +294,15 @@ public class PlayerListFragment extends Fragment {
 		return false;
 	}
 
-	public void addPlayerSelectedListener(OnPlayerSelectedListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removePlayerSelectedListener(OnPlayerSelectedListener listener) {
-		listeners.remove(listener);
+	public void setPlayerSelectedListener(OnPlayerSelectedListener listener) {
+		this.listener = new WeakReference<OnPlayerSelectedListener>(listener);
 	}
 
 	private void notifyListeners(SteamUser user, int index) {
-		for (OnPlayerSelectedListener listener : listeners) {
-			listener.onPlayerSelected(user, index);
+		if (listener != null) {
+			OnPlayerSelectedListener l = listener.get();
+			if (l != null) 
+				l.onPlayerSelected(user, index);
 		}
 	}
 

@@ -80,13 +80,7 @@ public class PlayerListActivity extends FragmentActivity {
         }
         
     	playerListFragment.setListItemSelectable(hasBackpackView);
-    	playerListFragment.addPlayerSelectedListener(onPlayerSelectedListener);
-    }
-    
-    @Override
-    public void onDestroy() {
-    	playerListFragment.removePlayerSelectedListener(onPlayerSelectedListener);
-    	super.onDestroy();
+    	playerListFragment.setPlayerSelectedListener(onPlayerSelectedListener);
     }
     
     @Override
