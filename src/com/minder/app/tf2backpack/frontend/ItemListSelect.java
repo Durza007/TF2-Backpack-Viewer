@@ -1,11 +1,12 @@
 package com.minder.app.tf2backpack.frontend;
 
-import android.app.Activity;
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +18,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.frontend.ItemListSelect.ItemListSelectAdapter.OnItemSelectedListener;
 
-public class ItemListSelect extends Activity {
-	public static class ItemListSelectAdapter extends BaseAdapter {
-		public static interface OnItemSelectedListener {
-			public void onSelect(String string);
-		}
-		
+public class ItemListSelect extends Fragment {
+	public static interface OnItemSelectedListener {
+		public void onSelect(String string);
+	}
+	
+	public class ItemListSelectAdapter extends BaseAdapter {	
 		private class ViewHolder {
 			public TextView title;
 			public ImageButton imageButton;
@@ -37,7 +37,6 @@ public class ItemListSelect extends Activity {
 		
 		private final ViewHolder holder = new ViewHolder();
 		private LayoutInflater inflater;
-		private OnItemSelectedListener onSelectListener;
 		private TypedArray titles;
 		private TypedArray icons;
 		private TypedArray links;
@@ -84,36 +83,41 @@ public class ItemListSelect extends Activity {
 			public void onClick(View v) {
 				Log.d("ItemListSelectAdapter", "Clicked: " + (String)v.getTag());
 				
-				if (onSelectListener != null) {
-					onSelectListener.onSelect((String)v.getTag());
+				OnItemSelectedListener l = listener.get();
+				if (l != null) {
+					l.onSelect((String)v.getTag());
 				}
 			}
 		};
-		
-		public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-			this.onSelectListener = listener;
-		}
 	}
 	
+	private WeakReference<OnItemSelectedListener> listener;
 	private GridView gridView;
 	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.item_list_select);
-		
-		gridView = (GridView)findViewById(R.id.itemListSelectGridView);
-		
-		ItemListSelectAdapter adapter = new ItemListSelectAdapter(this);
-		adapter.setOnItemSelectedListener(listener);
-		
-		gridView.setAdapter(adapter);
+	public void setOnItemSelectedListener(OnItemSelectedListener listener) {
+		this.listener = new WeakReference<OnItemSelectedListener>(listener);
 	}
 	
-	OnItemSelectedListener listener = new OnItemSelectedListener() {
+	public ItemListSelect() {
+		listener = new WeakReference<OnItemSelectedListener>(null);
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.item_list_select, container);
+		
+		gridView = (GridView)view.findViewById(R.id.itemListSelectGridView);
+		
+		final ItemListSelectAdapter adapter = new ItemListSelectAdapter(getActivity());	
+		gridView.setAdapter(adapter);
+		
+		return view;
+	}
+	
+	/*OnItemSelectedListener listener = new OnItemSelectedListener() {
 		public void onSelect(String string) {
-			startActivity(new Intent(ItemListSelect.this, ItemGridViewer.class)
+			startActivity(new Intent(getActivity(), ItemGridViewer.class)
 				.setAction("com.minder.app.tf2backpack." + string));
 		}
-	};
+	};*/
 }
