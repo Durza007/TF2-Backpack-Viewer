@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.minder.app.tf2backpack.R;
 
-public class ItemListSelect extends Fragment {
+public class ItemListSelectFragment extends Fragment {
 	public static interface OnItemSelectedListener {
 		public void onSelect(String string);
 	}
@@ -29,7 +29,7 @@ public class ItemListSelect extends Fragment {
 			public TextView title;
 			public ImageButton imageButton;
 			
-			public void SetView(View v){
+			public void setView(View v){
 				title = (TextView)v.findViewById(R.id.textViewTitle);
 				imageButton = (ImageButton)v.findViewById(R.id.imageButtonItem);
 			}
@@ -65,11 +65,11 @@ public class ItemListSelect extends Fragment {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = inflater.inflate(R.layout.item_list_item, null);
-				holder.SetView(convertView);
+				holder.setView(convertView);
 				
 				holder.imageButton.setOnClickListener(onClickListener);
 			} else {
-				holder.SetView(convertView);
+				holder.setView(convertView);
 			}
 			
 			holder.title.setText(titles.getString(position));
@@ -80,8 +80,18 @@ public class ItemListSelect extends Fragment {
 		}
 		
 		OnClickListener onClickListener = new OnClickListener() {
+			private View previousPressed;
+			
 			public void onClick(View v) {
 				Log.d("ItemListSelectAdapter", "Clicked: " + (String)v.getTag());
+				
+				if (isItemsSelectable) {
+					v.setPressed(isItemsSelectable);
+					if (previousPressed != null)
+						previousPressed.setPressed(false);
+					
+					previousPressed = v;
+				}
 				
 				OnItemSelectedListener l = listener.get();
 				if (l != null) {
@@ -93,20 +103,36 @@ public class ItemListSelect extends Fragment {
 	
 	private WeakReference<OnItemSelectedListener> listener;
 	private GridView gridView;
+	private int columns;
+	private boolean isItemsSelectable;
 	
 	public void setOnItemSelectedListener(OnItemSelectedListener listener) {
 		this.listener = new WeakReference<OnItemSelectedListener>(listener);
 	}
 	
-	public ItemListSelect() {
+	public void setItemsSelectable(boolean selectable) {
+		isItemsSelectable = selectable;
+	}
+	
+	public void setNumberOfColumns(int columns) {
+		this.columns = columns;
+		if (gridView != null) {
+			gridView.setNumColumns(columns);
+		}
+	}
+	
+	public ItemListSelectFragment() {
 		listener = new WeakReference<OnItemSelectedListener>(null);
+		columns = -1;
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.item_list_select, container);
+		View view = inflater.inflate(R.layout.item_list_select, container, false);
 		
 		gridView = (GridView)view.findViewById(R.id.itemListSelectGridView);
+		if (columns != -1)
+			setNumberOfColumns(columns);
 		
 		final ItemListSelectAdapter adapter = new ItemListSelectAdapter(getActivity());	
 		gridView.setAdapter(adapter);

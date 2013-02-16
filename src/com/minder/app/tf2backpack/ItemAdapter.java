@@ -1,6 +1,7 @@
 package com.minder.app.tf2backpack;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -77,7 +78,7 @@ public class ItemAdapter extends BaseAdapter {
 		return position;
 	}
 	
-	public void setList(ArrayList<Item> list) {
+	public void setList(List<Item> list) {
 		itemList.clear();
 		itemList.addAll(list);
 		notifyDataSetChanged();

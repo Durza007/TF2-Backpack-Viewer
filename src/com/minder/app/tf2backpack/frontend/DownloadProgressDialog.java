@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 
-public class DownloadDialog extends DialogFragment implements Runnable {
+public class DownloadProgressDialog extends DialogFragment implements Runnable {
 	private final Handler updateHandler;
 	private boolean keepUpdating;
 	private TextView textViewTask;
@@ -28,7 +28,7 @@ public class DownloadDialog extends DialogFragment implements Runnable {
 		}
 	};
 	
-	public DownloadDialog() {
+	public DownloadProgressDialog() {
 		updateHandler = new Handler();
 	}
 	

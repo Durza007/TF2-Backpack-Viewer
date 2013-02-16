@@ -108,7 +108,6 @@ public class ImageLoader {
             bitmap = decodeFile(f);
             return bitmap;
         } catch (Exception ex){
-           ex.printStackTrace();
            return null;
         }
     }
@@ -220,9 +219,7 @@ public class ImageLoader {
                         synchronized(photosQueue.photosToLoad){
                             photoToLoad = photosQueue.photosToLoad.pop();
                         }
-                        if (BuildConfig.DEBUG) {
-                        	Log.d("PhotoLoader", "Started loading bitmap");
-                        }
+
                         Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.activity, photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
                         String tag = imageViews.get(photoToLoad.adapter);
@@ -251,11 +248,7 @@ public class ImageLoader {
         }
         
         public void run()
-        {
-            if (BuildConfig.DEBUG) {
-            	Log.d("BitmapDisplayer", "Setting bitmap");
-            }
-            
+        {       
             adapter.notifyDataSetChanged();
         }
     }

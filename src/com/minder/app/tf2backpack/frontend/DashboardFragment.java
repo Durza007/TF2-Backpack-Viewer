@@ -88,7 +88,7 @@ public class DashboardFragment extends Fragment {
 		public void onClick(View v) {
 			//startActivity(new Intent(DashBoard.this, PlayerList.class).setAction("com.minder.app.tf2backpack.VIEW_WRENCH"));
 			//startActivity(new Intent(DashBoard.this, ItemGridViewer.class).setAction("com.minder.app.tf2backpack.VIEW_ALL_ITEMS"));
-			startActivity(new Intent(getActivity(), ItemListSelect.class));
+			startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
 		}
     };
     

@@ -30,7 +30,7 @@ public class PlayerListActivity extends FragmentActivity {
 	
     private void showDownloadDialog() {
         FragmentManager fm = getSupportFragmentManager();
-        DownloadDialog editNameDialog = new DownloadDialog();
+        DownloadProgressDialog editNameDialog = new DownloadProgressDialog();
         editNameDialog.show(fm, "download_dialog");
     }
 

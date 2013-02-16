@@ -79,7 +79,7 @@ public class DownloadGameSchemeDialog extends DialogFragment {
 					checkBoxHighresImages.isChecked());
 			DownloadGameSchemeDialog.this.dismiss();
 			
-			DownloadDialog dialog = new DownloadDialog();
+			DownloadProgressDialog dialog = new DownloadProgressDialog();
 			dialog.show(getActivity().getSupportFragmentManager(), "download_dialog");
 		}
 	};
