@@ -96,19 +96,6 @@
             android:launchMode="singleInstance" />
 
         <!-- ADMOB END -->
-
-        <activity
-            android:name=".Changelog"
-            android:alwaysRetainTaskState="false"
-            android:excludeFromRecents="true"
-            android:stateNotNeeded="true"
-            android:theme="@android:style/Theme.NoDisplay" >
-            <intent-filter>
-                <action android:name="com.minder.app.tf2backpack.CHANGELOG" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name=".frontend.ItemGridViewer" >
             <intent-filter>
                 <action android:name="com.minder.app.tf2backpack.VIEW_ITEM_LIST" />

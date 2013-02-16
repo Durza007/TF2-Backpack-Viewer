@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <PreferenceCategory android:title="User" >
         <PreferenceScreen android:title="Change User" >
             <intent android:action="com.minder.app.tf2backpack.SET_STEAMID" />
@@ -67,14 +68,17 @@
             android:title="Clear History" />
     </PreferenceCategory>
     <PreferenceCategory android:title="About" >
-        <Preference
+        <PreferenceScreen
             android:summary="@string/whats_new"
             android:title="@string/changelog" >
-            <intent android:action="com.minder.app.tf2backpack.CHANGELOG" />
-        </Preference>
+            <Preference android:layout="@layout/changelog_list" />
+        </PreferenceScreen>
+
         <Preference
+            android:key="aboutcreator"
             android:summary="by Patrik Minder"
-            android:title="TF2 Backpack Viewer" android:key="aboutcreator">
+            android:title="TF2 Backpack Viewer" >
         </Preference>
     </PreferenceCategory>
+
 </PreferenceScreen>
