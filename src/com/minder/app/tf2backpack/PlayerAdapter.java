@@ -125,7 +125,11 @@ public class PlayerAdapter extends BaseAdapter {
         	
 	        // set player avatar
 	        if (player.avatarUrl != null && player.avatarUrl.length() > 0) {
-	    		imageLoader.DisplayImage(player.avatarUrl, activity, holder.avatar, false, defaultImage);
+	    		Bitmap b = imageLoader.displayImage(player.avatarUrl, activity, this, false);
+	    		if (b != null)
+	    			holder.avatar.setImageBitmap(b);
+	    		else
+	    			holder.avatar.setImageBitmap(defaultImage);
 	        } else {
 	            // set default image
 	            holder.avatar.setImageBitmap(defaultImage);

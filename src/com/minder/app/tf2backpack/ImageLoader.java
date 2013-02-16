@@ -18,12 +18,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 public class ImageLoader {
     MemoryCache memoryCache = new MemoryCache();
     FileCache fileCache;
-    private Map<ImageView, String> imageViews = Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
+    private Map<BaseAdapter, String> imageViews = Collections.synchronizedMap(new WeakHashMap<BaseAdapter, String>());
     private int requiredSize;
     private PhotosLoader photoLoaderThread;
     
@@ -39,24 +40,24 @@ public class ImageLoader {
     
     final static int stub_id = R.drawable.unknown;
     
-    public void DisplayImage(String url, Activity activity, ImageView imageView, boolean isLocal, Bitmap defaultImage)
+    public Bitmap displayImage(String url, Activity activity, BaseAdapter adapter, boolean isLocal)
     {
-        imageViews.put(imageView, url);
+        imageViews.put(adapter, url);
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
-            imageView.setImageBitmap(bitmap);
+            return bitmap;
         } else {
-            queuePhoto(url, activity, imageView, isLocal);
-            imageView.setImageBitmap(defaultImage);
+            queuePhoto(url, activity, adapter, isLocal);
+            return null;
         }    
     }
         
-    private void queuePhoto(String url, Activity activity, ImageView imageView, boolean isLocal)
+    private void queuePhoto(String url, Activity activity, BaseAdapter adapter, boolean isLocal)
     {
         synchronized(photosQueue.photosToLoad){
             //This ImageView may be used for other images before. So there may be some old tasks in the queue. We need to discard them. 
-            photosQueue.Clean(imageView);
-            PhotoToLoad p = new PhotoToLoad(url, imageView, isLocal);
+            photosQueue.clean(adapter);
+            PhotoToLoad p = new PhotoToLoad(url, activity, adapter, isLocal);
             
             photosQueue.photosToLoad.push(p);
             photosQueue.photosToLoad.notifyAll();
@@ -83,8 +84,7 @@ public class ImageLoader {
 				}
 				return image;
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// does not really matter
 			}
     	}
         File f = fileCache.getFile(url);
@@ -142,12 +142,15 @@ public class ImageLoader {
     
     //Task for the queue
     private class PhotoToLoad {
-        public String url;
-        public ImageView imageView;
-        public boolean isLocal;
-        public PhotoToLoad(String u, ImageView i, boolean isLocal){
+        public final String url;
+        public final Activity activity;
+        public final BaseAdapter adapter;
+        public final boolean isLocal;
+        
+        public PhotoToLoad(String u, Activity ac, BaseAdapter a, boolean isLocal){
             url = u; 
-            imageView = i;
+            activity = ac;
+            adapter = a;
             this.isLocal = isLocal;
         }
     }
@@ -187,10 +190,10 @@ public class ImageLoader {
         private Stack<PhotoToLoad> photosToLoad = new Stack<PhotoToLoad>();
         
         //removes all instances of this ImageView
-        public void Clean(ImageView image)
+        public void clean(BaseAdapter adapter)
         {
             for (int j = 0; j < photosToLoad.size();){
-                if (photosToLoad.get(j).imageView == image)
+                if (photosToLoad.get(j).adapter == adapter)
                     photosToLoad.remove(j);
                 else
                     ++j;
@@ -220,13 +223,12 @@ public class ImageLoader {
                         if (BuildConfig.DEBUG) {
                         	Log.d("PhotoLoader", "Started loading bitmap");
                         }
-                        Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.imageView.getContext(), photoToLoad.isLocal);
+                        Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.activity, photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
-                        String tag = imageViews.get(photoToLoad.imageView);
+                        String tag = imageViews.get(photoToLoad.adapter);
                         if(tag != null && tag.equals(photoToLoad.url)){
-                            BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.imageView);
-                            Activity a = (Activity)photoToLoad.imageView.getContext();
-                            a.runOnUiThread(bd);
+                            BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.adapter);
+                            photoToLoad.activity.runOnUiThread(bd);
                         }
                     }
                     if(Thread.interrupted())
@@ -242,10 +244,10 @@ public class ImageLoader {
     class BitmapDisplayer implements Runnable
     {
         Bitmap bitmap;
-        ImageView imageView;
-        public BitmapDisplayer(Bitmap b, ImageView i) {
+        BaseAdapter adapter;
+        public BitmapDisplayer(Bitmap b, BaseAdapter a) {
         	bitmap = b;
-        	imageView = i;
+        	adapter = a;
         }
         
         public void run()
@@ -254,11 +256,7 @@ public class ImageLoader {
             	Log.d("BitmapDisplayer", "Setting bitmap");
             }
             
-            if (bitmap != null) {
-                imageView.setImageBitmap(bitmap);
-            } else {
-            	imageView.setImageResource(stub_id);
-            }
+            adapter.notifyDataSetChanged();
         }
     }
 

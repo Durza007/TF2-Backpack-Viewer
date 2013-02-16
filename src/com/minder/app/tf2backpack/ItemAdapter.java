@@ -36,7 +36,6 @@ public class ItemAdapter extends BaseAdapter {
 	
 	private Activity activity;
     private LayoutInflater mInflater;
-    private Context mContext;
     private ImageLoader imageLoader; 
 	private ArrayList<Item> itemList;
 	private boolean coloredCells;
@@ -109,7 +108,11 @@ public class ItemAdapter extends BaseAdapter {
         Item item = itemList.get(position);
         holder.imageButton.setTag(position);
 
-		imageLoader.DisplayImage(item.getDefIndex() + ".png", (Activity)mContext, holder.imageButton, true, defaultImage);
+		Bitmap b = imageLoader.displayImage(item.getDefIndex() + ".png", activity, this, true);
+		if (b != null)
+			holder.imageButton.setImageBitmap(b);
+		else
+			holder.imageButton.setImageBitmap(defaultImage);
 		
 		if (coloredCells == true){
 			final int quality = item.getQuality();
