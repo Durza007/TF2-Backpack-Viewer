@@ -41,8 +41,8 @@ public class DataManager {
 	public static class Request {
 		private final int type;
 		private boolean finished;
-		private Object data;
-		private Exception exception;
+		Object data;
+		Exception exception;
 		
 		public Request(int type) {
 			this.type = type;
@@ -178,7 +178,7 @@ public class DataManager {
 		return task.cancel(true);
 	}
 	
-	private void removeRequest(Request request) {
+	protected void removeRequest(Request request) {
 		asyncWorkList.remove(request);
 	}
 	
@@ -674,6 +674,7 @@ public class DataManager {
 		@Override
 		protected void onPostExecute(Void result) {
 			listener.onPostExecute(null);
+			removeRequest(request);
 		}
 		
 	    private class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
@@ -896,6 +897,7 @@ public class DataManager {
 			return players;
 		}
 
+		@Override
 		protected void onPostExecute(ArrayList<SteamUser> result) {
 			if (result != null) {
 				/*

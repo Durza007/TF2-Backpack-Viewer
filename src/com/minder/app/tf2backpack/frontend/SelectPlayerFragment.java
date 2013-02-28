@@ -5,8 +5,10 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
