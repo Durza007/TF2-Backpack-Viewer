@@ -69,6 +69,8 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	private OnItemClickListener clickListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
+			if (steamUserList.size() <= position)
+				return;
 			final SteamUser user = (SteamUser) adapter.getItem(position);
 
 			view.setPressed(true);

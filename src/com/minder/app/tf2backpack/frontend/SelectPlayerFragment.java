@@ -372,6 +372,7 @@ public class SelectPlayerFragment extends Fragment {
 			
 			dialog.setNeutralButtonText(android.R.string.cancel);
 			dialog.setClickListener(dialogClickListener);
+			dialog.setShowProgress(true);
 			
 			dialog.show(getFragmentManager(), "ProgressDialog");
 		}

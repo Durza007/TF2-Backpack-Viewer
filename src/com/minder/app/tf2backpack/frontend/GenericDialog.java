@@ -1,5 +1,7 @@
 package com.minder.app.tf2backpack.frontend;
 
+import com.minder.app.tf2backpack.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -34,6 +36,10 @@ public class GenericDialog extends DialogFragment {
     public void setNeutralButtonText(int textId) {
     	this.buttonTextId = textId;
     }
+    
+    public void setShowProgress(boolean showProgress) {
+    	this.showProgress = showProgress;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -44,6 +50,9 @@ public class GenericDialog extends DialogFragment {
     	
     	if (messageId != -1)
     		builder.setMessage(messageId);
+    	
+    	if (showProgress) {
+    	}
     	
     	if (clickListener != null) {
 	    	if (buttonTextId != -1) {
