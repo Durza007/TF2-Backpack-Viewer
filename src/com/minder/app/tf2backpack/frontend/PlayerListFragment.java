@@ -67,7 +67,6 @@ public class PlayerListFragment extends Fragment {
 				long id) {
 			final SteamUser user = (SteamUser) adapter.getItem(position);
 
-			view.setPressed(true);
 			notifyListeners(user, position);
 		}
 	};

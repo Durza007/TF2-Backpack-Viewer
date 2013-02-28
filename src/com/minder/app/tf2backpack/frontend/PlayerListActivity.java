@@ -144,7 +144,10 @@ public class PlayerListActivity extends FragmentActivity {
 	
 	private OnFullscreenClickListener onFullscreenClickedListener = new OnFullscreenClickListener() {	
 		public void onFullscreenButtonClicked() {
-
+			Intent intent = new Intent(PlayerListActivity.this, BackpackActivity.class);
+			intent.putExtra("com.minder.app.tf2backpack.SteamUser", backpackFragment.getSteamUser());
+			
+			startActivity(intent);
 		}
 	};
 

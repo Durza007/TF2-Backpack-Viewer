@@ -40,6 +40,7 @@ public class ItemListSelectFragment extends Fragment {
 		private TypedArray titles;
 		private TypedArray icons;
 		private TypedArray links;
+		private int selectedIndex;
 		
 		public ItemListSelectAdapter(Context context) {
 			this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -48,6 +49,8 @@ public class ItemListSelectFragment extends Fragment {
 			this.titles = res.obtainTypedArray(R.array.title);
 			this.icons = res.obtainTypedArray(R.array.images);
 			this.links = res.obtainTypedArray(R.array.list);
+			
+			this.selectedIndex = -1;
 		}
 
 		public int getCount() {
@@ -74,28 +77,29 @@ public class ItemListSelectFragment extends Fragment {
 			
 			holder.title.setText(titles.getString(position));
 			holder.imageButton.setImageDrawable(icons.getDrawable(position));
-			holder.imageButton.setTag(links.getString(position));
+			holder.imageButton.setTag(position);
+			
+			if (selectedIndex == position) {
+				holder.imageButton.setBackgroundResource(R.drawable.tf_button);
+			} else {
+				holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
+			}
 			
 			return convertView;
 		}
 		
-		OnClickListener onClickListener = new OnClickListener() {
-			private View previousPressed;
-			
+		private OnClickListener onClickListener = new OnClickListener() {
 			public void onClick(View v) {
-				Log.d("ItemListSelectAdapter", "Clicked: " + (String)v.getTag());
+				Log.d("ItemListSelectAdapter", "Clicked: " + links.getString((Integer)v.getTag()));
 				
 				if (isItemsSelectable) {
-					v.setPressed(isItemsSelectable);
-					if (previousPressed != null)
-						previousPressed.setPressed(false);
-					
-					previousPressed = v;
+					selectedIndex = (Integer)v.getTag();
+					notifyDataSetChanged();
 				}
 				
 				OnItemSelectedListener l = listener.get();
 				if (l != null) {
-					l.onSelect((String)v.getTag());
+					l.onSelect(links.getString((Integer)v.getTag()));
 				}
 			}
 		};
@@ -127,6 +131,13 @@ public class ItemListSelectFragment extends Fragment {
 	}
 	
 	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		this.setRetainInstance(true);
+	}
+	
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.item_list_select, container, false);
 		
@@ -139,11 +150,4 @@ public class ItemListSelectFragment extends Fragment {
 		
 		return view;
 	}
-	
-	/*OnItemSelectedListener listener = new OnItemSelectedListener() {
-		public void onSelect(String string) {
-			startActivity(new Intent(getActivity(), ItemGridViewer.class)
-				.setAction("com.minder.app.tf2backpack." + string));
-		}
-	};*/
 }
