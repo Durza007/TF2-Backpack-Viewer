@@ -152,6 +152,15 @@ public class DataManager {
 		return request;
 	}
 	
+	public Request requestVerifyPlayer(AsyncTaskListener listener, String id) {
+		Request request = new Request(TYPE_PLAYER_SEARCH);
+		VerifyPlayerTask asyncTask = new VerifyPlayerTask(listener, request);
+		
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, id);
+		
+		return request;
+	}
+	
 	/*public Request requestPlayerName(Activity activity, OnRequestReadyListener listener, SteamUser player) {
 		// fetch from our db cache if name is available
 		String name = DataBaseHelper.getSteamUserName(databaseHandler.getReadableDatabase(), player.steamdId64);

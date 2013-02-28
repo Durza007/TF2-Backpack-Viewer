@@ -4,22 +4,16 @@ import java.lang.ref.WeakReference;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,11 +31,14 @@ import android.widget.Toast;
 
 import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.HttpConnection;
 import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
+import com.minder.app.tf2backpack.backend.DataManager.Request;
+import com.minder.app.tf2backpack.backend.ProgressUpdate;
+import com.minder.app.tf2backpack.backend.SteamException;
 
 public class SelectPlayerFragment extends Fragment {
 	private class ItemAutoTextAdapter extends CursorAdapter implements
@@ -203,6 +200,8 @@ public class SelectPlayerFragment extends Fragment {
 	private AutoCompleteTextView editTextPlayer;
 	private ProgressDialog myProgressDialog;
 	private AdView adView;
+	
+	private Request request;
 
 	public void setPlayerSelectedListener(OnPlayerSelectedListener listener) {
 		this.playerSelectedListener = new WeakReference<OnPlayerSelectedListener>(
@@ -347,205 +346,75 @@ public class SelectPlayerFragment extends Fragment {
 		}
 	};
 
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == Activity.RESULT_OK) {
-			// TODO handle this!
-			notifyPlayerSelectedListener(null);
-
-			/*
-			 * if(setSteamId == false){ setResult(Activity.RESULT_OK , data);
-			 * 
-			 * Bundle bundle = data.getExtras();
-			 * storeName(bundle.getString("name")); } else { SharedPreferences
-			 * playerPrefs = getActivity().getSharedPreferences("player",
-			 * Activity.MODE_PRIVATE); SharedPreferences.Editor editor =
-			 * playerPrefs.edit(); Bundle bundle = data.getExtras();
-			 * editor.putString("name", bundle.getString("name"));
-			 * editor.putString("id", bundle.getString("id")); editor.commit();
-			 * 
-			 * storeName(bundle.getString("name")); }
-			 */
-		}
-	}
-
 	private void textInputDone() {
 		if (!editTextPlayer.getText().toString().equals("")) {
-			myProgressDialog = ProgressDialog.show(getActivity(),
-					"Please Wait...", "Verifying player info...");
-			fetchPlayerId();
+			request = App.getDataManager().requestVerifyPlayer(verifyPlayerListener, editTextPlayer.getText().toString());
+			
+			InputMethodManager imm = (InputMethodManager) getActivity()
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(editTextPlayer.getWindowToken(), 0);
 		}
 	}
+	
+	private DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {	
+		public void onClick(DialogInterface dialog, int which) {
+			dialog.dismiss();
+			App.getDataManager().cancelRequest(request);
+			request = null;
+		}
+	};
+	
+    private AsyncTaskListener verifyPlayerListener = new AsyncTaskListener () {
+    	private GenericDialog dialog;
+    	
+		public void onPreExecute() {
+			dialog = GenericDialog.newInstance(R.string.please_wait_title, R.string.verifying_player_info);
+			
+			dialog.setNeutralButtonText(android.R.string.cancel);
+			dialog.setClickListener(dialogClickListener);
+			
+			dialog.show(getFragmentManager(), "ProgressDialog");
+		}
 
-	private void fetchPlayerId() {
-		Handler handler = new Handler() {
-			public void handleMessage(Message message) {
-				switch (message.what) {
-				case HttpConnection.DID_START: {
-					break;
-				}
-				case HttpConnection.DID_SUCCEED: {
-					String textId = (String) message.obj;
-					Log.d("GetPlayer", textId);
-					int idStartIndex = textId.indexOf("<steamID64>");
-					int idEndIndex = textId.indexOf("</steamID64>");
+		public void onProgressUpdate(ProgressUpdate object) {
+		}
 
-					// check if player id was present
-					if (idStartIndex == -1) {
-						idStartIndex = textId.indexOf("![CDATA[");
-						idEndIndex = textId.indexOf("]]");
-						if (myProgressDialog != null) {
-							if (myProgressDialog.isShowing()) {
-								try {
-									myProgressDialog.dismiss();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-						if (idStartIndex == -1) {
-							Toast.makeText(getActivity(),
-									"Failed to verify player",
-									Toast.LENGTH_LONG).show();
-						} else {
-							Toast.makeText(
-									getActivity(),
-									textId.substring(idStartIndex + 8,
-											idEndIndex), Toast.LENGTH_LONG)
-									.show();
-						}
-
+		public void onPostExecute(Request request) {
+			if (SelectPlayerFragment.this.request != request)
+				return;
+			
+			dialog.dismiss();
+			Object result = request.getData();
+			if (result != null) {
+				SteamUser user = (SteamUser)result;
+				
+				notifyPlayerSelectedListener(user);
+				
+				storeName(editTextPlayer.getText().toString());
+			} else {
+				// handle error
+				Exception e = request.getException();
+				if (Internet.isOnline(getActivity())) {
+					if (e instanceof UnknownHostException) {
+						Toast.makeText(getActivity(),
+								R.string.no_steam_api, Toast.LENGTH_LONG)
+								.show();
+					} else if (e instanceof SocketTimeoutException) {
+						Toast.makeText(getActivity(), R.string.connection_timed_out, Toast.LENGTH_LONG).show();
+					} else if (e instanceof SteamException) {
+						Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
 					} else {
-						// TODO check this!
-						SteamUser user = new SteamUser();
-						user.steamName = editTextPlayer.getText().toString();
-						user.steamdId64 = Long.parseLong(textId.substring(
-								idStartIndex + 11, idEndIndex));
-						notifyPlayerSelectedListener(user);
-
-						/*
-						 * if(setSteamId == false){ Intent result = new
-						 * Intent(); result.putExtra("name",
-						 * editTextPlayer.getText()); result.putExtra("id",
-						 * textId.substring(idStartIndex + 11, idEndIndex));
-						 * setResult(RESULT_OK , result); } else {
-						 * SharedPreferences playerPrefs =
-						 * getActivity().getSharedPreferences("player",
-						 * MODE_PRIVATE); SharedPreferences.Editor editor =
-						 * playerPrefs.edit(); editor.putString("name",
-						 * editTextPlayer.getText().toString());
-						 * editor.putString("id", textId.substring(idStartIndex
-						 * + 11, idEndIndex)); editor.commit(); }
-						 */
-						if (myProgressDialog != null) {
-							if (myProgressDialog.isShowing()) {
-								try {
-									myProgressDialog.dismiss();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-
-						storeName(editTextPlayer.getText().toString());
+						Toast.makeText(getActivity(),
+								e.getLocalizedMessage(), Toast.LENGTH_LONG)
+								.show();
 					}
-					break;
-				}
-				case HttpConnection.DID_ERROR: {
-					Exception e = (Exception) message.obj;
-					e.printStackTrace();
-					if (Internet.isOnline(getActivity())) {
-						if (e instanceof UnknownHostException) {
-							Toast.makeText(getActivity(),
-									R.string.no_steam_api, Toast.LENGTH_LONG)
-									.show();
-						} else if (e instanceof SocketTimeoutException) {
-							Toast.makeText(getActivity(), R.string.connection_timed_out, Toast.LENGTH_LONG).show();
-						} else {
-							Toast.makeText(getActivity(),
-									e.getLocalizedMessage(), Toast.LENGTH_LONG)
-									.show();
-						}
-					} else {
-						Toast.makeText(getActivity(), R.string.no_internet,
-								Toast.LENGTH_LONG).show();
-					}
-					try {
-						myProgressDialog.dismiss();
-						myProgressDialog = null;
-					} catch (Exception e2) {
-						e2.printStackTrace();
-					}
-					break;
-				}
+				} else {
+					Toast.makeText(getActivity(), R.string.no_internet,
+							Toast.LENGTH_LONG).show();
 				}
 			}
-		};
-		String id = editTextPlayer.getText().toString();
-		// remove spacing at end and beginning
-		id = id.trim();
-
-		// check what format the string is written in
-		String newId = CheckId(id);
-
-		// if the string was changed, it was changed to 64 bit steam id
-		if (newId.equals(id)) {
-			id = java.net.URLEncoder.encode(id);
-			new HttpConnection(handler).getSpecificLines(
-					"http://steamcommunity.com/id/" + id + "/?xml=1", 4);
-		} else {
-			new HttpConnection(handler).getSpecificLines(
-					"http://steamcommunity.com/profiles/" + newId + "/?xml=1",
-					4);
 		}
-	}
-
-	private String CheckId(String id) {
-		boolean steamId = id.matches("(?i)STEAM_\\d:\\d:\\d+");
-		if (!steamId) {
-			steamId = id.matches("\\d:\\d:\\d+");
-		}
-		if (steamId) {
-			final int yIndex = id.indexOf(":");
-			final long y = Long.parseLong(id.substring(yIndex + 1, yIndex + 2));
-
-			final int zIndex = id.indexOf(':', yIndex + 1);
-			final long z = Long.parseLong(id.substring(zIndex + 1));
-			;
-
-			final long communityId = (z * 2) + 76561197960265728l + y;
-
-			id = String.valueOf(communityId);
-		} else if (id.matches("\\d:\\d+")) {
-			// X:XXXXXX format
-			final long y = Long.parseLong(id.substring(0, 1));
-
-			final int zIndex = id.indexOf(':', 1);
-			final long z = Long.parseLong(id.substring(zIndex + 1));
-			;
-
-			final long communityId = (z * 2) + 76561197960265728l + y;
-
-			id = String.valueOf(communityId);
-		}
-
-		return id;
-	}
-
-	/*
-	 * @Override public Dialog onCreateDialog(int id) { switch (id) { case
-	 * COMMUNITY_ID_TUTORIAL: return new AlertDialog.Builder(getActivity())
-	 * .setIcon(R.drawable.ic_dialog_info) .setTitle(R.string.community_id)
-	 * .setMessage(R.string.tutorial_how_to_set_community_id)
-	 * .setPositiveButton(android.R.string.ok, new
-	 * DialogInterface.OnClickListener() { public void onClick(DialogInterface
-	 * dialog, int whichButton) { } })
-	 * .setNeutralButton(R.string.alert_dialog_dont_show_again, new
-	 * DialogInterface.OnClickListener() { public void onClick(DialogInterface
-	 * dialog, int whichButton) { SharedPreferences sp =
-	 * PreferenceManager.getDefaultSharedPreferences(getActivity()); Editor
-	 * editor = sp.edit(); editor.putBoolean("community_info_dont_show", true);
-	 * editor.commit(); } }).create(); } return null; }
-	 */
+	};
 
 	private void storeName(String name) {
 		Thread thread = new Thread(new SaveNameToDb(App.getAppContext(), name));

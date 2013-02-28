@@ -9,23 +9,19 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.util.Log;
+
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 
-class VerifyPlayer extends AsyncTask<String, Void, SteamUser> {
-	private static class SteamException extends Exception {	
-		public SteamException(String msg) {
-			super(msg);
-		}	
-	}
-	
+class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 	private static final int NUM_RETRIES = 5;
 	private final AsyncTaskListener listener;
 	private final Request request;
 	
-	public VerifyPlayer(AsyncTaskListener listener, Request request) {
+	public VerifyPlayerTask(AsyncTaskListener listener, Request request) {
 		this.listener = listener;
 		this.request = request;
 	}
@@ -56,6 +52,8 @@ class VerifyPlayer extends AsyncTask<String, Void, SteamUser> {
 		
 		for (int tries = 0; tries < NUM_RETRIES; tries++) {
 			SteamUser user = null;
+			Log.d("VerifyPlayerTask", "Check " + tries);
+			boolean steamError = false;
 			
 			// if the string was changed, it was changed to 64 bit steam id
 			if (newId.equals(id)) {
@@ -67,6 +65,7 @@ class VerifyPlayer extends AsyncTask<String, Void, SteamUser> {
 					InputStream fis = url.openStream();
 					
 		            parser.setInput(fis, null);
+		            
 
 		            user = parseXml(parser);
 				} catch (MalformedURLException e) {
@@ -79,14 +78,14 @@ class VerifyPlayer extends AsyncTask<String, Void, SteamUser> {
 					e.printStackTrace();
 				} catch (SteamException e) {
 					request.exception = e;
-					e.printStackTrace();
+					steamError = true;
 				}
 				
 			}
 			
 			if (user != null)
 				return user;
-			
+			Log.d("VerifyPlayerTask", "Check " + tries + " 2");
 			try {
 				Long.parseLong(newId);
 				URL url = new URL("http://steamcommunity.com/profiles/" + newId + "/?xml=1");
@@ -108,7 +107,8 @@ class VerifyPlayer extends AsyncTask<String, Void, SteamUser> {
 				request.exception = e;
 				return null;
 			} catch (NumberFormatException e) {
-				// do nothing
+				if (steamError)
+					return null;
 			}
 			
 			if (user != null)
@@ -120,11 +120,9 @@ class VerifyPlayer extends AsyncTask<String, Void, SteamUser> {
 	
 	@Override
 	protected void onPostExecute(SteamUser result) {
-		if (result != null) {
-			request.data = result;
-			listener.onPostExecute(request);
-			App.getDataManager().removeRequest(request);
-		}
+		request.data = result;
+		listener.onPostExecute(request);
+		App.getDataManager().removeRequest(request);
 	}
 	
 	private SteamUser parseXml(XmlPullParser parser) throws XmlPullParserException, IOException, SteamException {
