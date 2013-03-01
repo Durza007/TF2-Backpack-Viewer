@@ -111,6 +111,7 @@
         </service>
         <activity android:name=".frontend.BackpackActivity"></activity>
         <activity android:name=".frontend.SelectPlayerActivity"></activity>
+        <activity android:name=".frontend.SwapActivity"></activity>
     </application>
 
 </manifest>

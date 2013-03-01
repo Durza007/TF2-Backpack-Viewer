@@ -34,11 +34,6 @@ public class SelectBackpack extends Activity {
         buttonUserId.setTextColor(0xFF2A2725);
         buttonUserId.setOnClickListener(onSelectBackpackClick);
         
-        Button buttonFriends = (Button)findViewById(R.id.ButtonFriends);
-        buttonFriends.setTypeface(tf2TypeFace);
-        buttonFriends.setTextColor(0xFF2A2725);
-        buttonFriends.setOnClickListener(onSelectBackpackClick);
-        
         Button buttonCancel = (Button)findViewById(R.id.ButtonCancel);
         buttonCancel.setTypeface(tf2TypeFace);
         buttonCancel.setTextColor(0xFF2A2725);
@@ -59,10 +54,6 @@ public class SelectBackpack extends Activity {
 					break;
 				case R.id.ButtonUserId:
 					startActivityForResult(new Intent(SelectBackpack.this, SelectPlayerActivity.class).putExtra("return", true), 0);
-					break;
-				case R.id.ButtonFriends:
-					startActivity(new Intent(SelectBackpack.this, PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
-					finish();
 					break;
 				case R.id.ButtonCancel:
 					finish();

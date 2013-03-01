@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="left"
+    android:background="@color/bg_color"
     android:baselineAligned="false"
     android:orientation="horizontal" >
 
@@ -14,10 +15,22 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/frameLayoutItemGrid"
+        android:id="@+id/frameLayoutContainer"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1" >
+
+        <FrameLayout
+            android:id="@+id/frameLayoutItemGrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+        </FrameLayout>
+        
+        <View 
+            android:background="@drawable/fade"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </FrameLayout>
 

@@ -47,6 +47,13 @@ public class ItemGridViewerActivty extends FragmentActivity {
 				
 				// update old references
 				itemListSelectFragment.setOnItemSelectedListener(onItemSelectListener);
+				if (hasDoublePane) {
+					itemListSelectFragment.setNumberOfColumns(1);
+					itemListSelectFragment.setItemsSelectable(true);
+				} else {
+					itemListSelectFragment.setNumberOfColumns(-1);
+					itemListSelectFragment.setItemsSelectable(false);
+				}
 				
 				if (itemGridviewerFragment != null) {
 					if (!hasDoublePane) {
@@ -62,9 +69,6 @@ public class ItemGridViewerActivty extends FragmentActivity {
 							.add(R.id.frameLayoutItemList, itemGridviewerFragment, "itemGridviewerFragment")
 							.addToBackStack(null)
 							.commit();
-						
-						itemListSelectFragment.setNumberOfColumns(-1);
-						itemListSelectFragment.setItemsSelectable(false);
 					} else {
 						// we have double pane
 						if (!savedInstanceState.getBoolean("hadDoublePane")) {
@@ -76,9 +80,6 @@ public class ItemGridViewerActivty extends FragmentActivity {
 								.beginTransaction()
 								.add(R.id.frameLayoutItemGrid, itemGridviewerFragment, "itemGridviewerFragment")
 								.commit();
-							
-							itemListSelectFragment.setNumberOfColumns(1);
-							itemListSelectFragment.setItemsSelectable(true);
 						}
 					}
 				}

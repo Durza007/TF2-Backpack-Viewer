@@ -35,6 +35,7 @@ public class ItemGridViewerFragment extends Fragment {
 	
 	private final int DIALOG_UNKNOWN_ITEM = 0;
 	
+	private String title;
 	private String action;
 	private AdView adView;
 	private ItemAdapter itemAdapter;
@@ -56,6 +57,10 @@ public class ItemGridViewerFragment extends Fragment {
 	public void setNewAction(String action) {
 		this.action = action;
 		loadItems();
+	}
+	
+	public ItemGridViewerFragment() {
+		this.title = "";
 	}
 	
 	@Override
@@ -92,6 +97,11 @@ public class ItemGridViewerFragment extends Fragment {
 			}
 		}
 		grid.setAdapter(itemAdapter);
+    	itemList = itemAdapter.getList();
+		
+		if (title.length() != 0) {
+			getActivity().setTitle(title);
+		}
 		
 		return view;
 	}
@@ -103,18 +113,6 @@ public class ItemGridViewerFragment extends Fragment {
 			startActivity(weaponInfoIntent);
 		}	
 	};
-	
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		
-		//outState.putCharSequence("title", this.getTitle());
-	}
-    
-    @Override
-    public void onPause() {
-    	super.onPause();
-    }
 	
     @Override
     public void onDestroy(){
@@ -208,7 +206,8 @@ public class ItemGridViewerFragment extends Fragment {
 		protected void onProgressUpdate(Item... item) {
 			itemAdapter.addItem(item[0]);
 			// TODO fix titles!
-			//ItemGridViewer.this.setTitle("Viewing " + itemAdapter.getCount() + " items");
+			title = "Viewing " + itemAdapter.getCount() + " items";
+			getActivity().setTitle(title);
 		}
     }
 }

@@ -40,7 +40,6 @@ public class ItemListSelectFragment extends Fragment {
 		private TypedArray titles;
 		private TypedArray icons;
 		private TypedArray links;
-		private int selectedIndex;
 		
 		public ItemListSelectAdapter(Context context) {
 			this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -49,8 +48,6 @@ public class ItemListSelectFragment extends Fragment {
 			this.titles = res.obtainTypedArray(R.array.title);
 			this.icons = res.obtainTypedArray(R.array.images);
 			this.links = res.obtainTypedArray(R.array.list);
-			
-			this.selectedIndex = -1;
 		}
 
 		public int getCount() {
@@ -92,10 +89,10 @@ public class ItemListSelectFragment extends Fragment {
 		
 		private OnClickListener onClickListener = new OnClickListener() {
 			public void onClick(View v) {
-				Log.d("ItemListSelectAdapter", "Clicked: " + links.getString((Integer)v.getTag()));
-				
 				selectedIndex = (Integer)v.getTag();
-				notifyDataSetChanged();
+				
+				if (isItemsSelectable)
+					notifyDataSetChanged();
 				
 				OnItemSelectedListener l = listener.get();
 				if (l != null) {
@@ -110,6 +107,7 @@ public class ItemListSelectFragment extends Fragment {
 	private ItemListSelectAdapter adapter;
 	private int columns;
 	private boolean isItemsSelectable;
+	private int selectedIndex;
 	
 	public void setOnItemSelectedListener(OnItemSelectedListener listener) {
 		this.listener = new WeakReference<OnItemSelectedListener>(listener);
@@ -131,6 +129,7 @@ public class ItemListSelectFragment extends Fragment {
 	public ItemListSelectFragment() {
 		listener = new WeakReference<OnItemSelectedListener>(null);
 		columns = -1;
+		selectedIndex = -1;
 	}
 	
 	@Override
@@ -148,8 +147,7 @@ public class ItemListSelectFragment extends Fragment {
 		if (columns != -1)
 			setNumberOfColumns(columns);
 		
-		if (adapter == null)
-			adapter = new ItemListSelectAdapter(getActivity());	
+		adapter = new ItemListSelectAdapter(getActivity());	
 		gridView.setAdapter(adapter);
 		
 		return view;
