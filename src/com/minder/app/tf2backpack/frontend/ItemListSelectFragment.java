@@ -79,10 +79,12 @@ public class ItemListSelectFragment extends Fragment {
 			holder.imageButton.setImageDrawable(icons.getDrawable(position));
 			holder.imageButton.setTag(position);
 			
-			if (selectedIndex == position) {
-				holder.imageButton.setBackgroundResource(R.drawable.tf_button);
-			} else {
-				holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
+			if (isItemsSelectable) {
+				if (selectedIndex == position) {
+					holder.imageButton.setBackgroundResource(R.drawable.tf_button);
+				} else {
+					holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
+				}
 			}
 			
 			return convertView;
@@ -92,10 +94,8 @@ public class ItemListSelectFragment extends Fragment {
 			public void onClick(View v) {
 				Log.d("ItemListSelectAdapter", "Clicked: " + links.getString((Integer)v.getTag()));
 				
-				if (isItemsSelectable) {
-					selectedIndex = (Integer)v.getTag();
-					notifyDataSetChanged();
-				}
+				selectedIndex = (Integer)v.getTag();
+				notifyDataSetChanged();
 				
 				OnItemSelectedListener l = listener.get();
 				if (l != null) {
@@ -107,6 +107,7 @@ public class ItemListSelectFragment extends Fragment {
 	
 	private WeakReference<OnItemSelectedListener> listener;
 	private GridView gridView;
+	private ItemListSelectAdapter adapter;
 	private int columns;
 	private boolean isItemsSelectable;
 	
@@ -116,6 +117,8 @@ public class ItemListSelectFragment extends Fragment {
 	
 	public void setItemsSelectable(boolean selectable) {
 		isItemsSelectable = selectable;
+		if (adapter != null)
+			adapter.notifyDataSetChanged();
 	}
 	
 	public void setNumberOfColumns(int columns) {
@@ -145,7 +148,8 @@ public class ItemListSelectFragment extends Fragment {
 		if (columns != -1)
 			setNumberOfColumns(columns);
 		
-		final ItemListSelectAdapter adapter = new ItemListSelectAdapter(getActivity());	
+		if (adapter == null)
+			adapter = new ItemListSelectAdapter(getActivity());	
 		gridView.setAdapter(adapter);
 		
 		return view;

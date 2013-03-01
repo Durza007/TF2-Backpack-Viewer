@@ -48,18 +48,39 @@ public class ItemGridViewerActivty extends FragmentActivity {
 				// update old references
 				itemListSelectFragment.setOnItemSelectedListener(onItemSelectListener);
 				
-				if (!hasDoublePane && itemGridviewerFragment != null) {
-					Log.d("ItemGridViewerActivity", "removing itemgrid fragment!");
-					fragmentManager
-						.beginTransaction()
-						.remove(itemGridviewerFragment)
-						.commit();
-					fragmentManager.executePendingTransactions();
-					
-					itemGridviewerFragment = null;
-					
-					itemListSelectFragment.setNumberOfColumns(-1);
-					itemListSelectFragment.setItemsSelectable(false);
+				if (itemGridviewerFragment != null) {
+					if (!hasDoublePane) {
+						fragmentManager
+							.beginTransaction()
+							.remove(itemGridviewerFragment)
+							.commit();
+						
+						fragmentManager.executePendingTransactions();
+						
+						getSupportFragmentManager()
+							.beginTransaction()
+							.add(R.id.frameLayoutItemList, itemGridviewerFragment, "itemGridviewerFragment")
+							.addToBackStack(null)
+							.commit();
+						
+						itemListSelectFragment.setNumberOfColumns(-1);
+						itemListSelectFragment.setItemsSelectable(false);
+					} else {
+						// we have double pane
+						if (!savedInstanceState.getBoolean("hadDoublePane")) {
+							fragmentManager.popBackStack();
+						
+							fragmentManager.executePendingTransactions();
+							
+							getSupportFragmentManager()
+								.beginTransaction()
+								.add(R.id.frameLayoutItemGrid, itemGridviewerFragment, "itemGridviewerFragment")
+								.commit();
+							
+							itemListSelectFragment.setNumberOfColumns(1);
+							itemListSelectFragment.setItemsSelectable(true);
+						}
+					}
 				}
 			} else {
 				itemListSelectFragment = new ItemListSelectFragment();
@@ -78,6 +99,12 @@ public class ItemGridViewerActivty extends FragmentActivity {
 		}
 	}
 	
+	@Override
+	protected void onSaveInstanceState (Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("hadDoublePane", hasDoublePane);
+	}
+	
 	private OnItemSelectedListener onItemSelectListener = new OnItemSelectedListener() {	
 		public void onSelect(String string) {
 			if (hasDoublePane) {
@@ -92,7 +119,6 @@ public class ItemGridViewerActivty extends FragmentActivity {
 						.commit();
 				}
 			} else {
-				Log.d("ItemGridViewerActivity", "adding itemGridviewerFragment");
 				itemGridviewerFragment = ItemGridViewerFragment.createInstance(string);
 				
 				getSupportFragmentManager()
