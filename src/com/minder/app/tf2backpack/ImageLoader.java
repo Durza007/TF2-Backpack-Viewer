@@ -8,27 +8,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Stack;
-import java.util.WeakHashMap;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 
 public class ImageLoader {
     MemoryCache memoryCache = new MemoryCache();
     FileCache fileCache;
-    private Map<BaseAdapter, String> imageViews = Collections.synchronizedMap(new WeakHashMap<BaseAdapter, String>());
     private int requiredSize;
     private PhotosLoader photoLoaderThread;
     
-    public ImageLoader(Context context, int requiredSize){
+    public ImageLoader(Context context, int requiredSize) {
     	createThread();
     	// TODO lazy start on this thread?
     	photoLoaderThread.start();
@@ -42,7 +36,6 @@ public class ImageLoader {
     
     public Bitmap displayImage(String url, Activity activity, BaseAdapter adapter, boolean isLocal)
     {
-        imageViews.put(adapter, url);
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
             return bitmap;
@@ -222,11 +215,9 @@ public class ImageLoader {
 
                         Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.activity, photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
-                        String tag = imageViews.get(photoToLoad.adapter);
-                        if(tag != null && tag.equals(photoToLoad.url)){
-                            BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.adapter);
-                            photoToLoad.activity.runOnUiThread(bd);
-                        }
+                        
+                        BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.adapter);
+                        photoToLoad.activity.runOnUiThread(bd);
                     }
                     if(Thread.interrupted())
                         break;
@@ -247,8 +238,7 @@ public class ImageLoader {
         	adapter = a;
         }
         
-        public void run()
-        {       
+        public void run() {
             adapter.notifyDataSetChanged();
         }
     }

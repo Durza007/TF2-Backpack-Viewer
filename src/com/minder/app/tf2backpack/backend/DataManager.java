@@ -726,8 +726,8 @@ public class DataManager {
 			}
 			
 			public void run() {
-				// TODO: probably remove this? can't remember why it is here
-				Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
+				// TODO probably remove this? can't remember why it is here
+				// Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
 				while (true) {
 					ImageInfo imageInfo = null;
 					synchronized (imageListLock) {

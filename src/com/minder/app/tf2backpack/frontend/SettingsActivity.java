@@ -126,7 +126,7 @@ public class SettingsActivity extends PreferenceActivity {
         switch (id) {
         case COMMUNITY_ID_TUTORIAL:
             return new AlertDialog.Builder(this)
-                .setIcon(R.drawable.ic_dialog_info)
+                .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle(R.string.community_id)
                 .setMessage(R.string.tutorial_how_to_set_community_id)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

@@ -286,20 +286,12 @@ public class SelectPlayerFragment extends Fragment {
 
 		Button buttonSearch = (Button) view.findViewById(R.id.buttonSearch);
 		buttonSearch.setOnClickListener(onButtonSearchClick);
+		
+		final Button buttonCommunity = (Button)view.findViewById(R.id.buttonCommunityId);
+		buttonCommunity.setOnClickListener(onButtonCommunityClick);
 
 		// Look up the AdView as a resource and load a request.
 		adView = (AdView) view.findViewById(R.id.ad);
-		/*
-		 * if (adView != null) { adView.loadAd(new AdRequest()); }
-		 */
-
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getActivity());
-		boolean dontShowInfo = sp.getBoolean("community_info_dont_show", false);
-		if (!dontShowInfo) {
-			// TODO deprecated stuff
-			getActivity().showDialog(COMMUNITY_ID_TUTORIAL);
-		}
 
 		return null;
 	}
@@ -327,13 +319,13 @@ public class SelectPlayerFragment extends Fragment {
 		}
 	}
 
-	OnClickListener onButtonOkClick = new OnClickListener() {
+	private OnClickListener onButtonOkClick = new OnClickListener() {
 		public void onClick(View v) {
 			textInputDone();
 		}
 	};
 
-	OnClickListener onButtonSearchClick = new OnClickListener() {
+	private OnClickListener onButtonSearchClick = new OnClickListener() {
 		public void onClick(View v) {
 			final String searchQuery = editTextPlayer.getText().toString();
 			if (!searchQuery.equals("")) {
@@ -343,6 +335,21 @@ public class SelectPlayerFragment extends Fragment {
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(editTextPlayer.getWindowToken(), 0);
 			}
+		}
+	};
+	
+	private OnClickListener onButtonCommunityClick = new OnClickListener() {		
+		public void onClick(View v) {
+        	GenericDialog dialog = GenericDialog.newInstance(R.string.community_id, R.string.tutorial_how_to_set_community_id);
+        	dialog.setNeutralButtonText(android.R.string.ok);
+        	dialog.setIcon(android.R.drawable.ic_dialog_info);
+        	dialog.setClickListener(new DialogInterface.OnClickListener() {				
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+        	
+        	dialog.show(getFragmentManager(), "communityDialog");
 		}
 	};
 

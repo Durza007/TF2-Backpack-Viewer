@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">TF2 Backpack Viewer</string>
-    <string name="user_id">Enter user ID:\n – http://steamcommunity.com/id/XXX\n – STEAM_X:X:XXXXXXXX\n – X:X:XXXXXXXX</string>
+    <string name="user_id">Enter user ID:\n – http://steamcommunity.com/id/XXX\n – http://steamcommunity.com/profiles/XXX\n – STEAM_X:X:XXXXXXXX\n – X:X:XXXXXXXX</string>
     <string name="powered_by_steam">Powered by Steam</string>
     <string name="steam_userid"></string>
     <string name="STEAM_API_KEY">***REMOVED***</string>
@@ -78,5 +77,15 @@
     <string name="download_highres_images">Download High-res images (65MB!!!)</string>
     <string name="settings">Settings</string>
     <string name="connection_timed_out">Connection timed out</string>
-    <string name="verifying_player_info">Verifying player info...</string>
+    <string name="verifying_player_info">Verifying player info…</string>
+    <string name="item_list_all">All</string>
+    <string name="item_list_default">Default</string>
+    <string name="item_list_primary">Primary</string>
+    <string name="item_list_secondary">Secondary</string>
+    <string name="item_list_melee">Melee</string>
+    <string name="item_list_hats">Hats</string>
+    <string name="item_list_tools">Tools</string>
+    <string name="item_list_misc">Misc</string>
+    <string name="enter_your_steamid">Enter your steam ID:</string>
+    <string name="how_to_community_id">How to: Community ID</string>
 </resources>

@@ -69,6 +69,7 @@ public class DownloadGameSchemeDialog extends DialogFragment {
     private OnClickListener cancelClickListener = new OnClickListener() {	
 		public void onClick(View v) {
 			DownloadGameSchemeDialog.this.dismiss();
+			getActivity().finish();
 		}
 	};
 	

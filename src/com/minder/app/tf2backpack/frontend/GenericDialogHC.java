@@ -1,12 +1,15 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
-public class GenericDialog extends DialogFragment {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class GenericDialogHC extends DialogFragment {
 	private int titleId = -1;
 	private int messageId = -1;
 	private int iconId = -1;
@@ -16,8 +19,8 @@ public class GenericDialog extends DialogFragment {
 	private int negativeButtonTextId = -1;
 	private boolean showProgress = false;
 	
-    public static GenericDialog newInstance(int titleId, int messageId) {
-    	GenericDialog dialog = new GenericDialog();
+    public static GenericDialogHC newInstance(int titleId, int messageId) {
+    	GenericDialogHC dialog = new GenericDialogHC();
     	dialog.titleId = titleId;
     	dialog.messageId = messageId;
         return dialog;

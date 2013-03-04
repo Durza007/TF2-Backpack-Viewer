@@ -9,7 +9,7 @@
         <Preference
             android:key="communityId"
             android:summary="Explains how to set a community id"
-            android:title="How To: Community ID" >
+            android:title="@string/how_to_community_id">
         </Preference>
     </PreferenceCategory>
     <PreferenceCategory android:title="Backpack" >

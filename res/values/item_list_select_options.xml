@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="title">
-        <item>"All"</item>
-        <item>"Default"</item>
-        <item>"Primary"</item>
-        <item>"Secondary"</item>
-        <item>"Melee"</item>
-        <item>"Hats"</item>
-        <item>"Tools"</item>
-        <item>"Misc"</item>
+        <item>@string/item_list_all</item>
+        <item>@string/item_list_default</item>
+        <item>@string/item_list_primary</item>
+        <item>@string/item_list_secondary</item>
+        <item>@string/item_list_melee</item>
+        <item>@string/item_list_hats</item>
+        <item>@string/item_list_tools</item>
+        <item>@string/item_list_misc</item>
     </array>
     <array name="images">
         <item>@drawable/catalog_book</item>

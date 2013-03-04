@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/includeAd"
         android:layout_alignParentBottom="false"
-        android:layout_below="@+id/buttonSearch"
+        android:layout_below="@+id/buttonCommunityId"
         android:gravity="bottom|center_horizontal"
         android:text="@string/powered_by_steam" >
     </TextView>
@@ -61,5 +61,16 @@
         android:layout_alignParentBottom="true"
         layout="@layout/ad" >
     </include>
+
+    <Button
+        android:id="@+id/buttonCommunityId"
+        style="@style/Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonSearch"
+        android:layout_marginTop="24dp"
+        android:text="@string/how_to_community_id" />
 
 </RelativeLayout>

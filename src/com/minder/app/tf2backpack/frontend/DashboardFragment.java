@@ -89,11 +89,4 @@ public class DashboardFragment extends Fragment {
 			startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
 		}
     };
-    
-    OnClickListener onNewsItemClick = new OnClickListener(){
-		public void onClick(View v) {
-			// TODO this aint ok
-			startActivity(new Intent(getActivity(), NewsFragment.class));
-		}
-    };
 }

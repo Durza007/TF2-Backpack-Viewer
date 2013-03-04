@@ -20,6 +20,13 @@ public class SelectPlayerActivity extends FragmentActivity {
 		
 		setContentView(R.layout.select_player);
 		
+		Bundle data = getIntent().getExtras();
+		if (data != null) {
+			String title = data.getString("title");
+			if (title != null)
+				setTitle(title);
+		}
+		
 		// check if we have double-pane layout
 		hasDoublePane = null != findViewById(R.id.frameLayoutSearch);;
 		

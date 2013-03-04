@@ -24,7 +24,7 @@ public class Main extends Activity {
 			finish();
 		} else {
 			startActivityForResult(new Intent(this, SelectPlayerActivity.class).putExtra(
-					"title", "Enter your user name"), 0);
+					"title", getResources().getString(R.string.enter_your_steamid)), 0);
 		}
 	}
 
@@ -34,7 +34,7 @@ public class Main extends Activity {
 			SteamUser user = data.getExtras().getParcelable("user");
 			
 			if (user != null) {
-				editor.putLong("id", user.steamdId64);
+				editor.putString("id", String.valueOf(user.steamdId64));
 				editor.commit();
 				startActivity(new Intent(this, DashboardActivity.class));
 			}

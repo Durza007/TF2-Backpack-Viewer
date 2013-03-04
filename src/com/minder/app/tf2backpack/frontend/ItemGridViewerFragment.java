@@ -33,8 +33,6 @@ public class ItemGridViewerFragment extends Fragment {
 	private final int ITEM_FILTER_SECONDARY = 6;
 	private final int ITEM_FILTER_MELEE = 7;
 	
-	private final int DIALOG_UNKNOWN_ITEM = 0;
-	
 	private String title;
 	private String action;
 	private AdView adView;
@@ -205,7 +203,7 @@ public class ItemGridViewerFragment extends Fragment {
 		@Override
 		protected void onProgressUpdate(Item... item) {
 			itemAdapter.addItem(item[0]);
-			// TODO fix titles!
+			
 			title = "Viewing " + itemAdapter.getCount() + " items";
 			getActivity().setTitle(title);
 		}

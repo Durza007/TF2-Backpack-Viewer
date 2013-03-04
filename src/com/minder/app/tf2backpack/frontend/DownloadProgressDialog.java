@@ -16,6 +16,8 @@ import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 
 public class DownloadProgressDialog extends DialogFragment implements Runnable {
+	private final static int REFRESH_INTERVALL_MS = 500;
+	
 	private final Handler updateHandler;
 	private boolean keepUpdating;
 	private TextView textViewTask;
@@ -69,7 +71,7 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 
 	public void run() {
 		if (keepUpdating) {
-			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + 1000);
+			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + REFRESH_INTERVALL_MS);
 		} else {
 			return;
 		}
