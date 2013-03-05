@@ -88,4 +88,6 @@
     <string name="item_list_misc">Misc</string>
     <string name="enter_your_steamid">Enter your steam ID:</string>
     <string name="how_to_community_id">How to: Community ID</string>
+    <string name="item_lists">Item Lists</string>
+    <string name="backpack">Backpack</string>
 </resources>

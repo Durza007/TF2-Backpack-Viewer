@@ -10,7 +10,7 @@
 
     <FrameLayout
         android:id="@+id/frameLayoutItemList"
-        android:layout_width="100dp"
+        android:layout_width="@dimen/button_size_itemlist"
         android:layout_height="match_parent" >
     </FrameLayout>
 

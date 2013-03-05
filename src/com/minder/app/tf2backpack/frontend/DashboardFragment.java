@@ -5,17 +5,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.GridView;
 
+import com.google.ads.AdView;
 import com.minder.app.tf2backpack.R;
 
-public class DashboardFragment extends Fragment {	
-	private ImageButton backpackButton;
-	private ImageButton settingsButton;
-	private ImageButton friendsButton;
-	private ImageButton wrenchButton;
+public class DashboardFragment extends Fragment {
+	private ItemListSelectAdapter adapter;
 	private Intent backpackIntent;
 	private Intent settingsIntent;
 	private String playerId;
@@ -25,22 +22,22 @@ public class DashboardFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.main_menu, container, false);
         
-        //AdManager.setTestDevices( new String[] { "B135E5E10665286A9FA99BA95CE926D4" } );
-        
         backpackIntent = new Intent(getActivity(), SelectBackpack.class);
         settingsIntent = new Intent(getActivity(), SettingsActivity.class);
         
-        backpackButton = (ImageButton)view.findViewById(R.id.ImageButtonBackPack);
-        backpackButton.setOnClickListener(onButtonBackpackClick);
+        final GridView gridView = (GridView)view.findViewById(R.id.itemListSelectGridView);
         
-        settingsButton = (ImageButton)view.findViewById(R.id.ImageButtonSettings);
-        settingsButton.setOnClickListener(onButtonSettingsClick);
+        final int columnWidth = getResources().getDimensionPixelSize(R.dimen.button_size_dashboard_item);
+        adapter = new ItemListSelectAdapter(getActivity(), 
+        		R.array.dashboardTitles, 
+        		R.array.dashboardImages, 
+        		R.array.dashboardActions,
+        		columnWidth);
         
-        friendsButton = (ImageButton)view.findViewById(R.id.ImageButtonMyFriends);
-        friendsButton.setOnClickListener(onButtonFriendsClick);
+        adapter.setOnItemSelectedListener(itemSelectedListener);
         
-        wrenchButton = (ImageButton)view.findViewById(R.id.ImageButtonCatalouge);
-        wrenchButton.setOnClickListener(onButtonWrenchClick);
+        gridView.setAdapter(adapter);
+        gridView.setColumnWidth(columnWidth);
         
         return view;
     }
@@ -65,28 +62,18 @@ public class DashboardFragment extends Fragment {
     	super.onDestroy();
     }
     
-    OnClickListener onButtonBackpackClick = new OnClickListener(){
-		public void onClick(View v) {
-			backpackIntent.putExtra("id", playerId);
-			startActivity(backpackIntent);
+    OnItemSelectedListener itemSelectedListener = new OnItemSelectedListener() {	
+		public void onSelect(String string) {
+			if (string.equals("VIEW_BACKPACK")) {
+				backpackIntent.putExtra("id", playerId);
+				startActivity(backpackIntent);
+			} else if (string.equals("VIEW_FRIENDS")) {
+				startActivity(new Intent(getActivity(), PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
+			} else if (string.equals("VIEW_ITEM_LISTS")) {
+				startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
+			} else if (string.equals("VIEW_SETTINGS")) {
+				startActivity(settingsIntent);
+			}
 		}
-    };
-    
-    OnClickListener onButtonSettingsClick = new OnClickListener(){
-		public void onClick(View v) {
-			startActivity(settingsIntent);
-		}
-    };
-    
-    OnClickListener onButtonFriendsClick = new OnClickListener(){
-		public void onClick(View v) {
-			startActivity(new Intent(getActivity(), PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
-		}
-    };
-    
-    OnClickListener onButtonWrenchClick = new OnClickListener(){
-		public void onClick(View v) {
-			startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
-		}
-    };
+	};
 }

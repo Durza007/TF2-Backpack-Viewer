@@ -10,8 +10,7 @@
         android:id="@+id/fragmentDashboard"
         android:name="com.minder.app.tf2backpack.frontend.DashboardFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         tools:layout="@layout/main_menu" />
 
     <fragment

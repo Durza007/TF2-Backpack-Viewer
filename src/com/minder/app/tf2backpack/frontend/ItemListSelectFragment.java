@@ -58,7 +58,13 @@ public class ItemListSelectFragment extends Fragment {
 		if (columns != -1)
 			setNumberOfColumns(columns);
 		
-		adapter = new ItemListSelectAdapter(getActivity(), R.array.title, R.array.images, R.array.list);
+		final int columnWidth = getResources().getDimensionPixelSize(R.dimen.button_size_itemlist);
+		adapter = new ItemListSelectAdapter(getActivity(), 
+				R.array.title, 
+				R.array.images, 
+				R.array.list,
+				columnWidth);
+		
 		adapter.setItemSelectable(isItemsSelectable);
 		
 		final OnItemSelectedListener l = listener.get();
@@ -66,6 +72,7 @@ public class ItemListSelectFragment extends Fragment {
 			adapter.setOnItemSelectedListener(l);
 		
 		gridView.setAdapter(adapter);
+		gridView.setColumnWidth(columnWidth);
 		
 		return view;
 	}

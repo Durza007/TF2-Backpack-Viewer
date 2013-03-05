@@ -1,70 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/TableLayoutDashBoard"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_color" >
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/FrameLayoutRoot"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
 
-    <TableRow
-        android:id="@+id/TableRowDashBoard1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center" >
+    <GridView
+        android:id="@+id/itemListSelectGridView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_color"
+        android:horizontalSpacing="6dp"
+        android:numColumns="2"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="4dp" >
 
-        <ImageButton
-            android:id="@+id/ImageButtonBackPack"
-            style="@style/dash_board_button_style"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/backpack" >
+        <!-- Preview: listitem=@layout/item_list_item -->
 
-        </ImageButton>
+    </GridView>
 
-        <ImageButton
-            android:id="@+id/ImageButtonMyFriends"
-            style="@style/dash_board_button_style"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="false"
-            android:scaleType="fitCenter"
-            android:src="@drawable/friends2" >
-
-        </ImageButton>
-    </TableRow>
-
-    <TableRow
-        android:id="@+id/TableRowDashBoard2"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_weight="1"
-        android:gravity="center" >
-
-        <ImageButton
-            android:id="@+id/ImageButtonCatalouge"
-            style="@style/dash_board_button_style"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/catalog_book" >
-
-        </ImageButton>
-
-        <ImageButton
-            android:id="@+id/ImageButtonSettings"
-            style="@style/dash_board_button_style"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
-            android:src="@drawable/glyph_options" >
-
-        </ImageButton>
-    </TableRow>
-
-</TableLayout>
+</FrameLayout>

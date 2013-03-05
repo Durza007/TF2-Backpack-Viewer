@@ -48,7 +48,7 @@ public class ItemAdapter extends BaseAdapter {
 		this.activity = activity;
 		this.mInflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		this.coloredCells = coloredCells;
-		imageSize = activity.getResources().getDimensionPixelSize(R.dimen.button_size_itemlist);
+		imageSize = activity.getResources().getDimensionPixelSize(R.dimen.button_size_tf2itemlist);
 		imageLoader = new ImageLoader(activity, imageSize);
 		itemList = new ArrayList<Item>();
 		

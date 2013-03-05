@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -29,19 +30,22 @@ public class ItemListSelectAdapter extends BaseAdapter {
 	private WeakReference<OnItemSelectedListener> listener;
 	private final ViewHolder holder = new ViewHolder();
 	private LayoutInflater inflater;
+	private final int itemSizePx;
 	private TypedArray titles;
 	private TypedArray icons;
 	private TypedArray links;
 	private boolean isItemsSelectable;
 	private int selectedIndex;
 	
-	public ItemListSelectAdapter(Context context, int titleArrayId, int imageArrayId, int itemNameArrayId) {
+	public ItemListSelectAdapter(Context context, int titleArrayId, int imageArrayId, int itemNameArrayId, int itemSizePx) {
 		this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Resources res = context.getResources();
 		
 		this.titles = res.obtainTypedArray(titleArrayId);
 		this.icons = res.obtainTypedArray(imageArrayId);
 		this.links = res.obtainTypedArray(itemNameArrayId);
+		
+		this.itemSizePx = itemSizePx;
 		
 		this.selectedIndex = -1;
 	}
@@ -71,6 +75,11 @@ public class ItemListSelectAdapter extends BaseAdapter {
 		if (convertView == null) {
 			convertView = inflater.inflate(R.layout.item_list_item, null);
 			holder.setView(convertView);
+			
+			LayoutParams params = holder.imageButton.getLayoutParams();
+			params.width = itemSizePx;
+			params.height = itemSizePx;
+			holder.imageButton.setLayoutParams(params);
 			
 			holder.imageButton.setOnClickListener(onClickListener);
 		} else {
