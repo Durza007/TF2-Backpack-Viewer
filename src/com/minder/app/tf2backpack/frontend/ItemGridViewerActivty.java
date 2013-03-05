@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.backend.Item;
-import com.minder.app.tf2backpack.frontend.ItemListSelectFragment.OnItemSelectedListener;
 
 public class ItemGridViewerActivty extends FragmentActivity {
 	private boolean hasDoublePane;
