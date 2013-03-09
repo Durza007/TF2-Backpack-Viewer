@@ -17,7 +17,7 @@
     <string name="golden_wrench_list">Golden Wrench List</string>
     <string name="backack_private">Backpack is private</string>
     <string name="unknown_error">Unknown Error</string>
-    <string name="download_successful">Download Successful</string>
+    <string name="download_successful">Download Successful!</string>
     <string name="menu_sort_by_number">Sort by number</string>
     <string name="dialog_notice">Notice</string>
     <string name="message_unknown_item">A unknown item was found. This could be because of the game files being outdated.\n\nDo you want to update the game files now?</string>
@@ -58,6 +58,7 @@
     <string name="reset_images">Redownload Images</string>
     <string name="equipped">Equipped</string>
     <string name="starting_download">Starting download…</string>
+    <string name="downloading_schema">Downloading Item info…</string>
     <string name="menu_sort_by_persona_state">Sort by status</string>
     <string name="alert_dialog_clear_cache">Clear Cache</string>
     <string name="alert_dialog_clear_history">Clear History</string>

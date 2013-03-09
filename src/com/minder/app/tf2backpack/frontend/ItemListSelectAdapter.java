@@ -66,6 +66,14 @@ public class ItemListSelectAdapter extends BaseAdapter {
 		return index;
 	}
 	
+	public int getSelectedIndex() {
+		return this.selectedIndex;
+	}
+	
+	public void setSelectedIndex(int selectedIndex) {
+		this.selectedIndex = selectedIndex;
+	}
+	
 	public void setItemSelectable(boolean itemSelectable) {
 		this.isItemsSelectable = itemSelectable;
 		notifyDataSetChanged();

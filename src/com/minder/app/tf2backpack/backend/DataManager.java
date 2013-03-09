@@ -35,6 +35,7 @@ import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
+import com.minder.app.tf2backpack.backend.HttpConnection.DownloadProgressListener;
 
 public class DataManager {
 	// Inner classes
@@ -219,7 +220,7 @@ public class DataManager {
 			HttpConnection connection = HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
 					Util.GetAPIKey() + "&SteamID=" + steamId64);
 			
-			String data = (String) connection.execute();
+			String data = (String) connection.execute(null);
 			// fetch latest exception, if there is one
 			request.exception = connection.getException();
 
@@ -594,7 +595,17 @@ public class DataManager {
 				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
 					Util.GetAPIKey() + "&format=json&language=en");
 			
-			String data = (String) connection.execute();
+			String data = (String) connection.execute(new DownloadProgressListener() {
+				private int totalSize;
+				public void totalSize(long totalSize) {
+					this.totalSize = (int)totalSize;
+					publishProgress(new ProgressUpdate(PROGRESS_DOWNLOADING_SCHEMA_UPDATE, this.totalSize, 0));
+				}
+				
+				public void progressUpdate(long currentSize) {
+					publishProgress(new ProgressUpdate(PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentSize));
+				}
+			});
 			
 			if (data != null) {
 				publishProgress(new ProgressUpdate(PROGRESS_PARSING_SCHEMA, 0, 0));
@@ -671,6 +682,9 @@ public class DataManager {
 				gs = null;
 				System.gc();
 				Log.d("Dashboard", "GameScheme download complete");
+			} else {
+				// handle error
+				request.exception = connection.getException();
 			}
 			return null;
 		}
@@ -682,7 +696,7 @@ public class DataManager {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			listener.onPostExecute(null);
+			listener.onPostExecute(request);
 			removeRequest(request);
 		}
 		
@@ -743,7 +757,7 @@ public class DataManager {
 					Object data = null;
 					if (imageInfo.getLink().length() != 0) {
 						HttpConnection conn = HttpConnection.bitmap(imageInfo.getLink());
-						data = conn.execute();
+						data = conn.execute(null);
 					}
 					if (data != null) {
 						// save

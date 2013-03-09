@@ -12,7 +12,7 @@
         android:layout_above="@+id/includeAd"
         android:layout_alignParentTop="true"
         android:cacheColorHint="@color/bg_color"
-        android:columnWidth="100dp"
+        android:columnWidth="@dimen/button_size_tf2itemlist"
         android:fastScrollEnabled="true"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth" >

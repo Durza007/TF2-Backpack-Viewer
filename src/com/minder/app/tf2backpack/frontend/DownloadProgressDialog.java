@@ -1,9 +1,11 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,6 +31,11 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 			getDialog().dismiss();
 		}
 	};
+	
+	public static void show(FragmentManager manager) {
+        final DownloadProgressDialog editNameDialog = new DownloadProgressDialog();
+        editNameDialog.show(manager, "download_dialog");
+	}
 	
 	public DownloadProgressDialog() {
 		updateHandler = new Handler();
@@ -76,8 +83,20 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 			return;
 		}
 		
-		if (!GameSchemeDownloaderService.isGameSchemeDownloading())
+		if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
+			if (GameSchemeDownloaderService.downloadGameSchemeSuccess) {
+				GenericDialog dialog = GenericDialog.newInstance(R.string.download, R.string.download_successful);
+				dialog.setNeutralButtonText(android.R.string.ok);
+				dialog.setClickListener(new DialogInterface.OnClickListener() {				
+					public void onClick(DialogInterface dialog, int which) {
+						// do nothing
+					}
+				});
+				dialog.show(getActivity().getSupportFragmentManager(), "successDialog");
+			}
+			
 			getDialog().dismiss();
+		}
 		
 		textViewTask.setText(GameSchemeDownloaderService.currentTaskStringId);
 		if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_images) {
@@ -90,8 +109,19 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 			textViewImageCount.setText(GameSchemeDownloaderService.currentAmountImages 
 					+ "/" 
 					+ GameSchemeDownloaderService.totalImages);
+		} else if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_schema) {
+			// update progressbar
+			progressBar.setIndeterminate(false);
+			progressBar.setMax((int)GameSchemeDownloaderService.totalBytes);
+			progressBar.setProgress((int)GameSchemeDownloaderService.currentBytes);
+			
+			textViewImageCount.setVisibility(View.VISIBLE);
+			textViewImageCount.setText((GameSchemeDownloaderService.currentBytes / 1024)
+					+ "/" 
+					+ (GameSchemeDownloaderService.totalBytes / 1024) + " [kB]");
 		} else {
 			progressBar.setIndeterminate(true);
+			textViewImageCount.setVisibility(View.GONE);
 		}
 	}
 }

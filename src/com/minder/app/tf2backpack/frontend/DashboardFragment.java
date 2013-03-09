@@ -3,12 +3,14 @@ package com.minder.app.tf2backpack.frontend;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
-import com.google.ads.AdView;
+import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 
 public class DashboardFragment extends Fragment {
@@ -70,7 +72,15 @@ public class DashboardFragment extends Fragment {
 			} else if (string.equals("VIEW_FRIENDS")) {
 				startActivity(new Intent(getActivity(), PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
 			} else if (string.equals("VIEW_ITEM_LISTS")) {
-				startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
+		    	if (GameSchemeDownloaderService.isGameSchemeReady()) {
+					startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
+		    	} else {
+		    		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
+		    			DownloadProgressDialog.show(getActivity().getSupportFragmentManager());
+		    		} else {
+		    			DownloadGameSchemeDialog.show(getActivity().getSupportFragmentManager());
+		    		}
+		    	}
 			} else if (string.equals("VIEW_SETTINGS")) {
 				startActivity(settingsIntent);
 			}

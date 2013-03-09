@@ -19,6 +19,12 @@ import android.graphics.BitmapFactory;
 import com.minder.app.tf2backpack.BuildConfig;
 
 public class HttpConnection {
+	public static interface DownloadProgressListener {
+		public void totalSize(long totalSize);
+		public void progressUpdate(long currentSize);
+	}
+	private final static long BYTE_UPDATE_INTERVALL = 8192;
+	
 	private HttpClient httpClient;
 	private Exception exception;
 	private String url;
@@ -57,7 +63,7 @@ public class HttpConnection {
 		this.exception = null;
 		
 		httpClient = new DefaultHttpClient();
-		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 5000);
+		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 15000);
 	}
 	
 	/**
@@ -65,7 +71,7 @@ public class HttpConnection {
 	 * 
 	 * @return The data - null if it failed
 	 */
-	public Object execute() {
+	public Object execute(DownloadProgressListener listener) {
 		HttpResponse response = null;
 		try {
 			response = httpClient.execute(new HttpGet(url));
@@ -87,7 +93,7 @@ public class HttpConnection {
 				if (isBitmap) {
 					result = processBitmapEntity(response.getEntity());
 				} else {
-					result = processEntity(response.getEntity());
+					result = processEntity(response.getEntity(), listener);
 				}
 			} catch (IllegalStateException e) {
 				if (BuildConfig.DEBUG) {
@@ -106,13 +112,28 @@ public class HttpConnection {
 		return result;
 	}
 
-	private String processEntity(HttpEntity entity) throws IllegalStateException, IOException {
+	private String processEntity(HttpEntity entity, DownloadProgressListener listener) throws IllegalStateException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(entity
 				.getContent()));
 		StringBuilder result = new StringBuilder();
 		String line;
+		
+		if (listener != null)
+			listener.totalSize(entity.getContentLength());
 
+		long currentByteCount = 0;
+		long lastUpdate = 0;
 		while ((line = br.readLine()) != null) {
+			if (listener != null) {
+				// add 1 to account for missing line endings
+				//currentByteCount += (line.getBytes().length) + 1;
+				currentByteCount += (line.length()) + 1;
+				
+				if (currentByteCount >= lastUpdate + BYTE_UPDATE_INTERVALL) {
+					lastUpdate = currentByteCount;
+					listener.progressUpdate(currentByteCount);
+				}
+			}
 		    result.append(line);
 		}
 		

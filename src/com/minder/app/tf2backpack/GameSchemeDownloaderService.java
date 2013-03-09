@@ -1,5 +1,7 @@
 package com.minder.app.tf2backpack;
 
+import java.net.SocketTimeoutException;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -32,6 +34,9 @@ public class GameSchemeDownloaderService extends Service {
 	private static boolean currentGameSchemeImagesIsHighres;
 	
 	private static boolean downloadingGameScheme = false;
+	public static boolean downloadGameSchemeSuccess = false;
+	public static long totalBytes;
+	public static long currentBytes;
 	public static int totalImages;
 	public static int currentAmountImages;
 	public static int currentTaskStringId;
@@ -156,18 +161,22 @@ public class GameSchemeDownloaderService extends Service {
 		public void onProgressUpdate(ProgressUpdate progress) {	
 			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashboardActivity.class);
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-			
-			if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
+	        
+	        if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE) {
+	        	
+				notification.contentView.setProgressBar(R.id.progressBarDownload, progress.totalCount, progress.count, false);
+				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.downloading_schema));
+				notification.contentView.setViewVisibility(R.id.textViewExtra, View.VISIBLE);
+				notification.contentView.setTextViewText(R.id.textViewExtra, (progress.count / 1024) + "/" + (progress.totalCount / 1024) + " [kB]");
+				
+				currentTaskStringId = R.string.downloading_schema;
+				totalBytes = progress.totalCount;
+				currentBytes = progress.count;
+	        } else if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
 				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.parsing_schema));
 				
 				currentTaskStringId = R.string.parsing_schema;
-				
-				if (BuildConfig.DEBUG)
-					Log.d(DEBUG_TAG, "Updating notification");
-				
-				final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-				notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 				
 			} else if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES_UPDATE) {
 				// this means game files are downloaded
@@ -181,26 +190,38 @@ public class GameSchemeDownloaderService extends Service {
 				currentTaskStringId = R.string.downloading_images;
 				currentAmountImages = progress.count;
 				totalImages = progress.totalCount;
-				
-				if (BuildConfig.DEBUG)
-					Log.d(DEBUG_TAG, "Updating notification");
-				final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-				notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 			}
+	        
+			if (BuildConfig.DEBUG)
+				Log.d(DEBUG_TAG, "Updating notification");
+			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 		}
 
 		public void onPostExecute(Request request) {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Removing notification");
 			
+			boolean success = true;
+			int notificationTitle = R.string.download_successful;
+			Exception exception = request.getException();
+			if (exception != null) {
+				success = false;
+				if (exception instanceof SocketTimeoutException) {
+					notificationTitle = R.string.failed_download;
+				}
+			} else {
+				downloadGameSchemeSuccess = true;
+			}
+			
 			final Intent intent = new Intent(GameSchemeDownloaderService.this, DashboardActivity.class);
 	        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			
 			final NotificationCompat.Builder builder = new NotificationCompat.Builder(GameSchemeDownloaderService.this)
 			.setOngoing(false)
-            .setContentTitle(getResources().getText(R.string.download_successful))
+            .setContentTitle(getResources().getText(notificationTitle))
             .setContentIntent(pendingIntent)
-            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setSmallIcon(R.drawable.icon)
             .setAutoCancel(true);	
 			
 			Notification notification = builder.build();

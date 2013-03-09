@@ -17,6 +17,7 @@ public class ItemListSelectFragment extends Fragment {
 	private ItemListSelectAdapter adapter;
 	private int columns;
 	private boolean isItemsSelectable;
+	private int selectedIndex;
 	
 	public void setOnItemSelectedListener(OnItemSelectedListener listener) {
 		this.listener = new WeakReference<OnItemSelectedListener>(listener);
@@ -41,6 +42,7 @@ public class ItemListSelectFragment extends Fragment {
 	public ItemListSelectFragment() {
 		listener = new WeakReference<OnItemSelectedListener>(null);
 		columns = -1;
+		selectedIndex = -1;
 	}
 	
 	@Override
@@ -66,6 +68,7 @@ public class ItemListSelectFragment extends Fragment {
 				columnWidth);
 		
 		adapter.setItemSelectable(isItemsSelectable);
+		adapter.setSelectedIndex(selectedIndex);
 		
 		final OnItemSelectedListener l = listener.get();
 		if (l != null)
@@ -75,5 +78,13 @@ public class ItemListSelectFragment extends Fragment {
 		gridView.setColumnWidth(columnWidth);
 		
 		return view;
+	}
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		
+		if (adapter != null)
+			this.selectedIndex = adapter.getSelectedIndex();
 	}
 }
