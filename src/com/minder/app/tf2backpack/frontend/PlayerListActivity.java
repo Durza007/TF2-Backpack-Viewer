@@ -45,6 +45,8 @@ public class PlayerListActivity extends FragmentActivity {
         	return;
         }
         
+        this.setTitle(R.string.friendlist);
+        
         setContentView(R.layout.player_list_activity);
         
         final View backpackView = findViewById(R.id.frameLayoutBackpackView);

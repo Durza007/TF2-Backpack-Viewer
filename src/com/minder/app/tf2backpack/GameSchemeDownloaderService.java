@@ -175,6 +175,7 @@ public class GameSchemeDownloaderService extends Service {
 	        } else if (progress.updateType == DataManager.PROGRESS_PARSING_SCHEMA) {
 				notification.contentView.setProgressBar(R.id.progressBarDownload, 100, 0, true);
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.parsing_schema));
+				notification.contentView.setViewVisibility(R.id.textViewExtra, View.GONE);
 				
 				currentTaskStringId = R.string.parsing_schema;
 				
@@ -192,8 +193,6 @@ public class GameSchemeDownloaderService extends Service {
 				totalImages = progress.totalCount;
 			}
 	        
-			if (BuildConfig.DEBUG)
-				Log.d(DEBUG_TAG, "Updating notification");
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
 		}
@@ -202,11 +201,13 @@ public class GameSchemeDownloaderService extends Service {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Removing notification");
 			
-			boolean success = true;
 			int notificationTitle = R.string.download_successful;
 			Exception exception = request.getException();
 			if (exception != null) {
-				success = false;
+				downloadGameSchemeSuccess = false;
+				// default error message
+				notificationTitle = R.string.failed_download;
+				
 				if (exception instanceof SocketTimeoutException) {
 					notificationTitle = R.string.failed_download;
 				}

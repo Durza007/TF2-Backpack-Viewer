@@ -84,7 +84,7 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 		}
 		
 		if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
-			if (GameSchemeDownloaderService.downloadGameSchemeSuccess) {
+			if (GameSchemeDownloaderService.isGameSchemeReady()) {
 				GenericDialog dialog = GenericDialog.newInstance(R.string.download, R.string.download_successful);
 				dialog.setNeutralButtonText(android.R.string.ok);
 				dialog.setClickListener(new DialogInterface.OnClickListener() {				

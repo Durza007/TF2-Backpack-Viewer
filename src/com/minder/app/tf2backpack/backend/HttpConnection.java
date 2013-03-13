@@ -23,7 +23,7 @@ public class HttpConnection {
 		public void totalSize(long totalSize);
 		public void progressUpdate(long currentSize);
 	}
-	private final static long BYTE_UPDATE_INTERVALL = 8192;
+	public final static long MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS = 400;
 	
 	private HttpClient httpClient;
 	private Exception exception;
@@ -122,15 +122,15 @@ public class HttpConnection {
 			listener.totalSize(entity.getContentLength());
 
 		long currentByteCount = 0;
-		long lastUpdate = 0;
+		long lastUpdate = System.currentTimeMillis() - MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS;
 		while ((line = br.readLine()) != null) {
 			if (listener != null) {
 				// add 1 to account for missing line endings
 				//currentByteCount += (line.getBytes().length) + 1;
 				currentByteCount += (line.length()) + 1;
-				
-				if (currentByteCount >= lastUpdate + BYTE_UPDATE_INTERVALL) {
-					lastUpdate = currentByteCount;
+					
+				if (System.currentTimeMillis() > lastUpdate + MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS) {
+					lastUpdate = System.currentTimeMillis();
 					listener.progressUpdate(currentByteCount);
 				}
 			}
