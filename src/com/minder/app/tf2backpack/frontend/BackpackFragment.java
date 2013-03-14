@@ -349,8 +349,6 @@ public class BackpackFragment extends Fragment {
     public void addPlayerDataToView(){
     	long start = System.currentTimeMillis();
     	
-    	Log.d("NewBackpack", "AddPlayerDataToVIew");
-    	
     	if (checkUngivenItems) {
     		ungivenList.clear();
     		

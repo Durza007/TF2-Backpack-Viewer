@@ -66,7 +66,6 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 					
 		            parser.setInput(fis, null);
 		            
-
 		            user = parseXml(parser);
 				} catch (MalformedURLException e) {
 					request.exception = e;
