@@ -12,6 +12,7 @@ public class PlayerItemListParser {
 	private ArrayList<Item> itemList;
 	private int statusCode;
 	private int numberOfBackpackSlots;
+	private Exception error;
 	
 	public ArrayList<Item> getItemList(){
 		return itemList;
@@ -23,6 +24,10 @@ public class PlayerItemListParser {
 	
 	public int getNumberOfBackpackSlots() {
 		return numberOfBackpackSlots;
+	}
+	
+	public Exception getException() {
+		return this.error;
 	}
 	
 	public PlayerItemListParser(String data) {
@@ -120,8 +125,17 @@ public class PlayerItemListParser {
 			}
 			
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			if (e instanceof JSONException) {
+				int index = data.indexOf("<title>");
+				if (index != -1) {
+					int endIndex = data.indexOf("</title>");
+					if (endIndex != -1) {
+						error = new SteamException(data.substring(index + 7, endIndex));
+					}
+				}
+			}
 		}
 	}
 

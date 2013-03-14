@@ -166,10 +166,11 @@ public class BackpackFragment extends Fragment {
 		if (fixedWidth != 0)
 			backpackView.setFixedWidth(fixedWidth);
 
-		Button nextButton = (Button) view.findViewById(R.id.ButtonNext);
+		// Init buttons
+		final Button nextButton = (Button) view.findViewById(R.id.ButtonNext);
 		nextButton.setOnClickListener(onButtonBackpackClick);
 
-		Button previousButton = (Button) view.findViewById(R.id.ButtonPrevious);
+		final Button previousButton = (Button) view.findViewById(R.id.ButtonPrevious);
 		previousButton.setOnClickListener(onButtonBackpackClick);
 
 		newButton = (Button) view.findViewById(R.id.buttonNew);
@@ -180,12 +181,14 @@ public class BackpackFragment extends Fragment {
 		if (listener.get() == null)
 			fullscreenButton.setVisibility(View.GONE);
 
+		// Page-number text
 		onPageNumber = 1;
 		pageNumberText = (TextView) view.findViewById(R.id.TextViewPageNumber);
 		pageNumberText.setTypeface(Typeface.createFromAsset(getActivity()
 				.getAssets(), "fonts/TF2Build.ttf"), 0);
 		pageNumberText.setText(onPageNumber + "/" + numberOfPages);
 		
+		// Handle item data
 		currentSteamUser = getArguments().getParcelable("user");
 		if (!dataDownloaded)
 			downloadPlayerData();
@@ -250,9 +253,16 @@ public class BackpackFragment extends Fragment {
 								R.string.backack_private, Toast.LENGTH_SHORT)
 								.show();
 					} else {
-						Toast.makeText(BackpackFragment.this.getActivity(),
-								R.string.unknown_error, Toast.LENGTH_SHORT)
-								.show();
+						Exception e = pl.getException();
+						if (e != null) {
+							Toast.makeText(BackpackFragment.this.getActivity(),
+									e.getMessage(), Toast.LENGTH_SHORT)
+									.show();
+						} else {
+							Toast.makeText(BackpackFragment.this.getActivity(),
+									R.string.unknown_error, Toast.LENGTH_SHORT)
+									.show();
+						}
 					}
 					numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 					onPageNumber = 1;
