@@ -130,12 +130,17 @@ public class Attribute {
     	return 0;
     }
     
+    /**
+     * Attributes that are attached to an item
+     */
 	public static class ItemAttribute implements Parcelable {
 		private int itemDefIndex;
 		private int attributeDefIndex;
 		private String name;
 		private long value;
 		private float floatValue;
+		private long accountSteamId;
+		private String accountPersonaName;
 
 		public void setItemDefIndex(int itemDefIndex) {
 			this.itemDefIndex = itemDefIndex;
@@ -169,6 +174,19 @@ public class Attribute {
 			return value;
 		}
 		
+		public void setAccountInfo(long steamId, String personaName) {
+			this.accountSteamId = steamId;
+			this.accountPersonaName = personaName;
+		}
+		
+		public long getAccountSteamId() {
+			return this.accountSteamId;
+		}
+		
+		public String getAccountPersonaName() {
+			return this.accountPersonaName;
+		}
+		
 		public String getSqlInsert(){
 			return "(itemdefindex, attributedefindex, value) VALUES " + 
 				"(\"" + this.itemDefIndex + "\",\"" + this.attributeDefIndex + "\",\"" + this.floatValue + "\")";
@@ -178,6 +196,8 @@ public class Attribute {
 			this.attributeDefIndex = source.readInt();
 			this.value = source.readLong();
 			this.floatValue = source.readFloat();
+			this.accountSteamId = source.readLong();
+			this.accountPersonaName = source.readString();
 		}
 
 		public ItemAttribute() {
@@ -192,6 +212,8 @@ public class Attribute {
 			dest.writeInt(attributeDefIndex);
 			dest.writeLong(value);
 			dest.writeFloat(floatValue);
+			dest.writeLong(accountSteamId);
+			dest.writeString(accountPersonaName);
 		}
 		
 		public void setFloatValue(float floatValue) {

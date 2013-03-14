@@ -178,14 +178,20 @@ public class WeaponInfo extends Activity {
 		        			int effectType = cAttribute.getInt(3);
 		        			double value = cAttribute.getDouble(1);
 		        			
+		        			long steamId;
+		        			String personaName = null;
+		        			
 		        			skip = false;
 		        			
 		        			// set correct value for unique attributes
-		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){        	        		
+		        	        for (ItemAttribute ia : itemAttributeList) {
+		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)) {
+		        	        		steamId = ia.getAccountSteamId();
+		        	        		personaName = ia.getAccountPersonaName();
+		        	        		
 		        	        		// hide duplicate attributes
 		        	        		if (ia.getAttributeDefIndex() == 187) {
-		        	        			if (crateAttrib){
+		        	        			if (crateAttrib) {
 			        	        			skip = true;
 			        	        			continue;
 		        	        			} else {
@@ -254,28 +260,10 @@ public class WeaponInfo extends Activity {
 		        				break;
 		        				
 		        			case Attribute.FORMAT_ACCOUNT_ID:
-		        				long id = (long) value;
-		        				id +=     1197960265728L;
-		        				id += 76560000000000000L;
-
-		        				// fetch player name is it exists in cache
-		        				String name = DataBaseHelper.getSteamUserName(sqlDb, id);
-		        				if (name.length() > 0) {
-			        				description = description.replace("%s1", name) + "\n";
-			        				startIndex = description.indexOf(name);
-			        				endIndex = name.length();
-			        				startIndex += textIndex;
-		        				} else {
-		        					// fetch player name from internet
-			        				description = description.replace("%s1", String.valueOf(id)) + "\n";
-			        				startIndex = description.indexOf(String.valueOf(id));
-			        				endIndex = String.valueOf(id).length();
-			        				startIndex += textIndex;
-		        					
-				        			final DownloadFilesTask task = new DownloadFilesTask();
-				        			task.setStringToReplace(String.valueOf(id));
-			        				task.execute(id);
-		        				}
+		        				description = description.replace("%s1", personaName) + "\n";
+		        				startIndex = description.indexOf(personaName);
+		        				endIndex = personaName.length();
+		        				startIndex += textIndex;
 		        				break;
 		        				
 		        			default:
@@ -346,35 +334,19 @@ public class WeaponInfo extends Activity {
 		        			/**
 		        			 * Makers mark id - the attribute that shows who crafted the item
 		        			 */
-		        			long value = (long)cAttribute.getDouble(1);
 		        			
+		        			String personaName = null;
 		        			// set correct value for unique attributes
 		        	        for (ItemAttribute ia : itemAttributeList){
 		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
-		        	        		
-		        	        		if (ia.getFloatValue() == 0){
-		        	        			value = ia.getValue();
-		        	        		} else {
-		        	        			value = (long)ia.getFloatValue();
-		        	        		}
+		        	        		personaName = ia.getAccountPersonaName();
 		        	        		break;
 		        	        	}
 		        	        }
 		        	        
-		        	        value +=     1197960265728L;
-		        	        value += 76560000000000000L;
-		        	        
-		        	        String stringValue = String.valueOf(value);
-		        	        
-	        				// fetch player name is it exists in cache
-	        				String name = DataBaseHelper.getSteamUserName(sqlDb, value);
-	        				if (name.length() > 0) {
-	        					stringValue = name;
-	        				}
-		        	        
-	        				String description = "Crafted by " + stringValue + "\n";
-	        				startIndex = description.indexOf(String.valueOf(stringValue));
-	        				endIndex = String.valueOf(stringValue).length();
+	        				String description = "Crafted by " + personaName + "\n";
+	        				startIndex = description.indexOf(String.valueOf(personaName));
+	        				endIndex = String.valueOf(personaName).length();
 	        				startIndex += textIndex;
 	        				
 		        			attributeText.append(description);
@@ -382,11 +354,11 @@ public class WeaponInfo extends Activity {
 	        			
 		        			textIndex += description.length();
 	        				
-		        			if (name.length() == 0) {
+		        			/*if (name.length() == 0) {
 			        			final DownloadFilesTask task = new DownloadFilesTask();
 			        			task.setStringToReplace(String.valueOf(value));
 		        				task.execute(value);
-		        			}
+		        			}*/
 		        		}
 		        	}
 		        	

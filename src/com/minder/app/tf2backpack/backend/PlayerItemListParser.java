@@ -97,21 +97,26 @@ public class PlayerItemListParser {
 							attribute.setAttributeDefIndex(attributeObject.getInt("defindex"));
 							attribute.setValue(attributeObject.getLong("value"));
 							
-							//if (attribute.getAttributeDefIndex() == 143){
-								//Log.d(Util.GetTag(), "LOL");
-							//}
-							
 							if (!attributeObject.isNull("float_value")){
 								attribute.setFloatValue((float)attributeObject.getDouble("float_value"));
 							}
+							
 							// find colors
 							if (attribute.getAttributeDefIndex() == 142){
 								item.setColor((int)attribute.getFloatValue());
 							}
 							
+							// particle effect
 							if (attribute.getAttributeDefIndex() == 134){
 								item.setParticleEffect((int)attribute.getFloatValue());
 							}
+							
+							// account info
+							if (!attributeObject.isNull("account_info")) {
+								JSONObject accountInfo = attributeObject.getJSONObject("account_info");
+								attribute.setAccountInfo(accountInfo.getLong("steamid"), accountInfo.getString("personaname"));
+							}
+							
 							item.addAttribute(attribute);
 						}
 					} catch (JSONException e) {
