@@ -1,9 +1,11 @@
 package com.minder.app.tf2backpack.frontend;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.widget.Toast;
 
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
@@ -13,6 +15,7 @@ public class SelectPlayerActivity extends FragmentActivity {
 	private SelectPlayerFragment selectPlayerFragment;
 	private SearchFragment searchFragment;
 	private boolean hasDoublePane;
+	private boolean setSteamId;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,11 @@ public class SelectPlayerActivity extends FragmentActivity {
 			String title = data.getString("title");
 			if (title != null)
 				setTitle(title);
+		}
+		
+		String action = getIntent().getAction();
+		if (action != null) {
+			setSteamId = action.equals("com.minder.app.tf2backpack.SET_STEAMID");
 		}
 		
 		// check if we have double-pane layout
@@ -89,10 +97,21 @@ public class SelectPlayerActivity extends FragmentActivity {
 	
 	private OnPlayerSelectedListener playerSelectedListener = new OnPlayerSelectedListener() {	
 		public void onPlayerSelected(SteamUser user, int index) {
-			Intent resultIntent = new Intent();
-			resultIntent.putExtra("user", user);
-			setResult(RESULT_OK, resultIntent);
-			finish();
+			if (setSteamId) {
+				SharedPreferences.Editor editor = getSharedPreferences("player", MODE_PRIVATE).edit();
+				
+				if (user != null) {
+					editor.putString("id", String.valueOf(user.steamdId64));
+					editor.commit();
+					Toast.makeText(SelectPlayerActivity.this, R.string.changed_steam_id, Toast.LENGTH_SHORT).show();
+					finish();
+				}
+			} else {
+				Intent resultIntent = new Intent();
+				resultIntent.putExtra("user", user);
+				setResult(RESULT_OK, resultIntent);
+				finish();
+			}
 		}
 	};
 	
