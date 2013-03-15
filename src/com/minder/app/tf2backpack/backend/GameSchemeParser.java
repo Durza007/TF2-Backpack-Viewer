@@ -417,6 +417,23 @@ public class GameSchemeParser {
 					imageURList.add(new ImageInfo(item.defIndex, itemColor, itemColor2, item.imageUrl));
 				}
 				// end fetch items
+				
+				
+				{
+					/*
+					 * Fetch particles
+					 */
+					JSONArray particleArray = resultObject.getJSONArray("attribute_controlled_attached_particles");			
+					
+					for (int index = 0; index < particleArray.length(); index++){
+						JSONObject particleObject = particleArray.getJSONObject(index);
+						int id = particleObject.getInt("id");
+						String  name = particleObject.getString("name");
+						
+						sqlExecList.add("INSERT INTO particles (id, name) VALUES (\"" + id + "\", \"" + name + "\")"); 
+					}
+					
+				}
 			}
 		} catch (Exception e) {
 			error = e;

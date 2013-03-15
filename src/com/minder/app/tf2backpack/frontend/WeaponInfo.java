@@ -86,7 +86,7 @@ public class WeaponInfo extends Activity {
         TextView tvTradable = (TextView)findViewById(R.id.TextViewTradable);
         tvAttributes = (TextView)findViewById(R.id.TextViewAttributes);
         
-        if (c != null){
+        if (c != null) {
         	if (c.moveToFirst()){      		
 		        String namePrefix = "";
 		        if (item.getQuality() == 1){
@@ -145,7 +145,7 @@ public class WeaponInfo extends Activity {
 		        }
 		        
 		        if (item.getParticleEffect() != 0){
-		        	tvAttributes.setText("Effect: " + getParticleEffect(item.getParticleEffect()));
+		        	tvAttributes.setText("Effect: " + getParticleName(sqlDb, item.getParticleEffect()));
 		        	tvAttributes.setVisibility(View.VISIBLE);
 		        }
 		        
@@ -255,8 +255,8 @@ public class WeaponInfo extends Activity {
 		        				description = description.replace("%s1", date.toGMTString()) + "\n";
 		        				break;
 		        				
-		        			case Attribute.FORMAT_PARTICLE_INDEX:
-		        				description = description.replace("%s1", getParticleEffect((int)value)) + "\n";
+		        			case Attribute.FORMAT_PARTICLE_INDEX:   					
+		        				description = description.replace("%s1", getParticleName(sqlDb, (int)value)) + "\n";
 		        				break;
 		        				
 		        			case Attribute.FORMAT_ACCOUNT_ID:
@@ -377,61 +377,14 @@ public class WeaponInfo extends Activity {
         sqlDb.close();
     }
     
-    private String getParticleEffect(int particleEffect){
-    	String[] particleEffects = new String[] {
-    		"Flying Bits",
-    		"Nemesis Burst",
-    		"Community Sparkle",
-    		"Holy Glow",
-    		"Green Confetti",
-    		"Purple Confetti",
-    		"Haunted Ghosts",
-    		"Green Energy",
-    		"Purple Energy",
-    		"Circling TF Logo",
-    		"Massed Flies",
-    		"Burning Flames",
-    		"Scorching Flames",
-    		"Searing Plasma",
-    		"Vivid Plasma",
-    		"Sunbeams",
-    		"Circling Peace Sign",
-    		"Circling Heart",
-    		"Map Stamps",
-    		"",
-    		"",
-    		"",
-    		"",
-    		"",
-    		"",
-    		"",
-    		"Genteel Pipe Smoke",
-    		"Stormy Storm",
-    		"Blizzardy Storm",
-    		"Nuts n' Bolts",
-    		"Orbiting Planets",
-    		"Orbiting Fire",
-    		"Bubbling",
-    		"Smoking",
-    		"Steaming",
-    		"Flaming Lantern",
-    		"Cloudy Moon",
-    		"Cauldron Bubbles",
-    		"Eerie Orbiting Fire",
-    		"",
-    		"",
-    		"Knifestorm",
-    		"Misty Skull",
-    		"Harvest Moon",
-    		"It's A Secret To Everybody",
-    		"Stormy 13th Hour"
-    	};
-    	if ((particleEffect >= 2 && particleEffect <= 20) || 
-    			(particleEffect >= 28 && particleEffect <= 40) ||
-    			(particleEffect >= 43 && particleEffect <= 47)){
-    		return particleEffects[particleEffect - 2];
-    	}
-    	return String.valueOf(particleEffect);
+    private String getParticleName(SQLiteDatabase sqlDb, int index) {
+		Cursor particleEffect = sqlDb.rawQuery("SELECT name FROM particles WHERE id=" + index, null);
+		
+		if (particleEffect.moveToFirst()) {	        					
+			return particleEffect.getString(0);
+		} else {
+			return "UNKOWN, update tf2 files!";
+		}
     }
     
     private String getStrangeRank(int kills) {
