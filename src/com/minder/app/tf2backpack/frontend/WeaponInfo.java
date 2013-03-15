@@ -380,11 +380,15 @@ public class WeaponInfo extends Activity {
     private String getParticleName(SQLiteDatabase sqlDb, int index) {
 		Cursor particleEffect = sqlDb.rawQuery("SELECT name FROM particles WHERE id=" + index, null);
 		
+		String name;
 		if (particleEffect.moveToFirst()) {	        					
-			return particleEffect.getString(0);
+			name =  particleEffect.getString(0);
 		} else {
-			return "UNKOWN, update tf2 files!";
+			name =  "UNKOWN, update tf2 files!";
 		}
+		
+		particleEffect.close();
+		return name;
     }
     
     private String getStrangeRank(int kills) {

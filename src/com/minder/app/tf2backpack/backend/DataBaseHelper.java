@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
-	private static final int DB_VERSION = 7;
+	private static final int DB_VERSION = 9;
 
     private static String DB_NAME = "items";
 
@@ -23,6 +23,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String DICTIONARY_TABLE_CREATE_NAME_HISTORY = "CREATE TABLE name_history (_id INTEGER PRIMARY KEY, name TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_ID_CACHE = "CREATE TABLE steamid_cache (steamid INTEGER PRIMARY KEY, name TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_PARTICLES = "CREATE TABLE particles (id INTEGER PRIMARY KEY, name TEXT);";
+    private static final String DICTIONARY_TABLE_CREATE_STRANGE_SCORE_TYPES = "CREATE TABLE strange_score_types (type INTEGER PRIMARY KEY, type_name TEXT, level_data TEXT);";
+    private static final String DICTIONARY_TABLE_CREATE_STRANGE_ITEM_LEVEL_TYPES = "CREATE TABLE strange_item_levels (id INTEGER PRIMARY KEY, type_name TEXT);";
     
     /**
      * Constructor
@@ -43,6 +45,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		db.execSQL(DICTIONARY_TABLE_CREATE_NAME_HISTORY);
 		db.execSQL(DICTIONARY_TABLE_CREATE_ID_CACHE);
 		db.execSQL(DICTIONARY_TABLE_CREATE_PARTICLES);
+		db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_SCORE_TYPES);
+		db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_ITEM_LEVEL_TYPES);
 	}
 
 	@Override
@@ -69,8 +73,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		if (oldVersion <= 5) {
 			db.execSQL("ALTER TABLE items ADD item_slot TEXT");
 		}
-		if (oldVersion <= 6) {
+		if (oldVersion <= 8) {
 			db.execSQL(DICTIONARY_TABLE_CREATE_PARTICLES);
+			db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_SCORE_TYPES);
+			db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_ITEM_LEVEL_TYPES);
 		}
 	}
 

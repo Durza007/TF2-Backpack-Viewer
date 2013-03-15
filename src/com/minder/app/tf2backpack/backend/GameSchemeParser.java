@@ -1,11 +1,14 @@
 package com.minder.app.tf2backpack.backend;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -432,7 +435,58 @@ public class GameSchemeParser {
 						
 						sqlExecList.add("INSERT INTO particles (id, name) VALUES (\"" + id + "\", \"" + name + "\")"); 
 					}
+				}
+				
+				{
+					{
+						/*
+						 * Strange item ranks
+						 */
+						JSONArray strangeTypeLevels = resultObject.getJSONArray("item_levels");	
+						List<String> strangeTypes = new LinkedList<String>();
+						
+						// Strange level lists
+						for (int index = 0; index < strangeTypeLevels.length(); index++) {
+							JSONObject strangeTypeLevel = strangeTypeLevels.getJSONObject(index);
+							
+							String typeName = strangeTypeLevel.getString("name");
+							strangeTypes.add(typeName);
+							
+							sqlExecList.add("INSERT INTO strange_item_levels (type_name) VALUES (\"" + typeName + "\")");
+							sqlExecList.add("CREATE TABLE " + typeName + " (level INTEGER PRIMARY KEY, required_score INTEGER, name TEXT);");
+							
+							JSONArray levels = strangeTypeLevel.getJSONArray("levels");
+							for (int levelIndex = 0; levelIndex < levels.length(); levelIndex++) {
+								JSONObject levelObject = levels.getJSONObject(levelIndex);
+								
+								int level = levelObject.getInt("level");
+								int requiredScore = levelObject.getInt("required_score");
+								String name = levelObject.getString("name");
+								
+								sqlExecList.add("INSERT INTO " + typeName + "(level, required_score, name) VALUES " +
+										"(\"" + level + "\", \"" + requiredScore + "\", \"" + name + "\")");
+							}
+						}
+					}
 					
+					{
+						/*
+						 * Strange types
+						 */
+						JSONArray strangeScoreTypes = resultObject.getJSONArray("kill_eater_score_types");
+						
+						// build a list of the different table names
+						for (int index = 0; index < strangeScoreTypes.length(); index++) {
+							JSONObject scoreType = strangeScoreTypes.getJSONObject(index);
+							
+							int type = scoreType.getInt("type");
+							String typeName = scoreType.getString("type_name");
+							String levelData = scoreType.getString("level_data");
+							
+							sqlExecList.add("INSERT INTO strange_score_types (type, type_name, level_data) VALUES" +
+									"(\"" + type + "\", \"" + typeName + "\", \"" + levelData + "\")");
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -462,6 +516,18 @@ public class GameSchemeParser {
 					sqlDb.execSQL("DELETE FROM items");
 					sqlDb.execSQL("DELETE FROM attributes");
 					sqlDb.execSQL("DELETE FROM item_attributes");
+					sqlDb.execSQL("DELETE FROM particles");
+					sqlDb.execSQL("DELETE FROM strange_score_types");
+					
+					// we need to fetch table names
+					final Cursor c = sqlDb.rawQuery("SELECT type_name FROM strange_item_levels", null);
+					while (c.moveToNext()) {
+						// delete each table for item levels
+						sqlDb.execSQL("DROP TABLE " + c.getString(0));
+					}
+					c.close();
+					
+					sqlDb.execSQL("DELETE FROM strange_item_levels");
 					
 					if (sqlExecList.size() != 0){
 						for (String sql : sqlExecList){
