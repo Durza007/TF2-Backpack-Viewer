@@ -4,7 +4,16 @@
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content" android:orientation="vertical" android:layout_gravity="center_horizontal">
 <TextView android:layout_height="wrap_content" android:text="TITLE" android:typeface="normal" android:gravity="center" android:layout_gravity="center_horizontal" android:id="@+id/TextViewWeaponName" android:textSize="24dp" android:textStyle="bold" android:layout_width="wrap_content"></TextView>
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewWeaponLevel" android:text="level" android:layout_gravity="center_horizontal" android:layout_marginTop="10dp"></TextView>
+
+<TextView
+    android:id="@+id/TextViewWeaponLevel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="10dp"
+    android:gravity="center_horizontal"
+    android:text="level" >
+</TextView>
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewDescription" android:textSize="18dp" android:layout_gravity="center_horizontal" android:gravity="center_horizontal"></TextView>
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewAttributes" android:textSize="18dp" android:visibility="gone" android:layout_gravity="center_horizontal" android:gravity="center_horizontal"></TextView><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextViewTradable" android:textSize="18dp" android:textColor="#555" android:text="@string/not_tradable_craftable" android:layout_gravity="center_horizontal" android:visibility="gone"></TextView>
 

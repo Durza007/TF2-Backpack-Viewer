@@ -236,4 +236,39 @@ public class Attribute {
 			
 		};
 	}
+	
+	public static class StrangeQuality {
+		public final static int MAX_NUM_STRANGE_PARTS = 3;
+		private boolean changed;
+		private int value;
+		private int strangeType;
+		
+		public int getValue() {
+			return value;
+		}
+		
+		public void setValue(int value) {
+			changed = true;
+			this.value = value;
+		}
+		
+		public int getStrangeType() {
+			return strangeType;
+		}
+		
+		public void setStrangeType(int strangeType) {
+			changed = true;
+			this.strangeType = strangeType;
+		}
+		
+		public boolean isChanged() {
+			return this.changed;
+		}
+		
+		public StrangeQuality() {
+			changed = false;
+			value = 0;
+			strangeType = 0;
+		}
+	}
 }

@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
+import com.minder.app.tf2backpack.Attribute.StrangeQuality;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
@@ -87,7 +88,7 @@ public class WeaponInfo extends Activity {
         tvAttributes = (TextView)findViewById(R.id.TextViewAttributes);
         
         if (c != null) {
-        	if (c.moveToFirst()){      		
+        	if (c.moveToFirst()) {
 		        String namePrefix = "";
 		        if (item.getQuality() == 1){
 		        	namePrefix = "Genuine ";
@@ -168,10 +169,18 @@ public class WeaponInfo extends Activity {
 		        boolean crateAttrib = false;
 		        boolean hireAttrib = false;
 		        
+		        StrangeQuality[] strangeQualities = new StrangeQuality[StrangeQuality.MAX_NUM_STRANGE_PARTS];
+		        for (int i = 0; i < strangeQualities.length; i++) {
+		        	strangeQualities[i] = new StrangeQuality();
+				}
+		        
 		        if (cAttribute != null) {
 		        	attributeText = new SpannableStringBuilder();
 		        	int textIndex = 0;
-		        	while (cAttribute.moveToNext()){
+		        	while (cAttribute.moveToNext()) {
+		        		int attributeDefIndex = cAttribute.getInt(5);
+		        		
+		        		// check if hidden == false
 		        		if (cAttribute.getInt(4) == 0) {
 		        			String description = cAttribute.getString(0);
 		        			int descriptionFormat = cAttribute.getInt(2);
@@ -282,17 +291,23 @@ public class WeaponInfo extends Activity {
 		        			}
 		        			
 		        			textIndex += description.length();
-		        		} else if (cAttribute.getInt(5) == 214) {
+		        		} else if (attributeDefIndex == 214 || attributeDefIndex == 294 || attributeDefIndex == 494) {
 		        			/**
 		        			 * Strange weapon kills
 		        			 */
+		        			int index = 0;
+		        			if (attributeDefIndex == 294)
+		        				index = 1;
+		        			else if (attributeDefIndex == 494) {
+		        				index = 2;
+		        			}
+		        			
 		        			String description = (String) tvName.getText();
 		        			double value = cAttribute.getDouble(1);
 		        			
 		        			// set correct value for unique attributes
 		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
-		        	        		
+		        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
 		        	        		if (ia.getFloatValue() == 0){
 		        	        			value = ia.getValue();
 		        	        		} else {
@@ -301,12 +316,40 @@ public class WeaponInfo extends Activity {
 		        	        		break;
 		        	        	}
 		        	        }
+		        	        
+		        	        strangeQualities[index].setValue((int)value);
 		        			
 		        			description += " - Kills: " + (int)value + "\n";
 		        			
 		        			tvLevel.setText(description);
 		        			tvLevel.setVisibility(View.VISIBLE);
-		        		} else if (cAttribute.getInt(5) == 229) {
+		        		} else if (attributeDefIndex == 380 || attributeDefIndex == 382 || attributeDefIndex == 384) {
+		        			/*
+		        			 * Strange score type
+		        			 */
+		        			int index = 0;
+		        			if (attributeDefIndex == 382)
+		        				index = 1;
+		        			else if (attributeDefIndex == 384) {
+		        				index = 2;
+		        			}
+		        			
+		        			double value = cAttribute.getDouble(1);
+		    	
+		        			// set correct value for unique attributes
+		        	        for (ItemAttribute ia : itemAttributeList){
+		        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
+		        	        		if (ia.getFloatValue() == 0){
+		        	        			value = ia.getValue();
+		        	        		} else {
+		        	        			value = ia.getFloatValue();
+		        	        		}
+		        	        		break;
+		        	        	}
+		        	        }
+		        	        
+		        	        strangeQualities[index].setStrangeType((int)value);        
+		        		} else if (attributeDefIndex == 229) {
 		        			/**
 		        			 * Craft order attribute
 		        			 */
@@ -330,7 +373,7 @@ public class WeaponInfo extends Activity {
 			        			name += " #" + (int)value;
 			        			tvName.setText(name);
 		        	        }
-		        		} else if (cAttribute.getInt(5) == 228) {
+		        		} else if (attributeDefIndex == 228) {
 		        			/**
 		        			 * Makers mark id - the attribute that shows who crafted the item
 		        			 */
@@ -344,7 +387,8 @@ public class WeaponInfo extends Activity {
 		        	        	}
 		        	        }
 		        	        
-	        				String description = "Crafted by " + personaName + "\n";
+		        	        String description = cAttribute.getString(0);
+	        				description = description.replace("%s1", personaName) + "\n";
 	        				startIndex = description.indexOf(String.valueOf(personaName));
 	        				endIndex = String.valueOf(personaName).length();
 	        				startIndex += textIndex;
@@ -366,6 +410,45 @@ public class WeaponInfo extends Activity {
 			        	tvAttributes.setText(attributeText.subSequence(0, attributeText.length() - 1));
 	        			tvAttributes.setVisibility(View.VISIBLE);
 		        	}
+		        }
+		        
+		        // handle strange qualities
+		        StringBuilder strangeTextBuilder = new StringBuilder();
+		        boolean namePrefixSet = false;
+		        
+		        for (int index = 0; index < strangeQualities.length; index++) {
+					if (strangeQualities[index].isChanged()) {
+						final StrangeQuality sq = strangeQualities[index];
+						Cursor strangeType = 
+								sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + sq.getStrangeType(), null);
+						
+						if (strangeType.moveToFirst()) {
+							Cursor strangeLevel = 
+									sqlDb.rawQuery("SELECT name FROM KillEaterRank WHERE required_score>" + sq.getValue() + " LIMIT 1", null);
+							
+							if (strangeLevel.moveToFirst()) {
+								strangeTextBuilder
+									.append(strangeLevel.getString(0))
+									.append(' ')
+									.append(weaponClass)
+									.append(" - ")
+									.append(strangeType.getString(0))
+									.append(": ")
+									.append(sq.getValue())
+									.append('\n');
+							} else {
+								// TODO this should NOT happen!!!
+							}
+						} else {
+							// TODO handle missing strange type
+						}
+					}
+				}
+		        
+		        // do we have any stuff to add?
+		        if (strangeTextBuilder.length() != 0) {
+		        	tvLevel.setText(strangeTextBuilder.toString());
+		        	tvLevel.setVisibility(View.VISIBLE);
 		        }
         	}
         } else {
