@@ -21,8 +21,8 @@ public class BackpackActivity extends FragmentActivity {
         	requestWindowFeature(Window.FEATURE_NO_TITLE);
             //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 && 
-    			Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-        	// fix for bug in android 3.1 to 4.0.3
+    			Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        	// fix for bug in android 3.1 to 4.1
         	requestWindowFeature(Window.FEATURE_NO_TITLE);
     	}
     	
