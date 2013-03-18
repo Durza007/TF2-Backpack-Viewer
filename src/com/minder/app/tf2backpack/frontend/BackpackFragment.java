@@ -95,6 +95,7 @@ public class BackpackFragment extends Fragment {
     
     public BackpackFragment() {
 		this.comparator = new BackpackPosComparator();
+		this.onPageNumber = 1;
 		this.numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 		this.retainInstance = true;
 		this.dataDownloaded = false;
@@ -184,7 +185,6 @@ public class BackpackFragment extends Fragment {
 			fullscreenButton.setVisibility(View.GONE);
 
 		// Page-number text
-		onPageNumber = 1;
 		pageNumberButton = (Button) view.findViewById(R.id.ButtonPageNumber);
 		pageNumberButton.setTypeface(Typeface.createFromAsset(getActivity()
 				.getAssets(), "fonts/TF2Build.ttf"), 0);
