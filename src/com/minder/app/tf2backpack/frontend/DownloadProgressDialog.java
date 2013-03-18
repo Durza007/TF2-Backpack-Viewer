@@ -96,32 +96,34 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 			}
 			
 			getDialog().dismiss();
-		}
-		
-		textViewTask.setText(GameSchemeDownloaderService.currentTaskStringId);
-		if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_images) {
-			// update progressbar
-			progressBar.setIndeterminate(false);
-			progressBar.setMax(GameSchemeDownloaderService.totalImages);
-			progressBar.setProgress(GameSchemeDownloaderService.currentAmountImages);
-			
-			textViewImageCount.setVisibility(View.VISIBLE);
-			textViewImageCount.setText(GameSchemeDownloaderService.currentAmountImages 
-					+ "/" 
-					+ GameSchemeDownloaderService.totalImages);
-		} else if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_schema) {
-			// update progressbar
-			progressBar.setIndeterminate(false);
-			progressBar.setMax((int)GameSchemeDownloaderService.totalBytes);
-			progressBar.setProgress((int)GameSchemeDownloaderService.currentBytes);
-			
-			textViewImageCount.setVisibility(View.VISIBLE);
-			textViewImageCount.setText((GameSchemeDownloaderService.currentBytes / 1024)
-					+ "/" 
-					+ (GameSchemeDownloaderService.totalBytes / 1024) + " [kB]");
 		} else {
-			progressBar.setIndeterminate(true);
-			textViewImageCount.setVisibility(View.GONE);
+			if (GameSchemeDownloaderService.currentTaskStringId != 0)
+				textViewTask.setText(GameSchemeDownloaderService.currentTaskStringId);
+			
+			if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_images) {
+				// update progressbar
+				progressBar.setIndeterminate(false);
+				progressBar.setMax(GameSchemeDownloaderService.totalImages);
+				progressBar.setProgress(GameSchemeDownloaderService.currentAmountImages);
+				
+				textViewImageCount.setVisibility(View.VISIBLE);
+				textViewImageCount.setText(GameSchemeDownloaderService.currentAmountImages 
+						+ "/" 
+						+ GameSchemeDownloaderService.totalImages);
+			} else if (GameSchemeDownloaderService.currentTaskStringId == R.string.downloading_schema) {
+				// update progressbar
+				progressBar.setIndeterminate(false);
+				progressBar.setMax((int)GameSchemeDownloaderService.totalBytes);
+				progressBar.setProgress((int)GameSchemeDownloaderService.currentBytes);
+				
+				textViewImageCount.setVisibility(View.VISIBLE);
+				textViewImageCount.setText((GameSchemeDownloaderService.currentBytes / 1024)
+						+ "/" 
+						+ (GameSchemeDownloaderService.totalBytes / 1024) + " [kB]");
+			} else {
+				progressBar.setIndeterminate(true);
+				textViewImageCount.setVisibility(View.GONE);
+			}
 		}
 	}
 }

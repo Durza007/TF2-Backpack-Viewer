@@ -42,6 +42,7 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 			parser = pullMaker.newPullParser();
 		} catch (XmlPullParserException e1) {
 			e1.printStackTrace();
+			request.exception = e1;
 			return null;
 		}
 		
@@ -72,6 +73,7 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 					return null;
 				} catch (XmlPullParserException e) {
 					e.printStackTrace();
+					request.exception = e;
 				} catch (IOException e) {
 					request.exception = e;
 					e.printStackTrace();
@@ -99,6 +101,7 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 				return null;
 			} catch (XmlPullParserException e) {
 				e.printStackTrace();
+				request.exception = e;
 			} catch (IOException e) {
 				request.exception = e;
 				e.printStackTrace();
