@@ -426,15 +426,26 @@ public class WeaponInfo extends Activity {
 									sqlDb.rawQuery("SELECT name FROM KillEaterRank WHERE required_score>" + sq.getValue() + " LIMIT 1", null);
 							
 							if (strangeLevel.moveToFirst()) {
-								strangeTextBuilder
-									.append(strangeLevel.getString(0))
-									.append(' ')
-									.append(weaponClass)
-									.append(" - ")
+								if (namePrefixSet) {
+									strangeTextBuilder
+									.append('(')
 									.append(strangeType.getString(0))
 									.append(": ")
 									.append(sq.getValue())
-									.append('\n');
+									.append(")\n");
+								} else {
+									strangeTextBuilder
+										.append(strangeLevel.getString(0))
+										.append(' ')
+										.append(weaponClass)
+										.append(" - ")
+										.append(strangeType.getString(0))
+										.append(": ")
+										.append(sq.getValue())
+										.append('\n');
+									
+									namePrefixSet = true;
+								}
 							} else {
 								// TODO this should NOT happen!!!
 							}
