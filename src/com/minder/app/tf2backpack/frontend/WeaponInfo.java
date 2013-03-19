@@ -89,39 +89,6 @@ public class WeaponInfo extends Activity {
         
         if (c != null) {
         	if (c.moveToFirst()) {
-		        String namePrefix = "";
-		        if (item.getQuality() == 1){
-		        	namePrefix = "Genuine ";
-		        } else if (item.getQuality() == 3){
-		        	namePrefix = "Vintage ";
-		        } else if (item.getQuality() == 5){
-		        	namePrefix = "Unusual ";
-		        } else if (item.getQuality() == 7){
-		        	namePrefix = "Community ";
-		        } else if (item.getQuality() == 8){
-		        	namePrefix = "Valve ";
-		        } else if (item.getQuality() == 9){
-		        	namePrefix = "Self-Made ";
-		        } else if (item.getQuality() == 11){
-	    			// get kills if the weapon is a strange weapon
-		        	int kills = 0;
-	    	        for (ItemAttribute ia : itemAttributeList){
-	    	        	if (ia.getAttributeDefIndex() == 214){
-	    	        		kills = (int) ia.getValue();
-	    	        	}
-	    	        }
-	    	        
-		        	namePrefix = getStrangeRank(kills) + " ";
-		        } else if (item.getQuality() == 13){
-		        	namePrefix = "Haunted ";
-		        }
-		     
-		        if (item.getCustomName() != null){
-		        	tvName.setText("\"" + item.getCustomName() + "\"");
-		        } else {
-		        	tvName.setText(namePrefix + c.getString(c.getColumnIndex("name")));
-		        }
-		        
 		        String weaponClass = c.getString(c.getColumnIndex("type_name"));
 		        if (weaponClass.contains("TF_")){
 		        	weaponClass = "";
@@ -412,8 +379,9 @@ public class WeaponInfo extends Activity {
 		        }
 		        
 		        // handle strange qualities
-		        StringBuilder strangeTextBuilder = new StringBuilder();
+		        final StringBuilder strangeTextBuilder = new StringBuilder();
 		        boolean namePrefixSet = false;
+		        String strangeNamePrefix = "";
 		        
 		        for (int index = 0; index < strangeQualities.length; index++) {
 					if (strangeQualities[index].isChanged()) {
@@ -423,7 +391,9 @@ public class WeaponInfo extends Activity {
 						
 						if (strangeType.moveToFirst()) {
 							Cursor strangeLevel = 
-									sqlDb.rawQuery("SELECT name FROM KillEaterRank WHERE required_score>" + sq.getValue() + " LIMIT 1", null);
+									sqlDb.rawQuery("SELECT COALESCE(" +
+											"(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + sq.getValue() + " LIMIT 1)," +
+											"(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
 							
 							if (strangeLevel.moveToFirst()) {
 								if (namePrefixSet) {
@@ -444,6 +414,7 @@ public class WeaponInfo extends Activity {
 										.append(sq.getValue())
 										.append('\n');
 									
+									strangeNamePrefix = strangeLevel.getString(0) + " ";
 									namePrefixSet = true;
 								}
 							} else {
@@ -459,6 +430,31 @@ public class WeaponInfo extends Activity {
 		        if (strangeTextBuilder.length() != 0) {
 		        	tvLevel.setText(strangeTextBuilder.toString());
 		        	tvLevel.setVisibility(View.VISIBLE);
+		        }
+		        
+		        String namePrefix = "";
+		        if (item.getQuality() == 1) {
+		        	namePrefix = "Genuine ";
+		        } else if (item.getQuality() == 3) {
+		        	namePrefix = "Vintage ";
+		        } else if (item.getQuality() == 5) {
+		        	namePrefix = "Unusual ";
+		        } else if (item.getQuality() == 7) {
+		        	namePrefix = "Community ";
+		        } else if (item.getQuality() == 8) {
+		        	namePrefix = "Valve ";
+		        } else if (item.getQuality() == 9) {
+		        	namePrefix = "Self-Made ";
+		        } else if (item.getQuality() == 11) {
+		        	namePrefix = strangeNamePrefix;
+		        } else if (item.getQuality() == 13) {
+		        	namePrefix = "Haunted ";
+		        }
+		     
+		        if (item.getCustomName() != null){
+		        	tvName.setText("\"" + item.getCustomName() + "\"");
+		        } else {
+		        	tvName.setText(namePrefix + c.getString(c.getColumnIndex("name")));
 		        }
         	}
         } else {
@@ -482,49 +478,6 @@ public class WeaponInfo extends Activity {
 		
 		particleEffect.close();
 		return name;
-    }
-    
-    private String getStrangeRank(int kills) {
-    	String[] strangeRank = new String[] {
-    			"Strange",
-        		"Unremarkable",
-        		"Scarcely Lethal",
-        		"Mildly Menacing",
-        		"Somewhat Threatening",
-        		"Uncharitable",
-        		"Notably Dangerous",
-        		"Sufficiently Lethal",
-        		"Truly Feared",
-        		"Spectacularly Lethal",
-        		"Gore-Spattered",
-        		"Wicked Nasty",
-        		"Positively Inhumane",
-        		"Totally Ordinary",
-        		"Face-Melting",
-        		"Rage-Inducing",
-        		"Server-Clearing",
-        		"Epic",
-        		"Legendary",
-        		"Australian",
-        		"Hale's Own",
-        	};
-    	
-    	final int[] rankKills = new int[] {
-    			0, 10, 25, 45, 70, 
-				100, 135, 175, 225, 275, 
-				350, 500, 750, 999, 1000, 
-				1500, 2500, 5000, 7500, 7616, 
-				8500
-    	};
-    	int index = 0;
-    	
-    	for (int i = 0; i < rankKills.length; i++) {
-    		if (kills >= rankKills[i]) {
-    			index = i;
-    		}
-    	}
-    	
-    	return strangeRank[index];
     }
     
     private Date getDateFromUnix(long timestamp) {
