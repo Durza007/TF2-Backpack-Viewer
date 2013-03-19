@@ -31,6 +31,7 @@ import com.minder.app.tf2backpack.backend.Item;
 import com.minder.app.tf2backpack.backend.PlayerItemListParser;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.BackpackView.OnLayoutReadyListener;
+import com.minder.app.tf2backpack.frontend.PageSelectDialog.OnPageSelectedListener;
 
 public class BackpackFragment extends Fragment {
 	public static interface OnFullscreenClickListener {
@@ -38,6 +39,7 @@ public class BackpackFragment extends Fragment {
 	}
 	
 	private final static int DEFAULT_NUMBER_OF_PAGES = 6;
+	private final static String PAGE_SELECT_DIALOG_TAG = "pageSelectDialog";
 
 	private WeakReference<OnFullscreenClickListener> listener;
 	private boolean retainInstance;
@@ -49,7 +51,7 @@ public class BackpackFragment extends Fragment {
 	private int onPageNumber;
 	private int numberOfPages;
 	private boolean checkUngivenItems;
-	private TextView pageNumberText;
+	private Button pageNumberButton;
 	private ProgressDialog myProgressDialog;
 	private boolean dataDownloaded;
 	private ArrayList<Item> playerItemList;
@@ -93,6 +95,7 @@ public class BackpackFragment extends Fragment {
     
     public BackpackFragment() {
 		this.comparator = new BackpackPosComparator();
+		this.onPageNumber = 1;
 		this.numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 		this.retainInstance = true;
 		this.dataDownloaded = false;
@@ -182,11 +185,11 @@ public class BackpackFragment extends Fragment {
 			fullscreenButton.setVisibility(View.GONE);
 
 		// Page-number text
-		onPageNumber = 1;
-		pageNumberText = (TextView) view.findViewById(R.id.TextViewPageNumber);
-		pageNumberText.setTypeface(Typeface.createFromAsset(getActivity()
+		pageNumberButton = (Button) view.findViewById(R.id.ButtonPageNumber);
+		pageNumberButton.setTypeface(Typeface.createFromAsset(getActivity()
 				.getAssets(), "fonts/TF2Build.ttf"), 0);
-		pageNumberText.setText(onPageNumber + "/" + numberOfPages);
+		pageNumberButton.setText(onPageNumber + "/" + numberOfPages);
+		pageNumberButton.setOnClickListener(onButtonPageSelectListener);
 		
 		// Handle item data
 		currentSteamUser = getArguments().getParcelable("user");
@@ -243,7 +246,7 @@ public class BackpackFragment extends Fragment {
 					Collections.sort(playerItemList, BackpackFragment.this.comparator);
 					
 					numberOfPages = pl.getNumberOfBackpackSlots() / 50;
-					setPageNumberText();
+					updatePageNumberText();
 					checkUngivenItems = true;
 					addPlayerDataToView();
 					checkUngivenItems = false;
@@ -266,7 +269,7 @@ public class BackpackFragment extends Fragment {
 					}
 					numberOfPages = DEFAULT_NUMBER_OF_PAGES;
 					onPageNumber = 1;
-					setPageNumberText();
+					updatePageNumberText();
 					playerItemList.clear();
 					addPlayerDataToView();
 				}
@@ -288,7 +291,7 @@ public class BackpackFragment extends Fragment {
 		}
 	};
 
-    OnClickListener onButtonBackpackClick = new OnClickListener(){
+    private OnClickListener onButtonBackpackClick = new OnClickListener(){
 		public void onClick(View v) {
 			switch(v.getId()){
 				case R.id.ButtonNext: {
@@ -322,24 +325,51 @@ public class BackpackFragment extends Fragment {
 		}
     };
     
+    private OnClickListener onButtonPageSelectListener = new OnClickListener() {	
+		public void onClick(View v) {
+			showPageSelectDialog();
+		}
+	};
+    
+    private OnPageSelectedListener pageSelectedListener = new OnPageSelectedListener() {
+		public void onPageSelected(int selectedPage) {
+			setPage(selectedPage);
+		}
+	};
+	
+	private void showPageSelectDialog() {
+		PageSelectDialog p = PageSelectDialog.newInstance(pageSelectedListener, numberOfPages);
+		
+		p.show(getFragmentManager(), PAGE_SELECT_DIALOG_TAG);
+	}
+	
+	/**
+	 * Sets the current backpack page if it is valid
+	 * @param page The page to switch to
+	 */
+	private void setPage(int page) {
+		if (page <= numberOfPages && page >= 1) {
+			onPageNumber = page;
+			updatePageNumberText();
+			addPlayerDataToView();
+		}
+	}
+    
+	/**
+	 * Utility function that changes page by incrementing
+	 * or decrementing
+	 * @param nextPage If true it will increment page number
+	 */
     private void changePage(boolean nextPage){
     	if (nextPage == true){
-    		if (onPageNumber < numberOfPages){
-    			onPageNumber++;
-    			pageNumberText.setText(onPageNumber + "/" + numberOfPages);
-    			addPlayerDataToView();
-    		}
+    		setPage(onPageNumber + 1);
     	} else {
-    		if (onPageNumber > 1){
-    			onPageNumber--;
-    			pageNumberText.setText(onPageNumber + "/" + numberOfPages);
-    			addPlayerDataToView();
-    		}
+    		setPage(onPageNumber - 1);
     	}
     }
     
-    private void setPageNumberText(){
-    	pageNumberText.setText(onPageNumber + "/" + numberOfPages);
+    private void updatePageNumberText(){
+    	pageNumberButton.setText(onPageNumber + "/" + numberOfPages);
     }
     
     public void downloadPlayerData(){ 	

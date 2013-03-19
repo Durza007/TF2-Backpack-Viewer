@@ -408,6 +408,7 @@ public class SelectPlayerFragment extends Fragment {
 					} else if (e instanceof SteamException) {
 						Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
 					} else {
+						// unknown exception
 						Toast.makeText(getActivity(),
 								e.getLocalizedMessage(), Toast.LENGTH_LONG)
 								.show();

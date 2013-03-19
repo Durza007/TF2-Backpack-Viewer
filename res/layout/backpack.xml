@@ -69,18 +69,20 @@
             tools:ignore="HardcodedText" >
         </Button>
 
-        <TextView
-            android:id="@+id/TextViewPageNumber"
+        <Button
+            android:id="@+id/ButtonPageNumber"
+            style="@style/dash_board_button_style"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
             android:gravity="center"
+            android:padding="0dp"
             android:text="1/6"
             android:textColor="@color/backpack_text"
             android:textSize="34dp"
             android:width="110dp"
             tools:ignore="HardcodedText" >
 
-        </TextView>
+        </Button>
 
         <Button
             android:id="@+id/ButtonNext"

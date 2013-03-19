@@ -21,7 +21,6 @@ public class ChangelogDialogFragment extends DialogFragment {
 	        .setMessage(R.string.changelog_text)
 	        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int whichButton) {
-	            	//((FragmentAlertDialog)getActivity()).doPositiveClick();
 	            }
 	        })
 	        .create();
