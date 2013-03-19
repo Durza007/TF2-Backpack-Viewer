@@ -238,7 +238,9 @@ public class Attribute {
 	}
 	
 	public static class StrangeQuality {
-		public final static int MAX_NUM_STRANGE_PARTS = 3;
+		public final static int MAX_NUM_STRANGE_PARTS = 6;
+		public final static int[] STRANGE_SCORE_ARRAY = {214, 294, 494, 279, 381, 383 };
+		public final static int[] STRANGE_SCORE_TYPES_ARRAY = {292, 293, 495, 380, 382, 384 };
 		private boolean changed;
 		private int value;
 		private int strangeType;

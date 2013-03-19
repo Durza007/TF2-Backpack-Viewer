@@ -295,11 +295,10 @@ public class WeaponInfo extends Activity {
 		        			/**
 		        			 * Strange weapon kills
 		        			 */
-		        			int index = 0;
-		        			if (attributeDefIndex == 294)
-		        				index = 1;
-		        			else if (attributeDefIndex == 494) {
-		        				index = 2;
+		        			int index;
+		        			for (index = 0; index < StrangeQuality.STRANGE_SCORE_ARRAY.length; index++) {
+		        				if (attributeDefIndex == StrangeQuality.STRANGE_SCORE_ARRAY[index])
+		        					break;
 		        			}
 		        			
 		        			String description = (String) tvName.getText();
@@ -323,15 +322,15 @@ public class WeaponInfo extends Activity {
 		        			
 		        			tvLevel.setText(description);
 		        			tvLevel.setVisibility(View.VISIBLE);
-		        		} else if (attributeDefIndex == 380 || attributeDefIndex == 382 || attributeDefIndex == 384) {
+		        		} else if (attributeDefIndex == 292 || attributeDefIndex == 293 || attributeDefIndex == 495 || 
+		        				attributeDefIndex == 380 || attributeDefIndex == 382 || attributeDefIndex == 384) {
 		        			/*
 		        			 * Strange score type
 		        			 */
-		        			int index = 0;
-		        			if (attributeDefIndex == 382)
-		        				index = 1;
-		        			else if (attributeDefIndex == 384) {
-		        				index = 2;
+		        			int index;
+		        			for (index = 0; index < StrangeQuality.STRANGE_SCORE_TYPES_ARRAY.length; index++) {
+		        				if (attributeDefIndex == StrangeQuality.STRANGE_SCORE_TYPES_ARRAY[index])
+		        					break;
 		        			}
 		        			
 		        			double value = cAttribute.getDouble(1);
