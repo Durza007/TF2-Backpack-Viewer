@@ -258,7 +258,8 @@ public class WeaponInfo extends Activity {
 		        			}
 		        			
 		        			textIndex += description.length();
-		        		} else if (attributeDefIndex == 214 || attributeDefIndex == 294 || attributeDefIndex == 494) {
+		        		} else if (attributeDefIndex == 214 || attributeDefIndex == 294 || attributeDefIndex == 494 ||
+		        				attributeDefIndex == 379 || attributeDefIndex == 381 || attributeDefIndex == 383) {
 		        			/**
 		        			 * Strange weapon kills
 		        			 */
@@ -268,7 +269,6 @@ public class WeaponInfo extends Activity {
 		        					break;
 		        			}
 		        			
-		        			String description = (String) tvName.getText();
 		        			double value = cAttribute.getDouble(1);
 		        			
 		        			// set correct value for unique attributes
@@ -284,11 +284,6 @@ public class WeaponInfo extends Activity {
 		        	        }
 		        	        
 		        	        strangeQualities[index].setValue((int)value);
-		        			
-		        			description += " - Kills: " + (int)value + "\n";
-		        			
-		        			tvLevel.setText(description);
-		        			tvLevel.setVisibility(View.VISIBLE);
 		        		} else if (attributeDefIndex == 292 || attributeDefIndex == 293 || attributeDefIndex == 495 || 
 		        				attributeDefIndex == 380 || attributeDefIndex == 382 || attributeDefIndex == 384) {
 		        			/*
@@ -383,53 +378,55 @@ public class WeaponInfo extends Activity {
 		        boolean namePrefixSet = false;
 		        String strangeNamePrefix = "";
 		        
-		        for (int index = 0; index < strangeQualities.length; index++) {
-					if (strangeQualities[index].isChanged()) {
-						final StrangeQuality sq = strangeQualities[index];
-						Cursor strangeType = 
-								sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + sq.getStrangeType(), null);
-						
-						if (strangeType.moveToFirst()) {
-							Cursor strangeLevel = 
-									sqlDb.rawQuery("SELECT COALESCE(" +
-											"(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + sq.getValue() + " LIMIT 1)," +
-											"(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
+		        if (item.getQuality() == 11) {
+			        for (int index = 0; index < strangeQualities.length; index++) {
+						if (strangeQualities[index].isChanged()) {
+							final StrangeQuality sq = strangeQualities[index];
+							Cursor strangeType = 
+									sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + sq.getStrangeType(), null);
 							
-							if (strangeLevel.moveToFirst()) {
-								if (namePrefixSet) {
-									strangeTextBuilder
-									.append('(')
-									.append(strangeType.getString(0))
-									.append(": ")
-									.append(sq.getValue())
-									.append(")\n");
-								} else {
-									strangeTextBuilder
-										.append(strangeLevel.getString(0))
-										.append(' ')
-										.append(weaponClass)
-										.append(" - ")
+							if (strangeType.moveToFirst()) {
+								Cursor strangeLevel = 
+										sqlDb.rawQuery("SELECT COALESCE(" +
+												"(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + sq.getValue() + " LIMIT 1)," +
+												"(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
+								
+								if (strangeLevel.moveToFirst()) {
+									if (namePrefixSet) {
+										strangeTextBuilder
+										.append('(')
 										.append(strangeType.getString(0))
 										.append(": ")
 										.append(sq.getValue())
-										.append('\n');
-									
-									strangeNamePrefix = strangeLevel.getString(0) + " ";
-									namePrefixSet = true;
+										.append(")\n");
+									} else {
+										strangeTextBuilder
+											.append(strangeLevel.getString(0))
+											.append(' ')
+											.append(weaponClass)
+											.append(" - ")
+											.append(strangeType.getString(0))
+											.append(": ")
+											.append(sq.getValue())
+											.append('\n');
+										
+										strangeNamePrefix = strangeLevel.getString(0) + " ";
+										namePrefixSet = true;
+									}
+								} else {
+									// TODO this should NOT happen!!!
 								}
 							} else {
-								// TODO this should NOT happen!!!
+								// TODO handle missing strange type
 							}
-						} else {
-							// TODO handle missing strange type
 						}
 					}
-				}
-		        
-		        // do we have any stuff to add?
-		        if (strangeTextBuilder.length() != 0) {
-		        	tvLevel.setText(strangeTextBuilder.toString());
-		        	tvLevel.setVisibility(View.VISIBLE);
+			        
+			        // do we have any stuff to add?
+			        if (strangeTextBuilder.length() != 0) {
+			        	tvLevel.setText(strangeTextBuilder.toString());
+			        	tvLevel.setVisibility(View.VISIBLE);
+			        }
 		        }
 		        
 		        String namePrefix = "";
