@@ -31,8 +31,10 @@ public class GameSchemeDownloaderService extends Service {
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
 	private static boolean gameSchemeChecked = false;
 	private static boolean gameSchemeReady = false;
+	private static boolean gameSchemeUpToDate = false;
 	private static boolean currentGameSchemeImagesIsHighres;
 	
+	private static int currentGameSchemeVersion;
 	private static boolean downloadingGameScheme = false;
 	public static boolean downloadGameSchemeSuccess = false;
 	public static long totalBytes;
@@ -46,11 +48,22 @@ public class GameSchemeDownloaderService extends Service {
 	
 	public static boolean isGameSchemeReady() {
 		if (!gameSchemeChecked) {
-			gameSchemeReady = isGameSchemeUpToDate();
+			getGameSchemeVersion();
+			gameSchemeReady = currentGameSchemeVersion != -1;
+			gameSchemeUpToDate = currentGameSchemeVersion == DataManager.CURRENT_GAMESCHEMA_VERSION;
+			
 			gameSchemeChecked = true;
 		}
 		
 		return gameSchemeReady;
+	}
+	
+	public static boolean isGameSchemeUpToDate() {
+		if (!gameSchemeChecked) {
+			isGameSchemeReady();
+		}
+		
+		return gameSchemeUpToDate;
 	}
 	
 	public static boolean isGameSchemeDownloading() {
@@ -117,12 +130,10 @@ public class GameSchemeDownloaderService extends Service {
         currentGameSchemeImagesIsHighres = downloadHighresImages;
     }
     
-    private static boolean isGameSchemeUpToDate() {
+    private static void getGameSchemeVersion() {
     	SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);	
-    	int version = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
+    	currentGameSchemeVersion = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
     	currentGameSchemeImagesIsHighres = gamePrefs.getBoolean(PREF_DOWNLOAD_HIGHRES, false);
-    	
-    	return DataManager.CURRENT_GAMESCHEMA_VERSION == version;
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {

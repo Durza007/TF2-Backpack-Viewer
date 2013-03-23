@@ -3,8 +3,6 @@ package com.minder.app.tf2backpack.frontend;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,7 +76,7 @@ public class DashboardFragment extends Fragment {
 		    		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
 		    			DownloadProgressDialog.show(getActivity().getSupportFragmentManager());
 		    		} else {
-		    			DownloadGameSchemeDialog.show(getActivity().getSupportFragmentManager());
+		    			DownloadGameSchemeDialog.show(getActivity().getSupportFragmentManager(), false);
 		    		}
 		    	}
 			} else if (string.equals("VIEW_SETTINGS")) {

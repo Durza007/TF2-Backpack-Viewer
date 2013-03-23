@@ -135,7 +135,7 @@ public class PlayerListActivity extends FragmentActivity {
     		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
     			showDownloadDialog();
     		} else {
-    			DownloadGameSchemeDialog.show(getSupportFragmentManager());
+    			DownloadGameSchemeDialog.show(getSupportFragmentManager(), false);
     		}
     	}
     }

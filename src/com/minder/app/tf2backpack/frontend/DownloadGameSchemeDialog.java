@@ -13,16 +13,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class DownloadGameSchemeDialog extends DialogFragment {
+	private boolean showUpdateMessage;
 	private CheckBox checkBoxResetImages;
 	private CheckBox checkBoxHighresImages;
 	private Button buttonCancel;
 	private Button buttonDownload;
 	
-	public static void show(FragmentManager fragmentManager) {
+	public static void show(FragmentManager fragmentManager, boolean update) {
 		final DownloadGameSchemeDialog downloadDialog = new DownloadGameSchemeDialog();
+		downloadDialog.showUpdateMessage = update;
 		downloadDialog.show(fragmentManager, "DownloadGameSchemeDialog");
 	}
 	
@@ -31,6 +34,11 @@ public class DownloadGameSchemeDialog extends DialogFragment {
             Bundle savedInstanceState) {
     	View view = inflater.inflate(R.layout.dialog_download_reset_images, container);
     	getDialog().setTitle(R.string.download_notice);
+    	
+    	if (showUpdateMessage) {
+    		final TextView mainText = (TextView)view.findViewById(R.id.textViewMain);
+    		mainText.setText(R.string.gamescheme_updateinfo2);
+    	}
     	
     	checkBoxResetImages = (CheckBox)view.findViewById(R.id.checkBoxRefreshImages);
     	checkBoxHighresImages = (CheckBox)view.findViewById(R.id.checkBoxHighres);

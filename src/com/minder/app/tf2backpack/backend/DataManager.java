@@ -63,7 +63,7 @@ public class DataManager {
 	public final static int PROGRESS_PARSING_SCHEMA = 2;
 	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 3;
 	
-	public final static int CURRENT_GAMESCHEMA_VERSION = 1;
+	public final static int CURRENT_GAMESCHEMA_VERSION = 2;
 	
 	// Members
 	private final static int TYPE_FRIEND_LIST = 7;

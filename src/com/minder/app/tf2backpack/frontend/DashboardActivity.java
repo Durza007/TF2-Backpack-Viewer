@@ -27,10 +27,12 @@ public class DashboardActivity extends FragmentActivity {
         
         newsFragment.addNewsHeaderClickedListener(headerListener);
         
-        if (!GameSchemeDownloaderService.isGameSchemeReady()) {
-        	if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
-        		DownloadGameSchemeDialog.show(getSupportFragmentManager());
-        	}
+        if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
+	        if (!GameSchemeDownloaderService.isGameSchemeReady()) {
+        		DownloadGameSchemeDialog.show(getSupportFragmentManager(), false);
+	        } else if (!GameSchemeDownloaderService.isGameSchemeUpToDate()) {
+	        	DownloadGameSchemeDialog.show(getSupportFragmentManager(), true);
+	        }
         }
     }
     
@@ -46,7 +48,7 @@ public class DashboardActivity extends FragmentActivity {
     	if (intent != null) {
 	        String action = getIntent().getAction();
 	        if (action != null && action.equals("download_gamescheme")) {
-	        	DownloadGameSchemeDialog.show(getSupportFragmentManager());
+	        	DownloadGameSchemeDialog.show(getSupportFragmentManager(), false);
 	        	setIntent(null);
 	        }
     	}

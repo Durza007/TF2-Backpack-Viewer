@@ -24,7 +24,7 @@ public class UnkownItemDialog extends DialogFragment {
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								DownloadGameSchemeDialog
-										.show(getFragmentManager());
+										.show(getFragmentManager(), false);
 							}
 						})
 				.setNeutralButton(R.string.alert_dialog_dont_show_again,
