@@ -84,6 +84,10 @@
         <activity
             android:name="com.google.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+        
+        <activity
+    		android:name="com.tapit.adview.AdActivity"
+    		android:configChanges="keyboard|keyboardHidden|orientation" />
 
         <!-- fix for memory problem in admob -->
 

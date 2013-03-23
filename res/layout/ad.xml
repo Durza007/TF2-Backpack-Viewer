@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         ads:adSize="BANNER"
-        ads:adUnitId="a14cc88802a11a9"
+        ads:adUnitId="e433f27b57444755"
         ads:keywords="Android game tf2 valve steam team fortress 2 hats weapon item"
         ads:loadAdOnCreate="true" />
 
