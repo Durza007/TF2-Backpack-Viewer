@@ -127,6 +127,8 @@ public class GameSchemeDownloaderService extends Service {
         editor.commit();
         
         gameSchemeReady = true;
+        gameSchemeUpToDate = true;
+        currentGameSchemeVersion = DataManager.CURRENT_GAMESCHEMA_VERSION;
         currentGameSchemeImagesIsHighres = downloadHighresImages;
     }
     

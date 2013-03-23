@@ -151,10 +151,15 @@ public class BackpackView extends TableLayout {
 	
 	@Override
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {      
-        Log.d("BackpackView", "onSizeChanged h = " + h);
+        Log.d("BackpackView", "onSizeChanged w = " + w + " h = " + h);
         
         if (fixedWidth != 0) {
         	backpackCellSize = fixedWidth / 10;
+        	
+        	// make sure nothing ends up outside the screen
+        	if (backpackCellSize * 5 > h) {
+        		backpackCellSize  = h / 5;
+        	}
         } else {
         	backpackCellSize  = h / 5;
         }

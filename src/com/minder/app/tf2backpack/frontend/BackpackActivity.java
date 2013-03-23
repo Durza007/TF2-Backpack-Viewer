@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
+import android.view.View;
 import android.view.Window;
 
 import com.minder.app.tf2backpack.R;
@@ -28,13 +30,20 @@ public class BackpackActivity extends FragmentActivity {
     	
     	setContentView(R.layout.activity_generic);
     	
+    	//boolean scaleByWidth = getResources().getBoolean(R.bool.backpackScaleByWidth);
+    	boolean scaleByWidth = false;
+    	
     	SteamUser user = getIntent().getParcelableExtra("com.minder.app.tf2backpack.SteamUser");
     	
         final FragmentManager fragmentManager = this.getSupportFragmentManager();     
         if (savedInstanceState != null) {
         	backpackFragment = (BackpackFragment) fragmentManager.findFragmentByTag("backpackFragment");
         } else {
-        	backpackFragment = BackpackFragment.newInstance(user);
+        	if (scaleByWidth) {
+        		backpackFragment = BackpackFragment.newInstance(user, getResources().getDisplayMetrics().widthPixels, true);
+        	} else {
+        		backpackFragment = BackpackFragment.newInstance(user);
+        	}
         	fragmentManager
             	.beginTransaction()
             		.add(R.id.frameLayoutFragment, backpackFragment, "backpackFragment")
