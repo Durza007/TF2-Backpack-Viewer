@@ -94,4 +94,8 @@
     <string name="changed_steam_id">User changed!</string>
     <string name="select_page">Select page</string>
     <string name="gamescheme_updateinfo2">The app has been updated with new features. In order for them to work the TF2 files needs to be updated.\n\nThe total download size is ~2 MB (excluding images). It is recommended that you are on a wifi connection\n\nDo you want to download the files?</string>
+    <string name="unknown_particle_effect">UNKOWN, update tf2 files!</string>
+    <string name="unknown_item">UNKNOWN ITEM: </string>
+    <string name="particle_effect">Effect: </string>
+    <string name="item_level">Level</string>
 </resources>

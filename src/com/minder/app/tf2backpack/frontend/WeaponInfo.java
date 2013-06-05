@@ -1,26 +1,19 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -41,7 +34,6 @@ public class WeaponInfo extends Activity {
 
 	private TextView tvAttributes;
 	private SpannableStringBuilder attributeText;
-	private int startIndex, endIndex;
 	private boolean hideLargeCraftOrder;
 	
     /** Called when the activity is first created. */
@@ -95,7 +87,7 @@ public class WeaponInfo extends Activity {
 		        }
 		        
 		        if (item.getLevel() != -1) {
-		        	tvLevel.setText("Level " + item.getLevel() + " " + weaponClass);
+		        	tvLevel.setText(getResources().getString(R.string.item_level) + " " + item.getLevel() + " " + weaponClass);
 		        } else {
 		        	tvLevel.setVisibility(View.GONE);
 		        }
@@ -113,7 +105,8 @@ public class WeaponInfo extends Activity {
 		        }
 		        
 		        if (item.getParticleEffect() != 0){
-		        	tvAttributes.setText("Effect: " + getParticleName(sqlDb, item.getParticleEffect()));
+		        	tvAttributes.setText(getResources().getString(R.string.particle_effect) + 
+		        			getParticleName(sqlDb, item.getParticleEffect()));
 		        	tvAttributes.setVisibility(View.VISIBLE);
 		        }
 		        
@@ -154,7 +147,6 @@ public class WeaponInfo extends Activity {
 		        			int effectType = cAttribute.getInt(3);
 		        			double value = cAttribute.getDouble(1);
 		        			
-		        			long steamId;
 		        			String personaName = null;
 		        			
 		        			skip = false;
@@ -162,7 +154,6 @@ public class WeaponInfo extends Activity {
 		        			// set correct value for unique attributes
 		        	        for (ItemAttribute ia : itemAttributeList) {
 		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)) {
-		        	        		steamId = ia.getAccountSteamId();
 		        	        		personaName = ia.getAccountPersonaName();
 		        	        		
 		        	        		// hide duplicate attributes
@@ -237,9 +228,6 @@ public class WeaponInfo extends Activity {
 		        				
 		        			case Attribute.FORMAT_ACCOUNT_ID:
 		        				description = description.replace("%s1", personaName) + "\n";
-		        				startIndex = description.indexOf(personaName);
-		        				endIndex = personaName.length();
-		        				startIndex += textIndex;
 		        				break;
 		        				
 		        			default:
@@ -350,20 +338,11 @@ public class WeaponInfo extends Activity {
 		        	        
 		        	        String description = cAttribute.getString(0);
 	        				description = description.replace("%s1", personaName) + "\n";
-	        				startIndex = description.indexOf(String.valueOf(personaName));
-	        				endIndex = String.valueOf(personaName).length();
-	        				startIndex += textIndex;
 	        				
 		        			attributeText.append(description);
 		        			attributeText.setSpan(new ForegroundColorSpan(blueColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	        			
 		        			textIndex += description.length();
-	        				
-		        			/*if (name.length() == 0) {
-			        			final DownloadFilesTask task = new DownloadFilesTask();
-			        			task.setStringToReplace(String.valueOf(value));
-		        				task.execute(value);
-		        			}*/
 		        		}
 		        	}
 		        	
@@ -455,7 +434,7 @@ public class WeaponInfo extends Activity {
 		        }
         	}
         } else {
-        	tvName.setText("UNKNOWN ITEM: " + item.getDefIndex());
+        	tvName.setText(getResources().getString(R.string.unknown_item) + item.getDefIndex());
         }
         
         cAttribute.close();
@@ -470,7 +449,7 @@ public class WeaponInfo extends Activity {
 		if (particleEffect.moveToFirst()) {	        					
 			name =  particleEffect.getString(0);
 		} else {
-			name =  "UNKOWN, update tf2 files!";
+			name =  getResources().getString(R.string.unknown_particle_effect);
 		}
 		
 		particleEffect.close();
