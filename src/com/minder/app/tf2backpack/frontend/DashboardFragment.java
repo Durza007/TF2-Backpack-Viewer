@@ -71,7 +71,7 @@ public class DashboardFragment extends Fragment {
 				startActivity(new Intent(getActivity(), PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
 			} else if (string.equals("VIEW_ITEM_LISTS")) {
 		    	if (GameSchemeDownloaderService.isGameSchemeReady()) {
-					startActivity(new Intent(getActivity(), ItemGridViewerActivty.class));
+					startActivity(new Intent(getActivity(), CatalogActivity.class));
 		    	} else {
 		    		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
 		    			DownloadProgressDialog.show(getActivity().getSupportFragmentManager());

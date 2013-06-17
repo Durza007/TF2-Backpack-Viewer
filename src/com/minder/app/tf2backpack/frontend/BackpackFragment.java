@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.minder.app.tf2backpack.App;
@@ -291,6 +290,9 @@ public class BackpackFragment extends Fragment {
 		}
 	};
 
+	/**
+	 * General click listener for all buttons
+	 */
     private OnClickListener onButtonBackpackClick = new OnClickListener(){
 		public void onClick(View v) {
 			switch(v.getId()){
@@ -304,17 +306,14 @@ public class BackpackFragment extends Fragment {
 				}
 				
 				case R.id.buttonNew: {
-					Intent intent = new Intent(BackpackFragment.this.getActivity(), ItemGridViewerActivty.class);
+					Intent intent = new Intent(BackpackFragment.this.getActivity(), ItemGridViewerActivity.class);
 					intent.setAction("com.minder.app.tf2backpack.VIEW_ITEM_LIST");
 					intent.putParcelableArrayListExtra("list", ungivenList);
 					startActivity(intent);
 					break;
 				}
 				default: {
-					if (v.getTag() != null){
-						/*Util.setTempItem(playerItemList.get(((Number)v.getTag()).intValue()));
-						startActivity(new Intent(Backpack.this, WeaponInfo.class));*/
-						
+					if (v.getTag() != null){						
 						Intent weaponInfoIntent = new Intent(BackpackFragment.this.getActivity(), WeaponInfo.class);
 						weaponInfoIntent.putExtra("com.minder.app.tf2backpack.PlayerItemParser.Item", (Item)v.getTag());
 						startActivity(weaponInfoIntent);
