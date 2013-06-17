@@ -79,362 +79,362 @@ public class WeaponInfo extends Activity {
         TextView tvTradable = (TextView)findViewById(R.id.TextViewTradable);
         tvAttributes = (TextView)findViewById(R.id.TextViewAttributes);
         
-        if (c != null) {
-        	if (c.moveToFirst()) {
-		        String weaponClass = c.getString(c.getColumnIndex("type_name"));
-		        if (weaponClass.contains("TF_")){
-		        	weaponClass = "";
-		        }
+        if (c != null && c.moveToFirst()) {
+	        String weaponClass = c.getString(c.getColumnIndex("type_name"));
+	        if (weaponClass.contains("TF_")){
+	        	weaponClass = "";
+	        }
+	        
+	        if (item.getLevel() != -1) {
+	        	tvLevel.setText(getResources().getString(R.string.item_level) + " " + item.getLevel() + " " + weaponClass);
+	        } else {
+	        	tvLevel.setVisibility(View.GONE);
+	        }
+	        
+	        if (item.getCustomDesc() != null){
+	        	tvDescription.setText("\"" + item.getCustomDesc() + "\"");
+	        } else {
+		        String descr = c.getString(c.getColumnIndex("description"));
 		        
-		        if (item.getLevel() != -1) {
-		        	tvLevel.setText(getResources().getString(R.string.item_level) + " " + item.getLevel() + " " + weaponClass);
+		        if (!descr.equals("null")){
+		        	tvDescription.setText(descr);
 		        } else {
-		        	tvLevel.setVisibility(View.GONE);
+		        	tvDescription.setVisibility(View.GONE);
 		        }
-		        
-		        if (item.getCustomDesc() != null){
-		        	tvDescription.setText("\"" + item.getCustomDesc() + "\"");
-		        } else {
-			        String descr = c.getString(c.getColumnIndex("description"));
-			        
-			        if (!descr.equals("null")){
-			        	tvDescription.setText(descr);
-			        } else {
-			        	tvDescription.setVisibility(View.GONE);
-			        }
-		        }
-		        
-		        if (item.getParticleEffect() != 0){
-		        	tvAttributes.setText(getResources().getString(R.string.particle_effect) + 
-		        			getParticleName(sqlDb, item.getParticleEffect()));
-		        	tvAttributes.setVisibility(View.VISIBLE);
-		        }
-		        
-		        if (item.isNotTradable() || item.isNotCraftable()){
-		        	tvTradable.setVisibility(View.VISIBLE);
-		        	
-		        	if (item.isNotTradable() && !item.isNotCraftable()) {
-		        		tvTradable.setText(R.string.not_tradable);
-		        	} else if (!item.isNotTradable() && item.isNotCraftable()) {
-		        		tvTradable.setText(R.string.not_craftable);
-		        	}
-		        }
-		        
-		        tvName.setTextColor(Util.getItemColor(item.getQuality()));
-		        
-		        /**
-		         * Attributes
-		         */
-    			boolean skip = false;
-		        boolean crateAttrib = false;
-		        boolean hireAttrib = false;
-		        
-		        StrangeQuality[] strangeQualities = new StrangeQuality[StrangeQuality.MAX_NUM_STRANGE_PARTS];
-		        for (int i = 0; i < strangeQualities.length; i++) {
-		        	strangeQualities[i] = new StrangeQuality();
-				}
-		        
-		        if (cAttribute != null) {
-		        	attributeText = new SpannableStringBuilder();
-		        	int textIndex = 0;
-		        	while (cAttribute.moveToNext()) {
-		        		int attributeDefIndex = cAttribute.getInt(5);
-		        		
-		        		// check if hidden == false
-		        		if (cAttribute.getInt(4) == 0) {
-		        			String description = cAttribute.getString(0);
-		        			int descriptionFormat = cAttribute.getInt(2);
-		        			int effectType = cAttribute.getInt(3);
-		        			double value = cAttribute.getDouble(1);
-		        			
-		        			String personaName = null;
-		        			
-		        			skip = false;
-		        			
-		        			// set correct value for unique attributes
-		        	        for (ItemAttribute ia : itemAttributeList) {
-		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)) {
-		        	        		personaName = ia.getAccountPersonaName();
-		        	        		
-		        	        		// hide duplicate attributes
-		        	        		if (ia.getAttributeDefIndex() == 187) {
-		        	        			if (crateAttrib) {
-			        	        			skip = true;
-			        	        			continue;
-		        	        			} else {
-		        	        				crateAttrib = true;
-		        	        			}
-		        	        		}
-		        	        		
-		        	        		if (ia.getAttributeDefIndex() == 143) {
-		        	        			if (hireAttrib){
-			        	        			skip = true;
-			        	        			continue;
-		        	        			} else {
-		        	        				hireAttrib = true;
-		        	        			}
-		        	        		}      	        		
-		        	        		
-		        	        		if (descriptionFormat == Attribute.FORMAT_DATE){
-		        	        			value = ia.getValue();
-		        	        		} else if (ia.getFloatValue() == 0){
-		        	        			value = ia.getValue();
-		        	        		} else {
-		        	        			value = ia.getFloatValue();
-		        	        		}
-		        	        		
-		        	        		break;
-		        	        	}
-		        	        }
-		        	        
-		        	        if (skip) continue;
-		        			
-		        			switch(descriptionFormat) {
-		        			case Attribute.FORMAT_PERCENTAGE:
-			        			if (value < 1){
-			        				value = 1 - value;
-			        				description = description.replace("%s1", "-" + String.valueOf((int)Math.round(value * 100))) + "\n";
-			        			} else {
-			        				value -= 1;
-			        				description = description.replace("%s1", String.valueOf((int)Math.round(value * 100))) + "\n";
-			        			}
-		        				break;
-		        				
-		        			case Attribute.FORMAT_INVERTED_PERCENTAGE:
-			        			value = 1 - value;
-			        			description = description.replace("%s1", String.valueOf((int)Math.round(value * 100))) + "\n";
-		        				break;
-		        				
-		        			case Attribute.FORMAT_ADDITIVE:
-		        				if (value != (int)value){
-		        					description = description.replace("%s1", String.valueOf(value)) + "\n";
-		        				} else {
-		        					description = description.replace("%s1", String.valueOf((int)value)) + "\n";
-		        				}
-		        				break;
-		        				
-		        			case Attribute.FORMAT_ADDITIVE_PERCENTAGE:
-		        				description = description.replace("%s1", String.valueOf((int)Math.round(value * 100))) + "\n";
-		        				break;
-		        				
-		        			case Attribute.FORMAT_DATE:
-		        				Date date = getDateFromUnix(((long)value) * 1000);
-		        				description = description.replace("%s1", date.toGMTString()) + "\n";
-		        				break;
-		        				
-		        			case Attribute.FORMAT_PARTICLE_INDEX:   					
-		        				description = description.replace("%s1", getParticleName(sqlDb, (int)value)) + "\n";
-		        				break;
-		        				
-		        			case Attribute.FORMAT_ACCOUNT_ID:
-		        				description = description.replace("%s1", personaName) + "\n";
-		        				break;
-		        				
-		        			default:
-		        				description = description.replace("%s1", String.valueOf((int)value)) + "\n";
-		        				break;
-		        			}
-		        			
-		        			
-		        			attributeText.append(description);
-		        			if (effectType == Attribute.EFFECT_POSITIVE){
-		        				attributeText.setSpan(new ForegroundColorSpan(blueColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		        			} else if (effectType == Attribute.EFFECT_NEGATIVE) {
-		        				attributeText.setSpan(new ForegroundColorSpan(redColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		        			} else {
-		        				attributeText.setSpan(new ForegroundColorSpan(whiteColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		        			}
-		        			
-		        			textIndex += description.length();
-		        		} else if (attributeDefIndex == 214 || attributeDefIndex == 294 || attributeDefIndex == 494 ||
-		        				attributeDefIndex == 379 || attributeDefIndex == 381 || attributeDefIndex == 383) {
-		        			/**
-		        			 * Strange weapon kills
-		        			 */
-		        			int index;
-		        			for (index = 0; index < StrangeQuality.STRANGE_SCORE_ARRAY.length; index++) {
-		        				if (attributeDefIndex == StrangeQuality.STRANGE_SCORE_ARRAY[index])
-		        					break;
-		        			}
-		        			
-		        			double value = cAttribute.getDouble(1);
-		        			
-		        			// set correct value for unique attributes
-		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
-		        	        		if (ia.getFloatValue() == 0){
-		        	        			value = ia.getValue();
-		        	        		} else {
-		        	        			value = ia.getFloatValue();
-		        	        		}
-		        	        		break;
-		        	        	}
-		        	        }
-		        	        
-		        	        strangeQualities[index].setValue((int)value);
-		        		} else if (attributeDefIndex == 292 || attributeDefIndex == 293 || attributeDefIndex == 495 || 
-		        				attributeDefIndex == 380 || attributeDefIndex == 382 || attributeDefIndex == 384) {
-		        			/*
-		        			 * Strange score type
-		        			 */
-		        			int index;
-		        			for (index = 0; index < StrangeQuality.STRANGE_SCORE_TYPES_ARRAY.length; index++) {
-		        				if (attributeDefIndex == StrangeQuality.STRANGE_SCORE_TYPES_ARRAY[index])
-		        					break;
-		        			}
-		        			
-		        			double value = cAttribute.getDouble(1);
-		    	
-		        			// set correct value for unique attributes
-		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
-		        	        		if (ia.getFloatValue() == 0){
-		        	        			value = ia.getValue();
-		        	        		} else {
-		        	        			value = ia.getFloatValue();
-		        	        		}
-		        	        		break;
-		        	        	}
-		        	        }
-		        	        
-		        	        strangeQualities[index].setStrangeType((int)value);        
-		        		} else if (attributeDefIndex == 229) {
-		        			/**
-		        			 * Craft order attribute
-		        			 */
-		        			String name = (String) tvName.getText();
-		        			double value = cAttribute.getDouble(1);
-		        			
-		        			// set correct value for unique attributes
-		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
-		        	        		
-		        	        		if (ia.getFloatValue() == 0){
-		        	        			value = ia.getValue();
-		        	        		} else {
-		        	        			value = ia.getFloatValue();
-		        	        		}
-		        	        		break;
-		        	        	}
-		        	        }
-		        	        
-		        	        if (value <= 100 || !hideLargeCraftOrder) {      			
-			        			name += " #" + (int)value;
-			        			tvName.setText(name);
-		        	        }
-		        		} else if (attributeDefIndex == 228) {
-		        			/**
-		        			 * Makers mark id - the attribute that shows who crafted the item
-		        			 */
-		        			
-		        			String personaName = null;
-		        			// set correct value for unique attributes
-		        	        for (ItemAttribute ia : itemAttributeList){
-		        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
-		        	        		personaName = ia.getAccountPersonaName();
-		        	        		break;
-		        	        	}
-		        	        }
-		        	        
-		        	        String description = cAttribute.getString(0);
-	        				description = description.replace("%s1", personaName) + "\n";
-	        				
-		        			attributeText.append(description);
-		        			attributeText.setSpan(new ForegroundColorSpan(blueColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	        }
+	        
+	        if (item.getParticleEffect() != 0){
+	        	tvAttributes.setText(getResources().getString(R.string.particle_effect) + 
+	        			getParticleName(sqlDb, item.getParticleEffect()));
+	        	tvAttributes.setVisibility(View.VISIBLE);
+	        }
+	        
+	        if (item.isNotTradable() || item.isNotCraftable()){
+	        	tvTradable.setVisibility(View.VISIBLE);
+	        	
+	        	if (item.isNotTradable() && !item.isNotCraftable()) {
+	        		tvTradable.setText(R.string.not_tradable);
+	        	} else if (!item.isNotTradable() && item.isNotCraftable()) {
+	        		tvTradable.setText(R.string.not_craftable);
+	        	}
+	        }
+	        
+	        tvName.setTextColor(Util.getItemColor(item.getQuality()));
+	        
+	        /**
+	         * Attributes
+	         */
+			boolean skip = false;
+	        boolean crateAttrib = false;
+	        boolean hireAttrib = false;
+	        
+	        StrangeQuality[] strangeQualities = new StrangeQuality[StrangeQuality.MAX_NUM_STRANGE_PARTS];
+	        for (int i = 0; i < strangeQualities.length; i++) {
+	        	strangeQualities[i] = new StrangeQuality();
+			}
+	        
+	        if (cAttribute != null) {
+	        	attributeText = new SpannableStringBuilder();
+	        	int textIndex = 0;
+	        	while (cAttribute.moveToNext()) {
+	        		int attributeDefIndex = cAttribute.getInt(5);
+	        		
+	        		// check if hidden == false
+	        		if (cAttribute.getInt(4) == 0) {
+	        			String description = cAttribute.getString(0);
+	        			int descriptionFormat = cAttribute.getInt(2);
+	        			int effectType = cAttribute.getInt(3);
+	        			double value = cAttribute.getDouble(1);
 	        			
-		        			textIndex += description.length();
-		        		}
-		        	}
-		        	
-		        	if (textIndex != 0) { 
-			        	tvAttributes.setText(attributeText.subSequence(0, attributeText.length() - 1));
-	        			tvAttributes.setVisibility(View.VISIBLE);
-		        	}
-		        }
-		        
-		        // handle strange qualities
-		        final StringBuilder strangeTextBuilder = new StringBuilder();
-		        boolean namePrefixSet = false;
-		        String strangeNamePrefix = "";
-		        
-		        if (item.getQuality() == 11) {
-			        for (int index = 0; index < strangeQualities.length; index++) {
-						if (strangeQualities[index].isChanged()) {
-							final StrangeQuality sq = strangeQualities[index];
-							Cursor strangeType = 
-									sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + sq.getStrangeType(), null);
+	        			String personaName = null;
+	        			
+	        			skip = false;
+	        			
+	        			// set correct value for unique attributes
+	        	        for (ItemAttribute ia : itemAttributeList) {
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)) {
+	        	        		personaName = ia.getAccountPersonaName();
+	        	        		
+	        	        		// hide duplicate attributes
+	        	        		if (ia.getAttributeDefIndex() == 187) {
+	        	        			if (crateAttrib) {
+		        	        			skip = true;
+		        	        			continue;
+	        	        			} else {
+	        	        				crateAttrib = true;
+	        	        			}
+	        	        		}
+	        	        		
+	        	        		if (ia.getAttributeDefIndex() == 143) {
+	        	        			if (hireAttrib){
+		        	        			skip = true;
+		        	        			continue;
+	        	        			} else {
+	        	        				hireAttrib = true;
+	        	        			}
+	        	        		}      	        		
+	        	        		
+	        	        		if (descriptionFormat == Attribute.FORMAT_DATE){
+	        	        			value = ia.getValue();
+	        	        		} else if (ia.getFloatValue() == 0){
+	        	        			value = ia.getValue();
+	        	        		} else {
+	        	        			value = ia.getFloatValue();
+	        	        		}
+	        	        		
+	        	        		break;
+	        	        	}
+	        	        }
+	        	        
+	        	        if (skip) continue;
+	        			
+	        			switch(descriptionFormat) {
+	        			case Attribute.FORMAT_PERCENTAGE:
+		        			if (value < 1){
+		        				value = 1 - value;
+		        				description = description.replace("%s1", "-" + String.valueOf((int)Math.round(value * 100))) + "\n";
+		        			} else {
+		        				value -= 1;
+		        				description = description.replace("%s1", String.valueOf((int)Math.round(value * 100))) + "\n";
+		        			}
+	        				break;
+	        				
+	        			case Attribute.FORMAT_INVERTED_PERCENTAGE:
+		        			value = 1 - value;
+		        			description = description.replace("%s1", String.valueOf((int)Math.round(value * 100))) + "\n";
+	        				break;
+	        				
+	        			case Attribute.FORMAT_ADDITIVE:
+	        				if (value != (int)value){
+	        					description = description.replace("%s1", String.valueOf(value)) + "\n";
+	        				} else {
+	        					description = description.replace("%s1", String.valueOf((int)value)) + "\n";
+	        				}
+	        				break;
+	        				
+	        			case Attribute.FORMAT_ADDITIVE_PERCENTAGE:
+	        				description = description.replace("%s1", String.valueOf((int)Math.round(value * 100))) + "\n";
+	        				break;
+	        				
+	        			case Attribute.FORMAT_DATE:
+	        				Date date = getDateFromUnix(((long)value) * 1000);
+	        				description = description.replace("%s1", date.toGMTString()) + "\n";
+	        				break;
+	        				
+	        			case Attribute.FORMAT_PARTICLE_INDEX:   					
+	        				description = description.replace("%s1", getParticleName(sqlDb, (int)value)) + "\n";
+	        				break;
+	        				
+	        			case Attribute.FORMAT_ACCOUNT_ID:
+	        				description = description.replace("%s1", personaName) + "\n";
+	        				break;
+	        				
+	        			default:
+	        				description = description.replace("%s1", String.valueOf((int)value)) + "\n";
+	        				break;
+	        			}
+	        			
+	        			
+	        			attributeText.append(description);
+	        			if (effectType == Attribute.EFFECT_POSITIVE){
+	        				attributeText.setSpan(new ForegroundColorSpan(blueColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	        			} else if (effectType == Attribute.EFFECT_NEGATIVE) {
+	        				attributeText.setSpan(new ForegroundColorSpan(redColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	        			} else {
+	        				attributeText.setSpan(new ForegroundColorSpan(whiteColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	        			}
+	        			
+	        			textIndex += description.length();
+	        		} else if (attributeDefIndex == 214 || attributeDefIndex == 294 || attributeDefIndex == 494 ||
+	        				attributeDefIndex == 379 || attributeDefIndex == 381 || attributeDefIndex == 383) {
+	        			/**
+	        			 * Strange weapon kills
+	        			 */
+	        			int index;
+	        			for (index = 0; index < StrangeQuality.STRANGE_SCORE_ARRAY.length; index++) {
+	        				if (attributeDefIndex == StrangeQuality.STRANGE_SCORE_ARRAY[index])
+	        					break;
+	        			}
+	        			
+	        			double value = cAttribute.getDouble(1);
+	        			
+	        			// set correct value for unique attributes
+	        	        for (ItemAttribute ia : itemAttributeList){
+	        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
+	        	        		if (ia.getFloatValue() == 0){
+	        	        			value = ia.getValue();
+	        	        		} else {
+	        	        			value = ia.getFloatValue();
+	        	        		}
+	        	        		break;
+	        	        	}
+	        	        }
+	        	        
+	        	        strangeQualities[index].setValue((int)value);
+	        		} else if (attributeDefIndex == 292 || attributeDefIndex == 293 || attributeDefIndex == 495 || 
+	        				attributeDefIndex == 380 || attributeDefIndex == 382 || attributeDefIndex == 384) {
+	        			/*
+	        			 * Strange score type
+	        			 */
+	        			int index;
+	        			for (index = 0; index < StrangeQuality.STRANGE_SCORE_TYPES_ARRAY.length; index++) {
+	        				if (attributeDefIndex == StrangeQuality.STRANGE_SCORE_TYPES_ARRAY[index])
+	        					break;
+	        			}
+	        			
+	        			double value = cAttribute.getDouble(1);
+	    	
+	        			// set correct value for unique attributes
+	        	        for (ItemAttribute ia : itemAttributeList){
+	        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
+	        	        		if (ia.getFloatValue() == 0){
+	        	        			value = ia.getValue();
+	        	        		} else {
+	        	        			value = ia.getFloatValue();
+	        	        		}
+	        	        		break;
+	        	        	}
+	        	        }
+	        	        
+	        	        strangeQualities[index].setStrangeType((int)value);        
+	        		} else if (attributeDefIndex == 229) {
+	        			/**
+	        			 * Craft order attribute
+	        			 */
+	        			String name = (String) tvName.getText();
+	        			double value = cAttribute.getDouble(1);
+	        			
+	        			// set correct value for unique attributes
+	        	        for (ItemAttribute ia : itemAttributeList){
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
+	        	        		
+	        	        		if (ia.getFloatValue() == 0){
+	        	        			value = ia.getValue();
+	        	        		} else {
+	        	        			value = ia.getFloatValue();
+	        	        		}
+	        	        		break;
+	        	        	}
+	        	        }
+	        	        
+	        	        if (value <= 100 || !hideLargeCraftOrder) {      			
+		        			name += " #" + (int)value;
+		        			tvName.setText(name);
+	        	        }
+	        		} else if (attributeDefIndex == 228) {
+	        			/**
+	        			 * Makers mark id - the attribute that shows who crafted the item
+	        			 */
+	        			
+	        			String personaName = null;
+	        			// set correct value for unique attributes
+	        	        for (ItemAttribute ia : itemAttributeList){
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
+	        	        		personaName = ia.getAccountPersonaName();
+	        	        		break;
+	        	        	}
+	        	        }
+	        	        
+	        	        String description = cAttribute.getString(0);
+        				description = description.replace("%s1", personaName) + "\n";
+        				
+	        			attributeText.append(description);
+	        			attributeText.setSpan(new ForegroundColorSpan(blueColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        			
+	        			textIndex += description.length();
+	        		}
+	        	}
+	        	
+	        	if (textIndex != 0) { 
+		        	tvAttributes.setText(attributeText.subSequence(0, attributeText.length() - 1));
+        			tvAttributes.setVisibility(View.VISIBLE);
+	        	}
+	        }
+	        
+	        // handle strange qualities
+	        final StringBuilder strangeTextBuilder = new StringBuilder();
+	        boolean namePrefixSet = false;
+	        String strangeNamePrefix = "";
+	        
+	        if (item.getQuality() == 11) {
+		        for (int index = 0; index < strangeQualities.length; index++) {
+					if (strangeQualities[index].isChanged()) {
+						final StrangeQuality sq = strangeQualities[index];
+						Cursor strangeType = 
+								sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + sq.getStrangeType(), null);
+						
+						if (strangeType.moveToFirst()) {
+							Cursor strangeLevel = 
+									sqlDb.rawQuery("SELECT COALESCE(" +
+											"(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + sq.getValue() + " LIMIT 1)," +
+											"(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
 							
-							if (strangeType.moveToFirst()) {
-								Cursor strangeLevel = 
-										sqlDb.rawQuery("SELECT COALESCE(" +
-												"(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + sq.getValue() + " LIMIT 1)," +
-												"(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
-								
-								if (strangeLevel.moveToFirst()) {
-									if (namePrefixSet) {
-										strangeTextBuilder
-										.append('(')
+							if (strangeLevel.moveToFirst()) {
+								if (namePrefixSet) {
+									strangeTextBuilder
+									.append('(')
+									.append(strangeType.getString(0))
+									.append(": ")
+									.append(sq.getValue())
+									.append(")\n");
+								} else {
+									strangeTextBuilder
+										.append(strangeLevel.getString(0))
+										.append(' ')
+										.append(weaponClass)
+										.append(" - ")
 										.append(strangeType.getString(0))
 										.append(": ")
 										.append(sq.getValue())
-										.append(")\n");
-									} else {
-										strangeTextBuilder
-											.append(strangeLevel.getString(0))
-											.append(' ')
-											.append(weaponClass)
-											.append(" - ")
-											.append(strangeType.getString(0))
-											.append(": ")
-											.append(sq.getValue())
-											.append('\n');
-										
-										strangeNamePrefix = strangeLevel.getString(0) + " ";
-										namePrefixSet = true;
-									}
-								} else {
-									// TODO this should NOT happen!!!
+										.append('\n');
+									
+									strangeNamePrefix = strangeLevel.getString(0) + " ";
+									namePrefixSet = true;
 								}
 							} else {
-								// TODO handle missing strange type
+								// TODO this should NOT happen!!!
 							}
+						} else {
+							// TODO handle missing strange type
 						}
 					}
-			        
-			        // do we have any stuff to add?
-			        if (strangeTextBuilder.length() != 0) {
-			        	tvLevel.setText(strangeTextBuilder.toString());
-			        	tvLevel.setVisibility(View.VISIBLE);
-			        }
-		        }
+				}
 		        
-		        String namePrefix = "";
-		        if (item.getQuality() == 1) {
-		        	namePrefix = "Genuine ";
-		        } else if (item.getQuality() == 3) {
-		        	namePrefix = "Vintage ";
-		        } else if (item.getQuality() == 5) {
-		        	namePrefix = "Unusual ";
-		        } else if (item.getQuality() == 7) {
-		        	namePrefix = "Community ";
-		        } else if (item.getQuality() == 8) {
-		        	namePrefix = "Valve ";
-		        } else if (item.getQuality() == 9) {
-		        	namePrefix = "Self-Made ";
-		        } else if (item.getQuality() == 11) {
-		        	namePrefix = strangeNamePrefix;
-		        } else if (item.getQuality() == 13) {
-		        	namePrefix = "Haunted ";
+		        // do we have any stuff to add?
+		        if (strangeTextBuilder.length() != 0) {
+		        	tvLevel.setText(strangeTextBuilder.toString());
+		        	tvLevel.setVisibility(View.VISIBLE);
 		        }
-		     
-		        if (item.getCustomName() != null){
-		        	tvName.setText("\"" + item.getCustomName() + "\"");
-		        } else {
-		        	tvName.setText(namePrefix + c.getString(c.getColumnIndex("name")));
-		        }
-        	}
+	        }
+	        
+	        String namePrefix = "";
+	        if (item.getQuality() == 1) {
+	        	namePrefix = "Genuine ";
+	        } else if (item.getQuality() == 3) {
+	        	namePrefix = "Vintage ";
+	        } else if (item.getQuality() == 5) {
+	        	namePrefix = "Unusual ";
+	        } else if (item.getQuality() == 7) {
+	        	namePrefix = "Community ";
+	        } else if (item.getQuality() == 8) {
+	        	namePrefix = "Valve ";
+	        } else if (item.getQuality() == 9) {
+	        	namePrefix = "Self-Made ";
+	        } else if (item.getQuality() == 11) {
+	        	namePrefix = strangeNamePrefix;
+	        } else if (item.getQuality() == 13) {
+	        	namePrefix = "Haunted ";
+	        }
+	     
+	        if (item.getCustomName() != null){
+	        	tvName.setText("\"" + item.getCustomName() + "\"");
+	        } else {
+	        	tvName.setText(namePrefix + c.getString(c.getColumnIndex("name")));
+	        }
         } else {
         	tvName.setText(getResources().getString(R.string.unknown_item) + item.getDefIndex());
+        	tvLevel.setVisibility(View.GONE);
+        	tvDescription.setText(R.string.unknown_item_description);
         }
         
         cAttribute.close();
