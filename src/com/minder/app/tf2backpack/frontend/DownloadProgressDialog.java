@@ -77,11 +77,8 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
     }
 
 	public void run() {
-		if (keepUpdating) {
-			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + REFRESH_INTERVALL_MS);
-		} else {
+		if (!keepUpdating)
 			return;
-		}
 		
 		if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
 			if (GameSchemeDownloaderService.isGameSchemeReady()) {
@@ -124,6 +121,10 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 				progressBar.setIndeterminate(true);
 				textViewImageCount.setVisibility(View.GONE);
 			}
+		}
+		
+		if (keepUpdating) {
+			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + REFRESH_INTERVALL_MS);
 		}
 	}
 }

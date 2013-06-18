@@ -101,7 +101,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			}
 			
 			// download images
-			if (gs.getImageURList() != null){
+			if (gs.getImageURList() != null) {
 		    	imageUrlList = gs.getImageURList();
 		    	// set this to null since it as pretty big object
 		    	gs = null;

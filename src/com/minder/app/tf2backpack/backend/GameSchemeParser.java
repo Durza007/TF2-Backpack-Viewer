@@ -151,14 +151,16 @@ public class GameSchemeParser {
 	public Exception error;
 	
 	//private JSONObject jObject;
-	private ArrayList<TF2Weapon> itemList;
+	private List<TF2Weapon> itemList;
 	private ArrayList<ImageInfo> imageURList;
 	
-	public ArrayList<String> sqlExecList;
+	public List<String> sqlExecList;
+	private List<Attribute> attributeList;
+	private List<ItemAttribute> itemAttributeList;
 	
 	private Context mContext;
 	
-	public ArrayList<TF2Weapon> getItemList(){
+	public List<TF2Weapon> getItemList(){
 		return itemList;
 	}
 	
@@ -278,23 +280,27 @@ public class GameSchemeParser {
 			Log.d("GameSchemeParser", "message size: " + data.length());
 		}
 		
+		// init lists
+		sqlExecList = new LinkedList<String>();
+		itemList = new LinkedList<TF2Weapon>();
+		attributeList = new LinkedList<Attribute>();
+		itemAttributeList = new LinkedList<ItemAttribute>();
+		
 		try {
 			JSONObject jObject = new JSONObject(data);
+			// set to null as soon as possible because it holds >2MB data
 			data = null;
 			JSONObject resultObject = jObject.getJSONObject("result");
 			
 			String status = resultObject.getString("status");
 			
-			sqlExecList = new ArrayList<String>();
-			
-			ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
 			{
 				/**
 				 * Fetch attributes first
 				 */
 				JSONArray attributeArray = resultObject.getJSONArray("attributes");
 				
-				for (int index = 0; index < attributeArray.length(); index++){
+				for (int index = 0; index < attributeArray.length(); index++) {
 					JSONObject attributeObject = attributeArray.getJSONObject(index);
 					
 					// Magick =)
@@ -322,8 +328,6 @@ public class GameSchemeParser {
 					}
 					
 					attributeList.add(attribute);
-					//dbHandler.ExecSql("INSERT INTO attributes " + attribute.getSqlInsert());
-					sqlExecList.add("INSERT INTO attributes " + attribute.getSqlInsert());
 				}
 			}
 			
@@ -370,7 +374,6 @@ public class GameSchemeParser {
 					// used for team paint
 					int itemColor2 = 0;
 					try {
-						//JSONObject attributesObject = itemObject.getJSONObject("attributes");
 						JSONArray itemAttributeArray = itemObject.getJSONArray("attributes");
 						
 						for (int attribIndex = 0; attribIndex < itemAttributeArray.length(); attribIndex++){
@@ -405,8 +408,7 @@ public class GameSchemeParser {
 							for (Attribute a : attributeList) {
 								if (a.getName().equals(itemAttribute.getName())) {
 									itemAttribute.setAttributeDefIndex(a.getDefIndex());
-									//dbHandler.ExecSql("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
-									sqlExecList.add("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
+									itemAttributeList.add(itemAttribute);
 									break;
 								}
 							}
@@ -414,13 +416,10 @@ public class GameSchemeParser {
 					} catch (Exception e) {
 					}
 					
-					//dbHandler.ExecSql("INSERT INTO items " + item.getSqlInsert());
-					sqlExecList.add("INSERT INTO items " + item.getSqlInsert());
-							
+					
+					itemList.add(item);						
 					imageURList.add(new ImageInfo(item.defIndex, itemColor, itemColor2, item.imageUrl));
-				}
-				// end fetch items
-				
+				} // end fetch items
 				
 				{
 					/*
@@ -437,7 +436,7 @@ public class GameSchemeParser {
 					}
 				}
 				
-				{
+				{ // Strange quality ranks
 					{
 						/*
 						 * Strange item ranks
@@ -508,7 +507,7 @@ public class GameSchemeParser {
 				long start = System.currentTimeMillis();
 				DataBaseHelper db = new DataBaseHelper(mContext);
 				SQLiteDatabase sqlDb = db.getWritableDatabase();
-				
+				mContext = null;		
 				
 				sqlDb.beginTransaction();
 				try {
@@ -529,6 +528,24 @@ public class GameSchemeParser {
 					
 					sqlDb.execSQL("DELETE FROM strange_item_levels");
 					
+					// add all attribute definitions
+					for (Attribute attribute : attributeList) {
+						sqlDb.execSQL("INSERT INTO attributes " + attribute.getSqlInsert());
+					}
+					attributeList.clear();
+					
+					// add all item attributes
+					for (ItemAttribute itemAttribute : itemAttributeList) {
+						sqlDb.execSQL("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
+					}
+					itemAttributeList.clear();
+					
+					// add all items
+					for (TF2Weapon item : itemList) {
+						sqlDb.execSQL("INSERT INTO items " + item.getSqlInsert());
+					}
+					
+					// run all the other sql statements
 					if (sqlExecList.size() != 0){
 						for (String sql : sqlExecList){
 							sqlDb.execSQL(sql);
@@ -542,7 +559,6 @@ public class GameSchemeParser {
 				
 				sqlDb.close();
 				db.close();
-				mContext = null;
 				Log.i(Util.GetTag(), "Save to database finished - Time: " + (System.currentTimeMillis() - start) + " ms");
 			}
 			

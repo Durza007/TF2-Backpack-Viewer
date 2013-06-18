@@ -115,7 +115,13 @@ public class HttpConnection {
 	private String processEntity(HttpEntity entity, DownloadProgressListener listener) throws IllegalStateException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(entity
 				.getContent()));
-		StringBuilder result = new StringBuilder();
+		
+		StringBuilder result = null;
+		if (entity.getContentLength() < 0)
+			result = new StringBuilder();
+		else
+			result = new StringBuilder((int)entity.getContentLength() + 150);
+		
 		String line;
 		
 		if (listener != null)
