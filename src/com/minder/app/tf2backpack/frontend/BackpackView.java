@@ -242,7 +242,7 @@ public class BackpackView extends TableLayout {
 				allItemsWereKnown = false;
 			}
     		
-			if (coloredCells == true){
+			if (coloredCells){
 				final int quality = item.getQuality();
 				if (quality >=1 && quality <= 13){
 					if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
@@ -286,7 +286,7 @@ public class BackpackView extends TableLayout {
     	// reset anything we haven't changed
     	final int count = buttonsChanged.length;
     	for(int index = 0; index < count; index++){
-    		if (buttonsChanged[index] == false){
+    		if (!buttonsChanged[index]){
         		Holder.setView(buttonList[index]);
         		Holder.imageButton.setImageBitmap(null);
         		if (coloredCells){

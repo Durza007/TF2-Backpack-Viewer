@@ -37,7 +37,7 @@ public class SelectPlayerActivity extends FragmentActivity {
 		}
 		
 		// check if we have double-pane layout
-		hasDoublePane = null != findViewById(R.id.frameLayoutSearch);;
+		hasDoublePane = null != findViewById(R.id.frameLayoutSearch);
 		
 		if (savedInstanceState != null) {
 			final FragmentManager fragmentManager = this.getSupportFragmentManager();

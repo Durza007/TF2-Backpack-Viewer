@@ -115,7 +115,7 @@ public class ItemAdapter extends BaseAdapter {
 		else
 			holder.imageButton.setImageBitmap(defaultImage);
 		
-		if (coloredCells == true){
+		if (coloredCells){
 			final int quality = item.getQuality();
 			if (quality >= 1 && quality <= 9){
 				if (quality != 4 || quality != 6 || quality != 2){

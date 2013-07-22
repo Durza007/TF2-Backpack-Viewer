@@ -182,7 +182,6 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 
 			final int zIndex = id.indexOf(':', yIndex + 1);
 			final long z = Long.parseLong(id.substring(zIndex + 1));
-			;
 
 			final long communityId = (z * 2) + 76561197960265728l + y;
 
@@ -193,7 +192,6 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 
 			final int zIndex = id.indexOf(':', 1);
 			final long z = Long.parseLong(id.substring(zIndex + 1));
-			;
 
 			final long communityId = (z * 2) + 76561197960265728l + y;
 

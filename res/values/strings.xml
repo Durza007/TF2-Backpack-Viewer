@@ -71,7 +71,7 @@
     <string name="default_string">Default</string>
     <string name="downloading_images">Downloading images…</string>
     <string name="parsing_schema">Parsing data…</string>
-    <string name="select_backpack_in_list">&lt;-- Select a backpack to view</string>
+    <string name="select_backpack_in_list"><![CDATA[<— Select a backpack to view]]></string>
     <string name="whats_new">What\'s new!</string>
     <string name="download">Download</string>
     <string name="dismiss">Dismiss</string>

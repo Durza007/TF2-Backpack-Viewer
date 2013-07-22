@@ -360,7 +360,7 @@ public class BackpackFragment extends Fragment {
 	 * @param nextPage If true it will increment page number
 	 */
     private void changePage(boolean nextPage){
-    	if (nextPage == true){
+    	if (nextPage){
     		setPage(onPageNumber + 1);
     	} else {
     		setPage(onPageNumber - 1);
@@ -380,16 +380,16 @@ public class BackpackFragment extends Fragment {
     	
     	if (checkUngivenItems) {
     		ungivenList.clear();
-    		
-	    	for (int index = 0; index < playerItemList.size(); index++){
-	    		final int backpackPos = playerItemList.get(index).getBackpackPosition();
-	    		
-	    		// if the item has been found but not yet given
-	    		if (backpackPos == -1) {
-	    			ungivenList.add(playerItemList.get(index));
-	    			newButton.setVisibility(View.VISIBLE);
-	    		}
-	    	}
+
+            for (Item playerItem : playerItemList) {
+                final int backpackPos = playerItem.getBackpackPosition();
+
+                // if the item has been found but not yet given
+                if (backpackPos == -1) {
+                    ungivenList.add(playerItem);
+                    newButton.setVisibility(View.VISIBLE);
+                }
+            }
     	}
     	
     	if (!backpackView.isTableCreated()) {

@@ -79,7 +79,7 @@ public class DataManager {
 	private CacheManager cacheManager;
 	
 	@SuppressWarnings("rawtypes")
-	private HashMap<Request, AsyncTask> asyncWorkList;;
+	private HashMap<Request, AsyncTask> asyncWorkList;
 	
 	// Constructor
 	public DataManager(Context context) {
