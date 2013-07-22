@@ -82,8 +82,10 @@ public class Attribute {
 	}
 	
 	public int isHiddenInt() {
-		if (hidden) return 1;
-		else return 0;
+		if (hidden) 
+			return 1;
+		else 
+			return 0;
 	}
 	
 	public String getSqlInsert(){

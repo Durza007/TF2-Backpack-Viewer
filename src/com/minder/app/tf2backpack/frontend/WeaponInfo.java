@@ -67,11 +67,19 @@ public class WeaponInfo extends Activity {
         }
         
         Cursor cAttribute = null;
-        if (sqlParam != null){
-        	cAttribute = sqlDb.rawQuery("SELECT  description_string, value, description_format, effect_type, hidden, defindex FROM item_attributes, attributes WHERE itemdefindex = " + item.getDefIndex() + " AND defindex = attributedefindex UNION SELECT description_string, defindex, description_format, effect_type, hidden, defindex FROM attributes " + sqlParam, null);
+        final boolean isPlayerItem = sqlParam != null;
+        if (isPlayerItem){
+        	cAttribute = sqlDb.rawQuery("SELECT description_string, defindex, description_format, effect_type, hidden FROM attributes " + sqlParam, null);
         } else {
         	cAttribute = sqlDb.rawQuery("SELECT  description_string, value, description_format, effect_type, hidden, defindex FROM item_attributes, attributes WHERE itemdefindex = " + item.getDefIndex() + " AND defindex = attributedefindex", null);
         }
+        
+        final int defIndexColumn = cAttribute.getColumnIndex("defindex");
+        final int descriptionColumn = cAttribute.getColumnIndex("description_string");
+        final int descriptionFormatColumn = cAttribute.getColumnIndex("description_format");
+        final int effectTypeColumn = cAttribute.getColumnIndex("effect_type");
+        final int valueColumn = cAttribute.getColumnIndex("value");
+        final int hiddenColumn = cAttribute.getColumnIndex("hidden");
         
         TextView tvName = (TextView)findViewById(R.id.TextViewWeaponName);
         TextView tvLevel = (TextView)findViewById(R.id.TextViewWeaponLevel);
@@ -96,7 +104,7 @@ public class WeaponInfo extends Activity {
 	        } else {
 		        String descr = c.getString(c.getColumnIndex("description"));
 		        
-		        if (!descr.equals("null")){
+		        if (!descr.equals("null") && !(descr.length() == 0)) {
 		        	tvDescription.setText(descr);
 		        } else {
 		        	tvDescription.setVisibility(View.GONE);
@@ -137,14 +145,17 @@ public class WeaponInfo extends Activity {
 	        	attributeText = new SpannableStringBuilder();
 	        	int textIndex = 0;
 	        	while (cAttribute.moveToNext()) {
-	        		int attributeDefIndex = cAttribute.getInt(5);
+	        		int attributeDefIndex = cAttribute.getInt(defIndexColumn);
 	        		
 	        		// check if hidden == false
-	        		if (cAttribute.getInt(4) == 0) {
-	        			String description = cAttribute.getString(0);
-	        			int descriptionFormat = cAttribute.getInt(2);
-	        			int effectType = cAttribute.getInt(3);
-	        			double value = cAttribute.getDouble(1);
+	        		if (cAttribute.getInt(hiddenColumn) == 0) {
+	        			String description = cAttribute.getString(descriptionColumn);
+	        			int descriptionFormat = cAttribute.getInt(descriptionFormatColumn);
+	        			int effectType = cAttribute.getInt(effectTypeColumn);
+	        			double value = 1337;
+	        			
+	        			if (!isPlayerItem)
+	        				value = cAttribute.getDouble(valueColumn);
 	        			
 	        			String personaName = null;
 	        			
@@ -152,7 +163,7 @@ public class WeaponInfo extends Activity {
 	        			
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList) {
-	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)) {
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)) {
 	        	        		personaName = ia.getAccountPersonaName();
 	        	        		
 	        	        		// hide duplicate attributes
@@ -256,7 +267,10 @@ public class WeaponInfo extends Activity {
 	        					break;
 	        			}
 	        			
-	        			double value = cAttribute.getDouble(1);
+	        			double value = 1337;
+	        			
+	        			if (!isPlayerItem)
+	        				value = cAttribute.getDouble(valueColumn);
 	        			
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
@@ -282,7 +296,10 @@ public class WeaponInfo extends Activity {
 	        					break;
 	        			}
 	        			
-	        			double value = cAttribute.getDouble(1);
+	        			double value = 1337;
+	        			
+	        			if (!isPlayerItem)
+	        				value = cAttribute.getDouble(valueColumn);
 	    	
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
@@ -302,11 +319,14 @@ public class WeaponInfo extends Activity {
 	        			 * Craft order attribute
 	        			 */
 	        			String name = (String) tvName.getText();
-	        			double value = cAttribute.getDouble(1);
+	        			double value = 1337;
+	        			
+	        			if (!isPlayerItem)
+	        				value = cAttribute.getDouble(valueColumn);
 	        			
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
-	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)){    
 	        	        		
 	        	        		if (ia.getFloatValue() == 0){
 	        	        			value = ia.getValue();
@@ -329,13 +349,13 @@ public class WeaponInfo extends Activity {
 	        			String personaName = null;
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
-	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(5)){    
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)){    
 	        	        		personaName = ia.getAccountPersonaName();
 	        	        		break;
 	        	        	}
 	        	        }
 	        	        
-	        	        String description = cAttribute.getString(0);
+	        	        String description = cAttribute.getString(descriptionColumn);
         				description = description.replace("%s1", personaName) + "\n";
         				
 	        			attributeText.append(description);
