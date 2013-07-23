@@ -84,13 +84,14 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			}
 			
 			public void progressUpdate(long currentSize) {
-				publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentSize));
+				if (currentSize == -1)
+					publishProgress(new ProgressUpdate(DataManager.PROGRESS_PARSING_SCHEMA, 0, 0));
+				else
+					publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentSize));
 			}
 		});
 		
 		if (inputStream != null) {
-			publishProgress(new ProgressUpdate(DataManager.PROGRESS_PARSING_SCHEMA, 0, 0));
-			
 			GameSchemeParser gs = null;
 			try {
 				gs = new GameSchemeParser(inputStream, this.context);
@@ -98,7 +99,13 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 				e1.printStackTrace();
 				request.exception = e1;
 				return null;
-			}
+			} finally {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					
+				}
+			}				
 			
 			// download images
 			if (gs.getItemList() != null) {
@@ -120,7 +127,6 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
                     	itemList.add(item);
                     }
                 }
-                
                 
                 int totalDownloads = itemList.size();
                 Log.d("DataManager", "File image check: " + (System.nanoTime() - start) / 1000000 + " ms");

@@ -122,7 +122,25 @@ public class GameSchemeParser {
 		}
 	}
 	
-	public static class StrangeItemLevel {
+	private static enum Command {
+		INSERT,
+		OTHER
+	}
+	
+	private static class SqlCommand {
+		
+		public final Command command;
+		public final String table;
+		public final ContentValues values;
+		
+		public SqlCommand(Command command, String table, ContentValues values) {
+			this.command = command;
+			this.table = table;
+			this.values = values;
+		}
+	}
+	
+	private static class StrangeItemLevel {
 		public int level;
 		public int required_score;
 		public String name;
@@ -133,7 +151,7 @@ public class GameSchemeParser {
 	//private JSONObject jObject;
 	private List<TF2Weapon> itemList;
 	
-	public List<String> sqlExecList;
+	public List<SqlCommand> sqlExecList;
 	private List<Attribute> attributeList;
 	private List<ItemAttribute> itemAttributeList;
 	
@@ -147,7 +165,7 @@ public class GameSchemeParser {
 		this.context = context;
 		
 		// init lists
-		sqlExecList = new LinkedList<String>();
+		sqlExecList = new LinkedList<SqlCommand>();
 		itemAttributeList = new LinkedList<Attribute.ItemAttribute>();
 		
         JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
@@ -245,8 +263,13 @@ public class GameSchemeParser {
 			}
 			reader.endObject();
 			
-			if (id != -1)
-				sqlExecList.add("INSERT INTO particles (id, name) VALUES (\"" + id + "\", \"" + particleName + "\")"); 
+			if (id != -1) {			
+				final ContentValues values = new ContentValues(2);
+				values.put("id", id);
+				values.put("name", particleName);
+				
+				sqlExecList.add(new SqlCommand(Command.INSERT, "particles", values));
+			}
 		}	
 		reader.endArray();
 	}
@@ -281,12 +304,19 @@ public class GameSchemeParser {
 			reader.endObject();
 			
 			if (typeName != null) {
-				sqlExecList.add("INSERT INTO strange_item_levels (type_name) VALUES (\"" + typeName + "\")");
-				sqlExecList.add("CREATE TABLE " + typeName + " (level INTEGER PRIMARY KEY, required_score INTEGER, name TEXT);");
+				final ContentValues values = new ContentValues(1);
+				values.put("type_name", typeName);			
+				sqlExecList.add(new SqlCommand(Command.INSERT, "strange_item_levels", values));
+						
+				sqlExecList.add(new SqlCommand(Command.OTHER, "CREATE TABLE " + typeName + " (level INTEGER PRIMARY KEY, required_score INTEGER, name TEXT);", null));
 
-				for (StrangeItemLevel s : strangeItemLevels) {
-					sqlExecList.add("INSERT INTO " + typeName + "(level, required_score, name) VALUES " +
-							"(\"" + s.level + "\", \"" + s.required_score + "\", \"" + s.name + "\")");
+				for (StrangeItemLevel s : strangeItemLevels) {				
+					final ContentValues strangeValues = new ContentValues(3);
+					strangeValues.put("level", s.level);
+					strangeValues.put("required_score", s.required_score);
+					strangeValues.put("name", s.name);
+					
+					sqlExecList.add(new SqlCommand(Command.INSERT, typeName, strangeValues));
 				}
 			}
 		}
@@ -316,9 +346,14 @@ public class GameSchemeParser {
 				}
 			}
 			
-			if (type != -1 && typeName != null && levelData != null)
-				sqlExecList.add("INSERT INTO strange_score_types (type, type_name, level_data) VALUES" +
-						"(\"" + type + "\", \"" + typeName + "\", \"" + levelData + "\")");
+			if (type != -1 && typeName != null && levelData != null) {
+				final ContentValues values = new ContentValues(3);
+				values.put("type", type);
+				values.put("type_name", typeName);
+				values.put("level_data", levelData);
+			
+				sqlExecList.add(new SqlCommand(Command.INSERT, "strange_score_types", values));
+			}
 			
 			reader.endObject();
 		}
@@ -392,9 +427,17 @@ public class GameSchemeParser {
 					}
 					
 					// run all the other sql statements
-					if (sqlExecList.size() != 0){
-						for (String sql : sqlExecList){
-							sqlDb.execSQL(sql);
+					for (SqlCommand sql : sqlExecList) {
+						switch (sql.command) {
+						case INSERT:
+							sqlDb.insert(sql.table, null, sql.values);
+							break;
+						case OTHER:
+							sqlDb.execSQL(sql.table);
+							break;
+						default:
+							break;
+						
 						}
 					}
 					

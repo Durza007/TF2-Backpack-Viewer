@@ -1,6 +1,7 @@
 package com.minder.app.tf2backpack.backend;
 
 import java.io.BufferedReader;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,6 +26,54 @@ public class HttpConnection {
 		public void progressUpdate(long currentSize);
 	}
 	public final static long MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS = 400;
+	
+	private static class ProgressInputStream extends FilterInputStream {
+		private DownloadProgressListener listener;
+		private long byteCount;
+		private long lastUpdate;
+
+		protected ProgressInputStream(InputStream in, DownloadProgressListener listener) {
+			super(in);
+			
+			this.listener = listener;
+			this.byteCount = 0;
+			this.lastUpdate = System.currentTimeMillis();
+		}
+		
+		private void progressUpdate() {
+			if (listener == null)
+				return;
+			
+			if (byteCount == -1)
+				listener.progressUpdate(-1);
+			
+			if (System.currentTimeMillis() > lastUpdate + MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS) {
+				lastUpdate = System.currentTimeMillis();
+				listener.progressUpdate(byteCount);
+			}
+		}
+		
+		@Override
+		public int read() throws IOException {
+			++byteCount;		
+			progressUpdate();
+			
+			return super.read();
+		}
+		
+		@Override
+		public int read(byte[] buffer, int offset, int count) throws IOException {
+			int read = super.read(buffer, offset, count);
+			if (read == -1)
+				byteCount = -1;
+			else
+				byteCount += read;
+			
+			progressUpdate();
+			
+			return read;
+		}
+	}
 	
 	private HttpClient httpClient;
 	private Exception exception;
@@ -87,6 +136,8 @@ public class HttpConnection {
 		if (response != null) {
 			try {
 				stream = response.getEntity().getContent();
+				if (listener != null)
+					listener.totalSize(response.getEntity().getContentLength());
 			} catch (IllegalStateException e) {
 				if (BuildConfig.DEBUG) {
 					e.printStackTrace();
@@ -100,7 +151,7 @@ public class HttpConnection {
 			}
 		}
 		
-		return stream;
+		return new ProgressInputStream(stream, listener);
 	}
 	
 	/**
