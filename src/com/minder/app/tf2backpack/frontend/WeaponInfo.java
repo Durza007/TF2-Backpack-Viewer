@@ -154,6 +154,8 @@ public class WeaponInfo extends Activity {
 	        			int effectType = cAttribute.getInt(effectTypeColumn);
 	        			double value = 1337;
 	        			
+	        			if (description == null) continue;
+	        			
 	        			if (!isPlayerItem)
 	        				value = cAttribute.getDouble(valueColumn);
 	        			
