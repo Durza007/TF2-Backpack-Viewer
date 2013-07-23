@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,11 +19,12 @@ import android.util.Log;
 
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
+import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
-import com.minder.app.tf2backpack.backend.GameSchemeParser.ImageInfo;
+import com.minder.app.tf2backpack.backend.GameSchemeParser.TF2Weapon;
 import com.minder.app.tf2backpack.backend.HttpConnection.DownloadProgressListener;
 
 /**
@@ -39,7 +41,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 	private final boolean highresImages;
 	
 	private final Object imageListLock = new Object();
-	private ArrayList<ImageInfo> imageUrlList;
+	private final List<TF2Weapon> itemList;
 	
 	private final Object resultLock = new Object();
 	private int downloadedImages;
@@ -56,6 +58,8 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		this.request = request;
 		this.refreshImages = refreshImages;
 		this.highresImages = downloadHighresImages;
+		
+		this.itemList = new LinkedList<GameSchemeParser.TF2Weapon>();
 	}
 	
 	@Override
@@ -89,7 +93,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			
 			GameSchemeParser gs = null;
 			try {
-				gs = new GameSchemeParser(inputStream, this.context, highresImages);
+				gs = new GameSchemeParser(inputStream, this.context);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				request.exception = e1;
@@ -97,8 +101,9 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			}
 			
 			// download images
-			if (gs.getImageURList() != null) {
-		    	imageUrlList = gs.getImageURList();
+			if (gs.getItemList() != null) {
+				List<TF2Weapon> allItems = gs.getItemList();
+				
 		    	// set this to null since it as pretty big object
 		    	gs = null;
 		    	
@@ -108,15 +113,16 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		    	teamPaintRed = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.teampaint_red_mask, bitmapOptions);
 		    	teamPaintBlue = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.teampaint_blu_mask, bitmapOptions);
 				
-		    	long start = System.nanoTime();
-                for (int index = 0; index < imageUrlList.size(); index++){
-                    final File file = new File(this.context.getFilesDir().getPath() + "/" + imageUrlList.get(index).getDefIndex() + ".png");
-                    if (file.exists()){
-                    	imageUrlList.remove(index);
-                    	index--;
+		    	long start = System.nanoTime();               
+                for (TF2Weapon item : allItems) {
+                    final File file = new File(this.context.getFilesDir().getPath() + "/" + item.getDefIndex() + ".png");
+                    if (!file.exists()) {
+                    	itemList.add(item);
                     }
                 }
-                int totalDownloads = imageUrlList.size();
+                
+                
+                int totalDownloads = itemList.size();
                 Log.d("DataManager", "File image check: " + (System.nanoTime() - start) / 1000000 + " ms");
                 
 		    	publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_IMAGES_UPDATE, totalDownloads, 0));
@@ -219,10 +225,10 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			// TODO probably remove this? can't remember why it is here
 			// Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler());
 			while (true) {
-				ImageInfo imageInfo = null;
+				TF2Weapon item = null;
 				synchronized (imageListLock) {
-					if (!imageUrlList.isEmpty()) {
-						imageInfo = imageUrlList.remove(0);
+					if (!itemList.isEmpty()) {
+						item = itemList.remove(0);
 					} else {
 						break;
 					}
@@ -231,17 +237,24 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 				
 				// TODO Better image download error handling
 				Object data = null;
-				if (imageInfo.getLink().length() != 0) {
-					HttpConnection conn = HttpConnection.bitmap(imageInfo.getLink());
+				String link;
+				if (highresImages) {
+					link = item.getLargeImageUrl();
+				} else {
+					link = item.getImageUrl();
+				}
+				
+				if (link.length() != 0) {
+					HttpConnection conn = HttpConnection.bitmap(link);
 					data = conn.execute(null);
 				}
 				if (data != null) {
 					// save
-					saveImage((Bitmap)data, imageInfo);
+					saveImage((Bitmap)data, item);
 					data = null;
 				} else {
 					if (BuildConfig.DEBUG) {
-						Log.i("DataManager", "Failed to download image with id: " + imageInfo.getDefIndex());
+						Log.i("DataManager", "Failed to download image with id: " + item.getDefIndex());
 					}
 				}
 				
@@ -260,56 +273,54 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			}
 		}
 		
-		public void saveImage(Bitmap image, ImageInfo imageInfo) {
+		public void saveImage(Bitmap image, TF2Weapon item) {
 	    	boolean isPaintCan = false;
 	    	boolean isTeamPaintCan = false;
-			
-	    	// get some info about the image
-			if (imageInfo.getColor() != 0) {
-				isPaintCan = true;
-
-				if (imageInfo.getColor2() != 0) {
-					isTeamPaintCan = true;
-				}
-			} else {
-				isPaintCan = false;
-			}
+	    	int itemColor = 0;
+	    	int itemColor2 = 0;
+	    	
+	    	if (item.getAttributes() != null) {
+		    	for (ItemAttribute itemAttribute : item.getAttributes()) {
+					if (itemAttribute.getName().equals("set item tint RGB")){
+						itemColor = (int) itemAttribute.getFloatValue();
+						if (itemColor == 1) itemColor = 0;
+					}
+					
+					// Temporary fix for team spirit cans
+					if (itemAttribute.getName().equals("set item tint RGB 2")) {
+						itemColor2 = (int) itemAttribute.getFloatValue();
+					}
+		    	}
+	    	}
 			
 			try {
 				if (image != null){
-					if (isPaintCan){
-						if (!isTeamPaintCan) {
-							// Regular paintcan
-							Bitmap newBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-							Canvas canvas = new Canvas(newBitmap);
-							Paint paint = new Paint();
-							paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor(), 1));
-							// draw paintcan
-							canvas.drawBitmap(image, 0, 0, null);
-							// draw paint color
-							canvas.drawBitmap(paintColor, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
-							// recycle old image
-							image.recycle();
-							image = newBitmap;
-						} else {
-							// Team-paintcan
-							Bitmap newBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-							Canvas canvas = new Canvas(newBitmap);
-							Paint paint = new Paint();
-							paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor(), 1));
-							// draw paintcan
-							canvas.drawBitmap(image, 0, 0, null);
+					if (isPaintCan) {
+						// General paint can stuff
+						Bitmap newBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+						Canvas canvas = new Canvas(newBitmap);
+						Paint paint = new Paint();
+						paint.setColorFilter(new LightingColorFilter((0xFF << 24) | itemColor, 1));
+						// draw paintcan
+						canvas.drawBitmap(image, 0, 0, null);
+						
+						if (isTeamPaintCan) {
 							// draw first paint color
 							canvas.drawBitmap(teamPaintRed, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);	
 							// draw second paint color
-							paint.setColorFilter(new LightingColorFilter((0xFF << 24) | imageInfo.getColor2(), 1));
-							canvas.drawBitmap(teamPaintBlue, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
-							
-							image.recycle();
-							image = newBitmap;
+							paint.setColorFilter(new LightingColorFilter((0xFF << 24) | itemColor2, 1));
+							canvas.drawBitmap(teamPaintBlue, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);		
+						} else {
+							// draw paint color
+							canvas.drawBitmap(paintColor, null, new Rect(0, 0, image.getWidth(), image.getHeight()), paint);
 						}
+						
+						// recycle old image
+						image.recycle();
+						image = newBitmap;
 					}
-					FileOutputStream fos = context.openFileOutput(imageInfo.getDefIndex() + ".png", 0);
+					
+					FileOutputStream fos = context.openFileOutput(item.getDefIndex() + ".png", 0);
 					boolean saved = image.compress(CompressFormat.PNG, 100, fos);
 					fos.flush();
 					fos.close();

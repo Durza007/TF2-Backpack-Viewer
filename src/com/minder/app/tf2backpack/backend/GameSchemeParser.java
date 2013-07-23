@@ -3,12 +3,8 @@ package com.minder.app.tf2backpack.backend;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -19,56 +15,9 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
-import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.Util;
 
 public class GameSchemeParser {
-	public static class ImageInfo {
-		private String link;
-		private int defIndex;
-		private int color;
-		private int color2;
-		
-		public void setLink(String link) {
-			this.link = link;
-		}
-		public String getLink() {
-			return link;
-		}
-		public void setDefIndex(int defIndex) {
-			this.defIndex = defIndex;
-		}
-		public int getDefIndex() {
-			return defIndex;
-		}
-		
-		public int getFormatedIndexColor() {
-			if (color != 0){
-				return 1073741824 | defIndex;
-			}
-			return defIndex;
-		}
-		
-		public void setColor(int color) {
-			this.color = color;
-		}
-		
-		public int getColor() {
-			return color;
-		}
-		
-		public int getColor2() {
-			return color2;
-		}
-		
-		public ImageInfo(int defIndex, int color, int color2, String link){
-			this.defIndex = defIndex;
-			this.link = link;
-			this.color = color;
-			this.color2 = color2;
-		}
-	}
-	
 	public static class TF2Weapon {
 		private int defindex;
 		private String item_slot;
@@ -133,7 +82,7 @@ public class GameSchemeParser {
 		}
 		
 		public void setItemDescription(String itemDescription) {
-			this.item_description = itemDescription.replace("\"", "");
+			this.item_description = itemDescription;
 		}
 
 		public String getItemDescription() {
@@ -157,9 +106,13 @@ public class GameSchemeParser {
 			this.setImageUrl(imageName);
 		}
 		
-		public String getSqlInsert(){
-			return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
-				"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description + "\", \"0\")";
+		public String getSqlInsert() {
+			if (this.item_description != null)
+				return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
+					"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description.replace("\"", "\"\"") + "\", \"0\")";
+			else
+				return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
+					"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description + "\", \"0\")";
 		}
 	}
 	
@@ -169,130 +122,24 @@ public class GameSchemeParser {
 		public String name;
 	}
 	
-	
 	public Exception error;
 	
 	//private JSONObject jObject;
 	private List<TF2Weapon> itemList;
-	private ArrayList<ImageInfo> imageURList;
 	
 	public List<String> sqlExecList;
 	private List<Attribute> attributeList;
 	private List<ItemAttribute> itemAttributeList;
 	
-	private Context mContext;
+	private Context context;
 	
 	public List<TF2Weapon> getItemList(){
 		return itemList;
 	}
 	
-	public ArrayList<ImageInfo> getImageURList(){
-		return imageURList;
-	}
-	
-	/*public GameSchemeParser(String data, Context context, boolean test){
-	DataBaseHelper db = new DataBaseHelper(context);
-		SQLiteDatabase sqlDb = db.getWritableDatabase();
+	public GameSchemeParser(InputStream inputStream, Context context) throws IOException {
+		this.context = context;
 		
-		// removes everything from database, else we would get duplicates
-		sqlDb.execSQL("DELETE FROM items");
-		
-		long start = System.currentTimeMillis();
-		
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		
-		try {
-			Items item = mapper.readValue(context.getAssets().open("items2.txt"), Items.class);
-			
-			ArrayList<Item> weaponList = item.get("item");
-			
-			imageURList = new ArrayList<ImageInfo>();
-			for (Item i : weaponList){
-				//sqlDb.execSQL("INSERT INTO items " + i.getSqlInsert());
-				imageURList.add(new ImageInfo(i.getDefindex(), 0, i.getImage_url()));
-			}
-					
-		} catch (JsonParseException e) {
-			error = e;
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			error = e;
-			e.printStackTrace();
-		} catch (IOException e) {
-			error = e;
-			e.printStackTrace();
-		}
-		
-		Log.d("TF2", "JAckson: " + (System.currentTimeMillis() - start) + " ms");
-		
-		/*try {
-			JsonParser jp = jsonFactory.createJsonParser(context.getAssets().open("items2.txt"));
-			
-			imageURList = new ArrayList<ImageInfo>();
-			
-			while (jp.nextToken() != JsonToken.NOT_AVAILABLE) {
-				if (jp.getCurrentToken() == JsonToken.START_ARRAY) {
-					
-					jp.nextToken();
-					while (jp.getCurrentToken() != JsonToken.END_ARRAY){
-						
-						TF2Weapon item = new TF2Weapon();
-						
-						while (jp.nextToken() != JsonToken.END_OBJECT){
-							if (jp.getCurrentToken() == JsonToken.FIELD_NAME){
-								String type = jp.getCurrentName();
-								
-								while (jp.nextToken() == JsonToken.START_OBJECT){
-									while (jp.nextToken() != JsonToken.END_OBJECT){
-									}
-								}
-								
-								String value = jp.getText();
-								
-								if (type != null){
-									if (type.equals("defindex")){
-										item.setDefIndex(jp.getIntValue());
-									} else if (type.equals("item_type_name")){
-										item.setItemTypeName(jp.getText());
-									} else if (type.equals("item_name")){
-										item.setItemName(jp.getText());
-									} else if (type.equals("image_url")){
-										item.setImageUrl(jp.getText());
-									} else if (type.equals("item_description")){
-										item.setItemDescription(jp.getText());
-									}
-								}
-								
-								Log.d("TF2", type + value);
-							}
-						}
-						
-						// Add item to list
-						imageURList.add(new ImageInfo(item.defIndex, 0, item.imageUrl));
-						sqlDb.execSQL("INSERT INTO items " + item.getSqlInsert());
-						
-						if (item.defIndex == 30){
-							Log.d("TF2", "OMG");
-						}
-						
-						jp.nextToken();
-					}
-				}
-			}
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			error = e;
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			error = e;
-			e.printStackTrace();
-		}*/
-		//sqlDb.close();
-	//}
-	
-	public GameSchemeParser(InputStream inputStream, Context context, boolean highresImages) throws IOException {
 		// init lists
 		sqlExecList = new LinkedList<String>();
 		itemAttributeList = new LinkedList<Attribute.ItemAttribute>();
@@ -491,234 +338,6 @@ public class GameSchemeParser {
 				}
 			}
 		}
-	}
-	
-	public GameSchemeParser(String data, Context context, boolean highresImages){		
-		long start = System.currentTimeMillis();
-		
-		mContext = context;
-		
-		if (BuildConfig.DEBUG) {
-			Log.d("GameSchemeParser", "message size: " + data.length());
-		}
-		
-		// init lists
-		sqlExecList = new LinkedList<String>();
-		itemList = new LinkedList<TF2Weapon>();
-		attributeList = new LinkedList<Attribute>();
-		itemAttributeList = new LinkedList<ItemAttribute>();
-		
-		try {
-			JSONObject jObject = new JSONObject(data);
-			// set to null as soon as possible because it holds >2MB data
-			data = null;
-			JSONObject resultObject = jObject.getJSONObject("result");
-			
-			String status = resultObject.getString("status");
-			
-			{
-				/**
-				 * Fetch attributes first
-				 */
-				JSONArray attributeArray = resultObject.getJSONArray("attributes");
-				
-				for (int index = 0; index < attributeArray.length(); index++) {
-					JSONObject attributeObject = attributeArray.getJSONObject(index);
-					
-					// Magick =)
-					JSONArray nameArray = attributeObject.names();
-					JSONArray valArray = attributeObject.toJSONArray(nameArray);
-					Attribute attribute = new Attribute();
-					
-					for (int arrayIndex = 0; arrayIndex < nameArray.length(); arrayIndex++){
-						String type = nameArray.getString(arrayIndex);
-						if (type != null){
-							if (type.equals("name")){
-								attribute.setName(valArray.getString(arrayIndex));
-							} else if (type.equals("defindex")){
-								attribute.setDefIndex(valArray.getInt(arrayIndex));
-							} else if (type.equals("description_string")){
-								attribute.setDescriptionString(valArray.getString(arrayIndex));
-							} else if (type.equals("description_format")){
-								attribute.setDescriptionFormat(valArray.getString(arrayIndex));
-							} else if (type.equals("effect_type")){
-								attribute.setEffectType(valArray.getString(arrayIndex));
-							} else if (type.equals("hidden")){
-								attribute.setHidden(valArray.getBoolean(arrayIndex));
-							}
-						}
-					}
-					
-					attributeList.add(attribute);
-				}
-			}
-			
-			{
-				/**
-				 * Fetch items
-				 */
-				//itemList = new ArrayList<TF2Weapon>();
-				//JSONObject itemsObject = resultObject.getJSONObject("items");
-				JSONArray itemArray = resultObject.getJSONArray("items");			
-				imageURList = new ArrayList<ImageInfo>();
-				
-				for (int index = 0; index < itemArray.length(); index++){
-					JSONObject itemObject = itemArray.getJSONObject(index);
-					
-					// Magic =)
-					JSONArray nameArray = itemObject.names();
-					JSONArray valArray = itemObject.toJSONArray(nameArray);
-					TF2Weapon item = new TF2Weapon();
-					
-					for (int arrayIndex = 0; arrayIndex < nameArray.length(); arrayIndex++){
-						String type = nameArray.getString(arrayIndex);
-						if (type != null){
-							if (type.equals("defindex")){
-								item.setDefIndex(valArray.getInt(arrayIndex));
-							} else if (type.equals("item_type_name")){
-								item.setItemTypeName(valArray.getString(arrayIndex));
-							} else if (type.equals("item_name")){
-								item.setItemName(valArray.getString(arrayIndex));
-							} else if (!highresImages && (type.equals("image_url")) || (highresImages && type.equals("image_url_large"))){
-								item.setImageUrl(valArray.getString(arrayIndex));
-							} else if (type.equals("item_description")){
-								item.setItemDescription(valArray.getString(arrayIndex));
-							} else if (type.equals("item_quality")){
-								item.setQuality(valArray.getInt(arrayIndex));
-							} else if (type.equals("item_slot")){
-								item.setItemSlot(valArray.getString(arrayIndex));
-							}
-						}
-					}
-					
-					// temporary store paintcan color
-					int itemColor = 0;
-					// used for team paint
-					int itemColor2 = 0;
-					try {
-						JSONArray itemAttributeArray = itemObject.getJSONArray("attributes");
-						
-						for (int attribIndex = 0; attribIndex < itemAttributeArray.length(); attribIndex++){
-							JSONObject attributeObject = itemAttributeArray.getJSONObject(attribIndex);
-							
-							JSONArray attributeNameArray = attributeObject.names();
-							JSONArray attributeValArray = attributeObject.toJSONArray(attributeNameArray);
-							ItemAttribute itemAttribute = new ItemAttribute();
-							itemAttribute.setItemDefIndex(item.getDefIndex());
-							
-							for (int arrayIndex = 0; arrayIndex < attributeNameArray.length(); arrayIndex++){
-								String type = attributeNameArray.getString(arrayIndex);
-								if (type != null){
-									if (type.equals("name")){
-										itemAttribute.setName(attributeValArray.getString(arrayIndex));
-									} else if (type.equals("value")){
-										itemAttribute.setFloatValue((float) attributeValArray.getDouble(arrayIndex));
-									}
-								}
-							}
-							
-							if (itemAttribute.getName().equals("set item tint RGB")){
-								itemColor = (int) itemAttribute.getFloatValue();
-								if (itemColor == 1) itemColor = 0;
-							}
-							
-							// Temporary fix for team spirit cans
-							if (itemAttribute.getName().equals("set item tint RGB 2")) {
-								itemColor2 = (int) itemAttribute.getFloatValue();
-							}
-							
-							for (Attribute a : attributeList) {
-								if (a.getName().equals(itemAttribute.getName())) {
-									itemAttribute.setAttributeDefIndex(a.getDefIndex());
-									itemAttributeList.add(itemAttribute);
-									break;
-								}
-							}
-						}
-					} catch (Exception e) {
-					}
-					
-					itemList.add(item);						
-					imageURList.add(new ImageInfo(item.getDefIndex(), itemColor, itemColor2, item.image_url));
-				} // end fetch items
-				
-				{
-					/*
-					 * Fetch particles
-					 */
-					JSONArray particleArray = resultObject.getJSONArray("attribute_controlled_attached_particles");			
-					
-					for (int index = 0; index < particleArray.length(); index++){
-						JSONObject particleObject = particleArray.getJSONObject(index);
-						int id = particleObject.getInt("id");
-						String  name = particleObject.getString("name");
-						
-						sqlExecList.add("INSERT INTO particles (id, name) VALUES (\"" + id + "\", \"" + name + "\")"); 
-					}
-				}
-				
-				{ // Strange quality ranks
-					{
-						/*
-						 * Strange item ranks
-						 */
-						JSONArray strangeTypeLevels = resultObject.getJSONArray("item_levels");	
-						List<String> strangeTypes = new LinkedList<String>();
-						
-						// Strange level lists
-						for (int index = 0; index < strangeTypeLevels.length(); index++) {
-							JSONObject strangeTypeLevel = strangeTypeLevels.getJSONObject(index);
-							
-							String typeName = strangeTypeLevel.getString("name");
-							strangeTypes.add(typeName);
-							
-							sqlExecList.add("INSERT INTO strange_item_levels (type_name) VALUES (\"" + typeName + "\")");
-							sqlExecList.add("CREATE TABLE " + typeName + " (level INTEGER PRIMARY KEY, required_score INTEGER, name TEXT);");
-							
-							JSONArray levels = strangeTypeLevel.getJSONArray("levels");
-							for (int levelIndex = 0; levelIndex < levels.length(); levelIndex++) {
-								JSONObject levelObject = levels.getJSONObject(levelIndex);
-								
-								int level = levelObject.getInt("level");
-								int requiredScore = levelObject.getInt("required_score");
-								String name = levelObject.getString("name");
-								
-								sqlExecList.add("INSERT INTO " + typeName + "(level, required_score, name) VALUES " +
-										"(\"" + level + "\", \"" + requiredScore + "\", \"" + name + "\")");
-							}
-						}
-					}
-					
-					{
-						/*
-						 * Strange types
-						 */
-						JSONArray strangeScoreTypes = resultObject.getJSONArray("kill_eater_score_types");
-						
-						// build a list of the different table names
-						for (int index = 0; index < strangeScoreTypes.length(); index++) {
-							JSONObject scoreType = strangeScoreTypes.getJSONObject(index);
-							
-							int type = scoreType.getInt("type");
-							String typeName = scoreType.getString("type_name");
-							String levelData = scoreType.getString("level_data");
-							
-							sqlExecList.add("INSERT INTO strange_score_types (type, type_name, level_data) VALUES" +
-									"(\"" + type + "\", \"" + typeName + "\", \"" + levelData + "\")");
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			error = e;
-			e.printStackTrace();
-		}
-		
-		Log.i(Util.GetTag(), "Json: " + (System.currentTimeMillis() - start) + " ms");
-		
-		if (sqlExecList != null){
-			saveToDB();
-		}
 	}	
 	
 	public void saveToDB(){
@@ -726,9 +345,9 @@ public class GameSchemeParser {
 			public void run() {
 				Log.i(Util.GetTag(), "Saving to database...");
 				long start = System.currentTimeMillis();
-				DataBaseHelper db = new DataBaseHelper(mContext);
+				DataBaseHelper db = new DataBaseHelper(context);
 				SQLiteDatabase sqlDb = db.getWritableDatabase();
-				mContext = null;		
+				context = null;		
 				
 				sqlDb.beginTransaction();
 				try {

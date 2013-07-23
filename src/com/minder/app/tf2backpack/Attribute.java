@@ -100,7 +100,7 @@ public class Attribute {
 			effectType = getEffectType(effect_type);
 		
 		return "(name, defindex, description_string, description_format, effect_type, hidden) VALUES " + 
-			"(\"" + this.name + "\",\"" + this.defindex + "\",\"" + this.description_string + "\",\"" + this.descriptionFormat + "\",\"" + this.effect_type + "\",\"" + this.isHiddenInt() + "\")";
+			"(\"" + this.name + "\",\"" + this.defindex + "\",\"" + this.description_string + "\",\"" + this.descriptionFormat + "\",\"" + this.effectType + "\",\"" + this.isHiddenInt() + "\")";
 	}
 	
     public final static byte getDescriptionFormat(String format){
