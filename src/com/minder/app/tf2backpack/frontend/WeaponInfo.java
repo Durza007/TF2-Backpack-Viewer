@@ -104,7 +104,7 @@ public class WeaponInfo extends Activity {
 	        } else {
 		        String descr = c.getString(c.getColumnIndex("description"));
 		        
-		        if (!descr.equals("null") && !(descr.length() == 0)) {
+		        if (descr != null && !descr.equals("null") && !(descr.length() == 0)) {
 		        	tvDescription.setText(descr);
 		        } else {
 		        	tvDescription.setVisibility(View.GONE);

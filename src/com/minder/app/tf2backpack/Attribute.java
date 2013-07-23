@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -92,15 +93,22 @@ public class Attribute {
 			return 0;
 	}
 	
-	public String getSqlInsert() {
+	public ContentValues getSqlValues() {
 		if (descriptionFormat == 0)
 			descriptionFormat = getDescriptionFormat(description_format);
 		
 		if (effectType == 0)
 			effectType = getEffectType(effect_type);
 		
-		return "(name, defindex, description_string, description_format, effect_type, hidden) VALUES " + 
-			"(\"" + this.name + "\",\"" + this.defindex + "\",\"" + this.description_string + "\",\"" + this.descriptionFormat + "\",\"" + this.effectType + "\",\"" + this.isHiddenInt() + "\")";
+		final ContentValues values = new ContentValues(6);
+		values.put("name", name);
+		values.put("defindex", defindex);
+		values.put("description_string", description_string);
+		values.put("description_format", descriptionFormat);
+		values.put("effect_type", effectType);
+		values.put("hidden", isHiddenInt());
+		
+		return values;
 	}
 	
     public final static byte getDescriptionFormat(String format){
@@ -199,9 +207,14 @@ public class Attribute {
 			return this.accountPersonaName;
 		}
 		
-		public String getSqlInsert(){
-			return "(itemdefindex, attributedefindex, value) VALUES " + 
-				"(\"" + this.itemDefIndex + "\",\"" + this.attributeDefIndex + "\",\"" + this.value + "\")";
+		public ContentValues getSqlValues() {
+			final ContentValues values = new ContentValues(3);
+			
+			values.put("itemdefindex", itemDefIndex);
+			values.put("attributedefindex", attributeDefIndex);
+			values.put("value", value);
+			
+			return values;
 		}
 		
 		public ItemAttribute(Parcel source) {

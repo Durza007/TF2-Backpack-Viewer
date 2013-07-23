@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -106,13 +107,18 @@ public class GameSchemeParser {
 			this.setImageUrl(imageName);
 		}
 		
-		public String getSqlInsert() {
-			if (this.item_description != null)
-				return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
-					"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description.replace("\"", "\"\"") + "\", \"0\")";
-			else
-				return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
-					"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description + "\", \"0\")";
+		public ContentValues getSqlValues() {
+			final ContentValues values = new ContentValues(7);
+			
+			values.put("name", item_name);
+			values.put("defindex", defindex);
+			values.put("item_slot", item_slot);
+			values.put("quality", item_quality);
+			values.put("type_name", item_type_name);
+			values.put("description", item_description);
+			values.put("proper_name", 0);
+			
+			return values;
 		}
 	}
 	
@@ -352,11 +358,11 @@ public class GameSchemeParser {
 				sqlDb.beginTransaction();
 				try {
 					// removes everything from database, else we would get duplicates
-					sqlDb.execSQL("DELETE FROM items");
-					sqlDb.execSQL("DELETE FROM attributes");
-					sqlDb.execSQL("DELETE FROM item_attributes");
-					sqlDb.execSQL("DELETE FROM particles");
-					sqlDb.execSQL("DELETE FROM strange_score_types");
+					sqlDb.delete("items", null, null);
+					sqlDb.delete("attributes", null, null);
+					sqlDb.delete("item_attributes", null, null);
+					sqlDb.delete("particles", null, null);
+					sqlDb.delete("strange_score_types", null, null);
 					
 					// we need to fetch table names
 					final Cursor c = sqlDb.rawQuery("SELECT type_name FROM strange_item_levels", null);
@@ -366,23 +372,23 @@ public class GameSchemeParser {
 					}
 					c.close();
 					
-					sqlDb.execSQL("DELETE FROM strange_item_levels");
+					sqlDb.delete("strange_item_levels", null, null);
 					
 					// add all attribute definitions
 					for (Attribute attribute : attributeList) {
-						sqlDb.execSQL("INSERT INTO attributes " + attribute.getSqlInsert());
+						sqlDb.insert("attributes", null, attribute.getSqlValues());
 					}
 					attributeList.clear();
 					
 					// add all item attributes
 					for (ItemAttribute itemAttribute : itemAttributeList) {
-						sqlDb.execSQL("INSERT INTO item_attributes " + itemAttribute.getSqlInsert());
+						sqlDb.insert("item_attributes", null, itemAttribute.getSqlValues());
 					}
 					itemAttributeList.clear();
 					
 					// add all items
 					for (TF2Weapon item : itemList) {
-						sqlDb.execSQL("INSERT INTO items " + item.getSqlInsert());
+						sqlDb.insert("items", null, item.getSqlValues());
 					}
 					
 					// run all the other sql statements
