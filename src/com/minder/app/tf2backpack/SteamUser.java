@@ -1,10 +1,14 @@
 package com.minder.app.tf2backpack;
 
+import com.google.gson.annotations.SerializedName;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class SteamUser implements Parcelable {
+	@SerializedName("steamid") 
 	public long steamdId64;
+	@SerializedName("personaname") 
 	public String steamName;
 	public String communityId;
 	public String gameId;

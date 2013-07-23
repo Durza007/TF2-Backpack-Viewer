@@ -208,7 +208,7 @@ public class DataManager {
 			HttpConnection connection = HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
 					Util.GetAPIKey() + "&SteamID=" + steamId64);
 			
-			String data = (String) connection.execute(null);
+			/*String data = (String) connection.execute(null);
 			// fetch latest exception, if there is one
 			request.exception = connection.getException();
 
@@ -228,7 +228,23 @@ public class DataManager {
 				return new PlayerItemListParser(data);
 			} else {
 				return null;
+			}*/
+			
+			InputStream inputStream = connection.executeStream(null);
+			PlayerItemListParser parser = null;
+			try {
+				parser = new PlayerItemListParser(inputStream);
+			} catch (IOException e) {
+				request.exception = e;
+			} finally {
+				try {
+					if (inputStream != null)
+						inputStream.close();
+				} catch (IOException e) {
+				}
 			}
+			
+			return parser;
 		}
 		
 		@Override

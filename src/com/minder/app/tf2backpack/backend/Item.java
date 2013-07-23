@@ -1,42 +1,109 @@
 package com.minder.app.tf2backpack.backend;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.minder.app.tf2backpack.Attribute.ItemAttribute;
+import com.google.gson.annotations.SerializedName;
+import com.minder.app.tf2backpack.SteamUser;
 
 public class Item implements Parcelable {
-	private int defIndex;
-	private String customName;
-	private String customDesc; 
+	public static class Equipped {
+		@SerializedName("class") 
+		public int character;
+		public int slot;
+	}
+	
+	public static class ItemAttribute implements Parcelable {
+		private int defindex;
+		private String value;
+		private float float_value;
+		private SteamUser account_info;
+		
+		public SteamUser getSteamUser() {
+			return account_info;
+		}
+		
+		public int getAttributeDefIndex() {
+			return defindex;
+		}
+
+		public float getFloatValue() {
+			return float_value;
+		}
+
+		public long getValue() {
+			long value = 0;
+			
+			try {
+				value = Long.parseLong(this.value);
+			} catch (NumberFormatException e) {		
+			}
+			
+			return value;
+		}
+		
+		public String getStringValue() {
+			return value;
+		}
+
+		public int describeContents() {
+			return 0;
+		}
+		
+		public ItemAttribute(Parcel source) {
+			defindex = source.readInt();
+			value = source.readString();
+			float_value = source.readFloat();
+			account_info = (SteamUser)source.readValue(SteamUser.class.getClassLoader());
+		}
+
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeInt(defindex);
+			dest.writeString(value);
+			dest.writeFloat(float_value);
+			dest.writeValue(account_info);
+		}
+		
+		public static final Parcelable.Creator<ItemAttribute> CREATOR = new Parcelable.Creator<ItemAttribute>() 
+		{
+			public ItemAttribute createFromParcel(Parcel source) {
+				return new ItemAttribute(source);
+			}
+
+			public ItemAttribute[] newArray(int size) {
+				return new ItemAttribute[size];
+			}
+			
+		};
+	}
+	
+	private int defindex;
+	private String custom_name;
+	private String custom_desc; 
 	private int level;
 	private int quality;
 	private int quantity;
-	private long inventoryToken;
+	private long inventory;
 	private int backpackPosition;
 	private int itemColor;
 	private int particleEffect;
-	private boolean equipped;
-	private boolean notTradable;
-	private boolean notCraftable;
-	private ArrayList<ItemAttribute> attributeList;
+	private boolean flag_cannot_trade;
+	private boolean flag_cannot_craft;
+	private Equipped[] equipped;
+	private ItemAttribute[] attributes;
 	
 	public void setDefIndex(int defIndex) {
-		this.defIndex = defIndex;
+		this.defindex = defIndex;
 	}
 	
 	public int getDefIndex(){
-		return defIndex;
+		return defindex;
 	}
 
-	public ArrayList<ItemAttribute> getAttributeList() {
-		return attributeList;
-	}
-	
-	public void addAttribute(ItemAttribute item){
-		this.attributeList.add(item);
+	public ItemAttribute[] getAttributeList() {
+		return attributes;
 	}
 
 	public void setLevel(int level) {
@@ -68,10 +135,25 @@ public class Item implements Parcelable {
 	}
 
 	public int getBackpackPosition() {
+		if (backpackPosition == -1)
+			backpackPosition = extractBackpackPosition(inventory);
+		
 		return backpackPosition;
 	}
 
-	public int getColor(){
+	public int getColor() {
+		if (itemColor == -1) {
+			if (attributes != null) {
+				for (ItemAttribute attribute : attributes) {
+					if (attribute.defindex == 142) {
+						itemColor = (int)attribute.getFloatValue();
+						return itemColor;
+					}
+				}
+			}
+			itemColor = 0;
+		}
+		
 		return itemColor;
 	}
 	
@@ -79,47 +161,68 @@ public class Item implements Parcelable {
 		itemColor = color;
 	}
 	
-	public boolean isEquipped(){
-		return equipped;
+	public boolean isEquipped() {
+		return equipped != null;
 	}
 	
 	public void setNotTradable(boolean notTradable) {
-		this.notTradable = notTradable;
+		this.flag_cannot_trade = notTradable;
 	}
 
 	public boolean isNotTradable() {
-		return notTradable;
+		return flag_cannot_trade;
 	}
 	
 	public boolean isNotCraftable() {
-		return notCraftable;
+		return flag_cannot_craft;
 	}
 	
 	public void setNotCraftable(boolean notCraftable) {
-		this.notCraftable = notCraftable;
+		this.flag_cannot_craft = notCraftable;
 	}
 
 	public String getCustomDesc() {
-		return customDesc;
+		return custom_desc;
 	}
 
 	public void setCustomDesc(String customDesc) {
-		this.customDesc = customDesc;
+		this.custom_desc = customDesc;
 	}
 
 	public String getCustomName() {
-		return customName;
+		return custom_name;
 	}
 	
 	public void setCustomName(String customName) {
-		this.customName = customName;
+		this.custom_name = customName;
+	}
+	
+	public void setParticleEffect(int particleEffect) {
+		this.particleEffect = particleEffect;
+	}
+
+	public int getParticleEffect() {
+		if (particleEffect == -1) {
+			if (attributes != null) {
+				for (ItemAttribute attribute : attributes) {
+					if (attribute.defindex == 134) {
+						particleEffect = (int)attribute.getFloatValue();
+						return particleEffect;
+					}
+				}
+			}
+			particleEffect = 0;
+		}
+		
+		return particleEffect;
 	}
 
 	public Item() {
-		this.itemColor = 0;
-		this.notTradable = false;
+		this.itemColor = -1;
+		this.particleEffect = -1;
+		this.flag_cannot_trade = false;
 		this.level = -1;
-		attributeList = new ArrayList<ItemAttribute>();
+		this.backpackPosition = -1;
 	}
 	
 	public Item(int defIndex, int level, int quality, int quantity, long inventoryToken){
@@ -127,11 +230,11 @@ public class Item implements Parcelable {
 		this.setLevel(level);
 		this.setQuality(quality);
 		this.setQuantity(quantity);
-		this.inventoryToken = inventoryToken;
-		this.setBackpackPosition(extractBackpackPosition(inventoryToken));
-		this.itemColor = 0;
-		this.notTradable = false;
-		this.attributeList = new ArrayList<ItemAttribute>();
+		this.inventory = inventoryToken;
+		this.backpackPosition = -1;
+		this.itemColor = -1;
+		this.particleEffect = -1;
+		this.flag_cannot_trade = false;
 	}
 	
 	public Item(Parcel in){		
@@ -142,37 +245,31 @@ public class Item implements Parcelable {
 		this.quality = in.readInt();
 		this.itemColor = in.readInt();
 		this.particleEffect = in.readInt();
-		boolean[] bools = new boolean[3];
+		boolean[] bools = new boolean[2];
 		in.readBooleanArray(bools);
-		this.equipped = bools[0];
-		this.notTradable = bools[1];
-		this.setNotCraftable(bools[2]);
-		this.attributeList = new ArrayList<ItemAttribute>();
-		in.readTypedList(this.attributeList, ItemAttribute.CREATOR);
+		this.flag_cannot_trade = bools[0];
+		this.flag_cannot_craft = bools[1];
+		
+		Object[] array = in.readArray(ItemAttribute.class.getClassLoader());	
+		if (array != null) {		
+			this.attributes = new ItemAttribute[array.length];
+			
+			for (int index = 0; index < array.length; ++index)
+				this.attributes[index] = (ItemAttribute)array[index];
+		}
 	}
 	
 	// find out if the item is equipped at the same time
-	public int extractBackpackPosition(long inventoryToken){
+	private static int extractBackpackPosition(long inventoryToken){
 		// awarded but not yet given
 		if (inventoryToken == 0 || (inventoryToken & 0x40000000) != 0) {
 			return -1;
 		}
-		// check if it is equipped
-		if ((inventoryToken & 0x0FFF0000) != 0){
-			equipped = true;
-		}
+		
 		return (int)(inventoryToken & 0xFFFF) - 1;
 	}
 
-	public void setParticleEffect(int particleEffect) {
-		this.particleEffect = particleEffect;
-	}
-
-	public int getParticleEffect() {
-		return particleEffect;
-	}
-
-	//Parcelable functions
+	// Parcelable functions
 	public int describeContents() {
 		return 0; 
 	}
@@ -185,8 +282,8 @@ public class Item implements Parcelable {
 		dest.writeInt(quality);
 		dest.writeInt(itemColor);
 		dest.writeInt(particleEffect);
-		dest.writeBooleanArray(new boolean[] {equipped, notTradable, isNotCraftable()});
-		dest.writeTypedList(attributeList);
+		dest.writeBooleanArray(new boolean[] {flag_cannot_trade, flag_cannot_craft});
+		dest.writeArray(attributes);
 	}
 	
 	public static final Parcelable.Creator<Item> CREATOR = new Parcelable.Creator<Item>() 

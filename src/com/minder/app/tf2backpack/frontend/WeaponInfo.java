@@ -1,8 +1,8 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -20,12 +20,12 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.Attribute;
-import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.Attribute.StrangeQuality;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
 import com.minder.app.tf2backpack.backend.Item;
+import com.minder.app.tf2backpack.backend.Item.ItemAttribute;
 
 public class WeaponInfo extends Activity {
 	private static final int blueColor = Color.rgb(153, 204, 255);
@@ -55,7 +55,14 @@ public class WeaponInfo extends Activity {
         Cursor c = sqlDb.rawQuery("SELECT name, type_name, description FROM items WHERE defindex = "
         		+ item.getDefIndex(), null);
         
-        ArrayList<ItemAttribute> itemAttributeList = item.getAttributeList();
+        ItemAttribute[] array = item.getAttributeList();
+        LinkedList<ItemAttribute> itemAttributeList = new LinkedList<ItemAttribute>();
+        
+        if (array != null) {
+        	for (ItemAttribute a : array)
+        		itemAttributeList.add(a);
+        }
+        
         String sqlParam = null;
         for (ItemAttribute ia : itemAttributeList){
         	if (sqlParam == null){
@@ -166,7 +173,8 @@ public class WeaponInfo extends Activity {
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList) {
 	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)) {
-	        	        		personaName = ia.getAccountPersonaName();
+	        	        		if (ia.getSteamUser() != null)
+	        	        			personaName = ia.getSteamUser().steamName;
 	        	        		
 	        	        		// hide duplicate attributes
 	        	        		if (ia.getAttributeDefIndex() == 187) {
@@ -352,7 +360,7 @@ public class WeaponInfo extends Activity {
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
 	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)){    
-	        	        		personaName = ia.getAccountPersonaName();
+	        	        		personaName = ia.getSteamUser().steamName;
 	        	        		break;
 	        	        	}
 	        	        }

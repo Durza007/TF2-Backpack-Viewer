@@ -171,15 +171,13 @@ public class GameSchemeParser {
         JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
         
         reader.beginObject();
-        if (reader.hasNext()) {
+        while (reader.hasNext()) {
         	String name = reader.nextName();
             if (name.equals("result")) {
             	parseResult(reader);
             } else {
-            	// TODO ERROR!
+            	reader.skipValue();
             }
-        } else {
-        	// TODO ERROR!
         }
 
         reader.endObject();
@@ -362,6 +360,9 @@ public class GameSchemeParser {
 	}
 	
 	private void linkItemAttributes() {
+		if (itemList == null || attributeList == null)
+			return;
+		
 		for (TF2Weapon item : itemList) {
 			ItemAttribute[] attributes = item.getAttributes();
 			
