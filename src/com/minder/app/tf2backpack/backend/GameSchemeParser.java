@@ -1,5 +1,8 @@
 package com.minder.app.tf2backpack.backend;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +15,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.BuildConfig;
@@ -64,87 +69,93 @@ public class GameSchemeParser {
 		}
 	}
 	
-	public class TF2Weapon {
-		private int defIndex;
-		private String itemSlot;
-		private int quality;
-		private String itemTypeName;
-		private String itemName;
-		private String imageUrl;
-		private String itemDescription;
+	public static class TF2Weapon {
+		private int defindex;
+		private String item_slot;
+		private int item_quality;
+		private String item_type_name;
+		private String item_name;
+		private String image_url;
+		private String image_url_large;
+		private String item_description;
+		private ItemAttribute[] attributes;
 		
 		public void setQuality(int quality){
-			this.quality = quality;
+			this.item_quality = quality;
 		}
 		
 		public int getQuality(){
-			return this.quality;
+			return this.item_quality;
 		}
 		
 		public void setItemSlot(String itemSlot) {
-			this.itemSlot = itemSlot;
+			this.item_slot = itemSlot;
 		}
 
 		public String getItemSlot() {
-			return itemSlot;
+			return item_slot;
 		}
 
 		public void setDefIndex(int defIndex){
-			this.defIndex = defIndex;
+			this.defindex = defIndex;
 		}
 		
 		public int getDefIndex(){
-			return this.defIndex;
+			return this.defindex;
 		}
 		
 		public void setItemTypeName(String itemTypeName) {
-			this.itemTypeName = itemTypeName;
+			this.item_type_name = itemTypeName;
 		}
 		
 		public String getItemTypeName() {
-			return this.itemTypeName;
+			return this.item_type_name;
 		}
 		
 		public void setItemName(String itemName){
-			this.itemName = itemName;
+			this.item_name = itemName;
 		}
 		
 		public String getItemName(){
-			return this.itemName;
+			return this.item_name;
 		}
 		
 		public void setImageUrl(String imageUrl) {
-			this.imageUrl = imageUrl;
+			this.image_url = imageUrl;
 		}
 
 		public String getImageUrl() {
-			return imageUrl;
+			return image_url;
+		}
+		
+		public String getLargeImageUrl() {
+			return image_url_large;
 		}
 		
 		public void setItemDescription(String itemDescription) {
-			this.itemDescription = itemDescription.replace("\"", "");
+			this.item_description = itemDescription.replace("\"", "");
 		}
 
 		public String getItemDescription() {
-			return itemDescription;
+			return item_description;
 		}
 		
 		public TF2Weapon(){
-			defIndex = 0;
-			itemName = "";
+			defindex = 0;
+			item_name = "";
 			setImageUrl("");
 		}
 		
 		public TF2Weapon(int defIndex, String itemTypeName, String itemName, String imageName){
-			this.defIndex = defIndex;
-			this.itemTypeName = itemTypeName;
-			this.itemName = itemName;
+			this.defindex = defIndex;
+			this.item_type_name = itemTypeName;
+			this.item_name = itemName;
 			this.setImageUrl(imageName);
 		}
 		
 		public String getSqlInsert(){
 			return "(name, defindex, item_slot, quality, type_name, description, proper_name) VALUES " + 
-				"(\"" + this.itemName + "\",\"" + this.defIndex + "\",\"" + this.itemSlot + "\",\"" + this.quality + "\",\"" + this.itemTypeName + "\",\"" + this.itemDescription + "\", \"0\")";
+				"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description + "\", \"0\")";
 		}
 	}
 	
@@ -270,6 +281,101 @@ public class GameSchemeParser {
 		//sqlDb.close();
 	//}
 	
+	public GameSchemeParser(InputStream inputStream, Context context, boolean highresImages) throws IOException {
+		// init lists
+		sqlExecList = new LinkedList<String>();
+		
+        JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+        
+        reader.beginObject();
+        if (reader.hasNext()) {
+        	String name = reader.nextName();
+            if (name.equals("result")) {
+            	parseResult(reader);
+            } else {
+            	// TODO ERROR!
+            }
+        } else {
+        	// TODO ERROR!
+        }
+
+        reader.endObject();
+        reader.close();
+        
+        
+	}
+	
+	private void parseResult(JsonReader reader) throws IOException {
+		reader.beginObject();
+		while (reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("status")) {
+				if (reader.nextInt() != 1)
+					throw new IOException("Status not 1");
+			} else if (name.equals("items")) {
+				itemList = parseItems(reader);
+			} else if (name.equals("attributes")) {
+				attributeList = parseAttributes(reader);
+			} else if (name.equals("attribute_controlled_attached_particles")) {
+				parseParticleEffects(reader);
+			} else {
+				reader.skipValue();
+			}
+		}
+		
+		reader.endObject();
+	}
+	
+	private List<TF2Weapon> parseItems(JsonReader reader) throws IOException {
+		List<TF2Weapon> itemList = new LinkedList<GameSchemeParser.TF2Weapon>();
+		Gson gson = new Gson();
+		
+		reader.beginArray();
+		while (reader.hasNext()) {
+			itemList.add((TF2Weapon)gson.fromJson(reader, TF2Weapon.class));
+		}
+		reader.endArray();
+		
+		return itemList;
+	}
+	
+	private List<Attribute> parseAttributes(JsonReader reader) throws IOException {
+		List<Attribute> attributes = new LinkedList<Attribute>();
+		Gson gson = new Gson();
+		
+		reader.beginArray();
+		while (reader.hasNext()) {
+			attributes.add((Attribute)gson.fromJson(reader, Attribute.class));
+		}
+		reader.endArray();
+		
+		return attributes;
+	}
+	
+	private void parseParticleEffects(JsonReader reader) throws IOException {	
+		reader.beginArray();
+		while (reader.hasNext()) {
+			reader.beginObject();
+			
+			int id = -1;
+			String particleName = null;
+			
+			while (reader.hasNext()) {
+				String name = reader.nextName();
+				if (name.equals("id")) {
+					id = reader.nextInt();
+				} else if (name.equals("name")) {
+					particleName = reader.nextString();
+				} else {
+					reader.skipValue();
+				}
+			}
+			reader.endObject();
+			
+			if (id != -1)
+				sqlExecList.add("INSERT INTO particles (id, name) VALUES (\"" + id + "\", \"" + particleName + "\")"); 
+		}
+	}
 	
 	public GameSchemeParser(String data, Context context, boolean highresImages){		
 		long start = System.currentTimeMillis();
@@ -382,7 +488,7 @@ public class GameSchemeParser {
 							JSONArray attributeNameArray = attributeObject.names();
 							JSONArray attributeValArray = attributeObject.toJSONArray(attributeNameArray);
 							ItemAttribute itemAttribute = new ItemAttribute();
-							itemAttribute.setItemDefIndex(item.defIndex);
+							itemAttribute.setItemDefIndex(item.getDefIndex());
 							
 							for (int arrayIndex = 0; arrayIndex < attributeNameArray.length(); arrayIndex++){
 								String type = attributeNameArray.getString(arrayIndex);
@@ -416,9 +522,8 @@ public class GameSchemeParser {
 					} catch (Exception e) {
 					}
 					
-					
 					itemList.add(item);						
-					imageURList.add(new ImageInfo(item.defIndex, itemColor, itemColor2, item.imageUrl));
+					imageURList.add(new ImageInfo(item.getDefIndex(), itemColor, itemColor2, item.image_url));
 				} // end fetch items
 				
 				{

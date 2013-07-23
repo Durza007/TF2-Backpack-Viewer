@@ -2,6 +2,7 @@ package com.minder.app.tf2backpack.backend;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.http.HttpEntity;
@@ -64,6 +65,42 @@ public class HttpConnection {
 		
 		httpClient = new DefaultHttpClient();
 		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 15000);
+	}
+	
+	public InputStream executeStream(DownloadProgressListener listener) {
+		HttpResponse response = null;
+		try {
+			response = httpClient.execute(new HttpGet(url));
+		} catch (ClientProtocolException e) {
+			if (BuildConfig.DEBUG) {
+				e.printStackTrace();
+			}
+			exception = e;
+		} catch (IOException e) {
+			if (BuildConfig.DEBUG) {
+				e.printStackTrace();
+			}
+			exception = e;
+		}
+		
+		InputStream stream = null;
+		if (response != null) {
+			try {
+				stream = response.getEntity().getContent();
+			} catch (IllegalStateException e) {
+				if (BuildConfig.DEBUG) {
+					e.printStackTrace();
+				}
+				exception = e;
+			} catch (IOException e) {
+				if (BuildConfig.DEBUG) {
+					e.printStackTrace();
+				}
+				exception = e;
+			}
+		}
+		
+		return stream;
 	}
 	
 	/**

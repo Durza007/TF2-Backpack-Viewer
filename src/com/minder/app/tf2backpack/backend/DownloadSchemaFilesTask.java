@@ -3,6 +3,7 @@ package com.minder.app.tf2backpack.backend;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -67,7 +68,19 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		if (refreshImages)
 			deleteItemImages();
 		
-		String data = null;//getSchemaFromServer();
+		HttpConnection connection1 = 
+				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
+					Util.GetAPIKey() + "&format=json&language=en");
+		InputStream stream = connection1.executeStream(null);
+		
+		try {
+			GameSchemeParser gs = new GameSchemeParser(stream, context, false);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String data = null; //getSchemaFromServer();
 		
 		HttpConnection connection = null;
 		if (data == null) {

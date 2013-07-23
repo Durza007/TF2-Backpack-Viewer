@@ -19,10 +19,12 @@ public class Attribute {
 	public final static byte FORMAT_ITEM_DEFINDEX = 9;
 	
 	private String name;
-	private int defIndex;
-	private String descriptionString;
-	private byte descriptionFormat;
-	private byte effectType;
+	private int defindex;
+	private String description_string;
+	private String description_format;
+	private byte descriptionFormat = 0;
+	private String effect_type;
+	private byte effectType = 0;
 	private boolean hidden;
 	
 	public void setName(String name) {
@@ -34,19 +36,19 @@ public class Attribute {
 	}
 	
 	public void setDefIndex(int defIndex) {
-		this.defIndex = defIndex;
+		this.defindex = defIndex;
 	}
 	
 	public int getDefIndex() {
-		return defIndex;
+		return defindex;
 	}
 	
 	public void setDescriptionString(String descriptionString) {
-		this.descriptionString = descriptionString;
+		this.description_string = descriptionString;
 	}
 	
 	public String getDescriptionString() {
-		return descriptionString;
+		return description_string;
 	}
 	
 	public void setDescriptionFormat(byte descriptionFormat) {
@@ -54,6 +56,7 @@ public class Attribute {
 	}
 	
 	public void setDescriptionFormat(String descriptionFormat) {
+		this.description_format = descriptionFormat;
 		this.descriptionFormat = getDescriptionFormat(descriptionFormat);
 	}
 	
@@ -66,6 +69,7 @@ public class Attribute {
 	}
 	
 	public void setEffectType(String effectType) {
+		this.effect_type = effectType;
 		this.effectType = getEffectType(effectType);
 	}
 	
@@ -88,9 +92,15 @@ public class Attribute {
 			return 0;
 	}
 	
-	public String getSqlInsert(){
+	public String getSqlInsert() {
+		if (descriptionFormat == 0)
+			descriptionFormat = getDescriptionFormat(description_format);
+		
+		if (effectType == 0)
+			effectType = getEffectType(effect_type);
+		
 		return "(name, defindex, description_string, description_format, effect_type, hidden) VALUES " + 
-			"(\"" + this.name + "\",\"" + this.defIndex + "\",\"" + this.descriptionString + "\",\"" + this.descriptionFormat + "\",\"" + this.effectType + "\",\"" + this.isHiddenInt() + "\")";
+			"(\"" + this.name + "\",\"" + this.defindex + "\",\"" + this.description_string + "\",\"" + this.descriptionFormat + "\",\"" + this.effect_type + "\",\"" + this.isHiddenInt() + "\")";
 	}
 	
     public final static byte getDescriptionFormat(String format){
@@ -139,8 +149,8 @@ public class Attribute {
 		private int itemDefIndex;
 		private int attributeDefIndex;
 		private String name;
-		private long value;
-		private float floatValue;
+		private long longValue;
+		private float value;
 		private long accountSteamId;
 		private String accountPersonaName;
 
@@ -169,11 +179,11 @@ public class Attribute {
 		}
 		
 		public void setValue(long value) {
-			this.value = value;
+			this.longValue = value;
 		}
 		
 		public long getValue() {
-			return value;
+			return longValue;
 		}
 		
 		public void setAccountInfo(long steamId, String personaName) {
@@ -191,13 +201,13 @@ public class Attribute {
 		
 		public String getSqlInsert(){
 			return "(itemdefindex, attributedefindex, value) VALUES " + 
-				"(\"" + this.itemDefIndex + "\",\"" + this.attributeDefIndex + "\",\"" + this.floatValue + "\")";
+				"(\"" + this.itemDefIndex + "\",\"" + this.attributeDefIndex + "\",\"" + this.value + "\")";
 		}
 		
 		public ItemAttribute(Parcel source) {
 			this.attributeDefIndex = source.readInt();
-			this.value = source.readLong();
-			this.floatValue = source.readFloat();
+			this.longValue = source.readLong();
+			this.value = source.readFloat();
 			this.accountSteamId = source.readLong();
 			this.accountPersonaName = source.readString();
 		}
@@ -212,18 +222,18 @@ public class Attribute {
 
 		public void writeToParcel(Parcel dest, int flags) {
 			dest.writeInt(attributeDefIndex);
-			dest.writeLong(value);
-			dest.writeFloat(floatValue);
+			dest.writeLong(longValue);
+			dest.writeFloat(value);
 			dest.writeLong(accountSteamId);
 			dest.writeString(accountPersonaName);
 		}
 		
 		public void setFloatValue(float floatValue) {
-			this.floatValue = floatValue;
+			this.value = floatValue;
 		}
 
 		public float getFloatValue() {
-			return floatValue;
+			return value;
 		}
 
 		public static final Parcelable.Creator<ItemAttribute> CREATOR = new Parcelable.Creator<ItemAttribute>() 
