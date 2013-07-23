@@ -298,6 +298,12 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 					}
 		    	}
 	    	}
+	    	
+	    	if (itemColor != 0)
+	    		isPaintCan = true;
+	    	
+	    	if (itemColor2 != 0)
+	    		isTeamPaintCan = true;
 			
 			try {
 				if (image != null){
