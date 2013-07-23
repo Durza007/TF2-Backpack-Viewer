@@ -140,6 +140,10 @@ public class GameSchemeParser {
 			return item_description;
 		}
 		
+		public ItemAttribute[] getAttributes() {
+			return attributes;
+		}
+		
 		public TF2Weapon(){
 			defindex = 0;
 			item_name = "";
@@ -158,6 +162,13 @@ public class GameSchemeParser {
 				"(\"" + this.item_name + "\",\"" + this.defindex + "\",\"" + this.item_slot + "\",\"" + this.item_quality + "\",\"" + this.item_type_name + "\",\"" + this.item_description + "\", \"0\")";
 		}
 	}
+	
+	public static class StrangeItemLevel {
+		public int level;
+		public int required_score;
+		public String name;
+	}
+	
 	
 	public Exception error;
 	
@@ -284,6 +295,7 @@ public class GameSchemeParser {
 	public GameSchemeParser(InputStream inputStream, Context context, boolean highresImages) throws IOException {
 		// init lists
 		sqlExecList = new LinkedList<String>();
+		itemAttributeList = new LinkedList<Attribute.ItemAttribute>();
 		
         JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
         
@@ -302,7 +314,11 @@ public class GameSchemeParser {
         reader.endObject();
         reader.close();
         
+        linkItemAttributes();
         
+		if (sqlExecList != null){
+			saveToDB();
+		}
 	}
 	
 	private void parseResult(JsonReader reader) throws IOException {
@@ -318,6 +334,10 @@ public class GameSchemeParser {
 				attributeList = parseAttributes(reader);
 			} else if (name.equals("attribute_controlled_attached_particles")) {
 				parseParticleEffects(reader);
+			} else if (name.equals("item_levels")) {
+				parseStrangeItemLevels(reader);
+			} else if (name.equals("kill_eater_score_types")) {
+				parseStrangeScoreTypes(reader);
 			} else {
 				reader.skipValue();
 			}
@@ -325,7 +345,7 @@ public class GameSchemeParser {
 		
 		reader.endObject();
 	}
-	
+
 	private List<TF2Weapon> parseItems(JsonReader reader) throws IOException {
 		List<TF2Weapon> itemList = new LinkedList<GameSchemeParser.TF2Weapon>();
 		Gson gson = new Gson();
@@ -374,6 +394,102 @@ public class GameSchemeParser {
 			
 			if (id != -1)
 				sqlExecList.add("INSERT INTO particles (id, name) VALUES (\"" + id + "\", \"" + particleName + "\")"); 
+		}	
+		reader.endArray();
+	}
+	
+	private void parseStrangeItemLevels(JsonReader reader) throws IOException {
+		Gson gson = new Gson();
+		reader.beginArray();
+		
+		while (reader.hasNext()) {
+			reader.beginObject();
+			String typeName = null;
+			List<StrangeItemLevel> strangeItemLevels = new LinkedList<StrangeItemLevel>();
+			
+			while (reader.hasNext()) {
+				String name = reader.nextName();
+				if (name.equals("name")) {
+					typeName = reader.nextString();
+				} else if (name.equals("levels")) {
+					reader.beginArray();
+					
+					while (reader.hasNext()) {
+						strangeItemLevels.add(
+								(StrangeItemLevel)gson.fromJson(reader, StrangeItemLevel.class));
+					}
+					
+					reader.endArray();
+				} else {
+					reader.skipValue();
+				}
+			}
+			
+			reader.endObject();
+			
+			if (typeName != null) {
+				sqlExecList.add("INSERT INTO strange_item_levels (type_name) VALUES (\"" + typeName + "\")");
+				sqlExecList.add("CREATE TABLE " + typeName + " (level INTEGER PRIMARY KEY, required_score INTEGER, name TEXT);");
+
+				for (StrangeItemLevel s : strangeItemLevels) {
+					sqlExecList.add("INSERT INTO " + typeName + "(level, required_score, name) VALUES " +
+							"(\"" + s.level + "\", \"" + s.required_score + "\", \"" + s.name + "\")");
+				}
+			}
+		}
+		
+		reader.endArray();
+	}
+	
+	private void parseStrangeScoreTypes(JsonReader reader) throws IOException {
+		reader.beginArray();
+		
+		while (reader.hasNext()) {
+			reader.beginObject();
+			int type = -1;
+			String typeName = null;
+			String levelData = null;
+			
+			while (reader.hasNext()) {
+				String name = reader.nextName();
+				if (name.equals("type")) {
+					type = reader.nextInt();
+				} else if (name.equals("type_name")) {
+					typeName = reader.nextString();
+				} else if (name.equals("level_data")) {
+					levelData = reader.nextString();
+				} else {
+					reader.skipValue();
+				}
+			}
+			
+			if (type != -1 && typeName != null && levelData != null)
+				sqlExecList.add("INSERT INTO strange_score_types (type, type_name, level_data) VALUES" +
+						"(\"" + type + "\", \"" + typeName + "\", \"" + levelData + "\")");
+			
+			reader.endObject();
+		}
+		
+		reader.endArray();
+	}
+	
+	private void linkItemAttributes() {
+		for (TF2Weapon item : itemList) {
+			ItemAttribute[] attributes = item.getAttributes();
+			
+			if (attributes != null) {
+				for (ItemAttribute itemAttribute : attributes) {
+					itemAttribute.setItemDefIndex(item.getDefIndex());
+					
+					for (Attribute attribute : attributeList) {
+						if (attribute.getName().equals(itemAttribute.getName())) {
+							itemAttribute.setAttributeDefIndex(attribute.getDefIndex());
+							itemAttributeList.add(itemAttribute);
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
 	

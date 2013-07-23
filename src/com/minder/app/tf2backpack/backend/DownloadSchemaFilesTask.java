@@ -68,49 +68,32 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		if (refreshImages)
 			deleteItemImages();
 		
-		HttpConnection connection1 = 
+		HttpConnection connection = 
 				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
-					Util.GetAPIKey() + "&format=json&language=en");
-		InputStream stream = connection1.executeStream(null);
+						Util.GetAPIKey() + "&format=json&language=en");
 		
-		try {
-			GameSchemeParser gs = new GameSchemeParser(stream, context, false);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		String data = null; //getSchemaFromServer();
-		
-		HttpConnection connection = null;
-		if (data == null) {
-			connection = 
-				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
-					Util.GetAPIKey() + "&format=json&language=en");
+		InputStream inputStream = connection.executeStream(new DownloadProgressListener() {
+			private int totalSize;
+			public void totalSize(long totalSize) {
+				this.totalSize = (int)totalSize;
+				publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, this.totalSize, 0));
+			}
 			
-			data = (String) connection.execute(new DownloadProgressListener() {
-				private int totalSize;
-				public void totalSize(long totalSize) {
-					this.totalSize = (int)totalSize;
-					publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, this.totalSize, 0));
-				}
-				
-				public void progressUpdate(long currentSize) {
-					publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentSize));
-				}
-			});
-		}
+			public void progressUpdate(long currentSize) {
+				publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentSize));
+			}
+		});
 		
-		if (data != null) {
+		if (inputStream != null) {
 			publishProgress(new ProgressUpdate(DataManager.PROGRESS_PARSING_SCHEMA, 0, 0));
 			
-			GameSchemeParser gs = 
-				new GameSchemeParser(data, this.context, highresImages);
-			// set to null as soon as possible since it is holding >2 MB
-			data = null;
-			
-			if (gs.error != null){
-				// TODO handle error
+			GameSchemeParser gs = null;
+			try {
+				gs = new GameSchemeParser(inputStream, this.context, highresImages);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				request.exception = e1;
+				return null;
 			}
 			
 			// download images
@@ -170,8 +153,6 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		    	paintColor.recycle();
 		    	teamPaintBlue.recycle();
 		    	teamPaintRed.recycle();
-			} else {
-				// handle error
 			}
 			gs = null;
 			System.gc();
@@ -194,72 +175,6 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		listener.onPostExecute(request);
 		App.getDataManager().removeRequest(request);
 	}
-	
-	/*private String getSchemaFromServer() {
-		String result = null;
-		long start = System.currentTimeMillis();
-		try {
-			Log.d("GameSchemeDownloader", "Trying data server");
-			DataServerConnection connection = new DataServerConnection();
-			Log.d("GameSchemeDownloader", "Downloading from data server");
-			connection.getOutputStream().write(1);
-			
-			int totalSize = (int)connection.readLong();
-			publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, 0));
-			
-			/*byte[] data = new byte[totalSize];
-			byte[] buffer = new byte[(int) HttpConnection.BYTE_UPDATE_INTERVALL];
-			
-			InputStream in = connection.getInputStream();
-			int byteCount = 0;
-			long lastProgressUpdate = System.currentTimeMillis();
-			while (true) {
-				int bytesRead = in.read(buffer);
-				
-				if (bytesRead == -1)
-					break;
-				
-				System.arraycopy(buffer, 0, data, byteCount, bytesRead);
-				
-				byteCount += bytesRead;
-				
-				if (System.currentTimeMillis() > lastProgressUpdate + MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS) {
-					lastProgressUpdate = System.currentTimeMillis();
-					publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, byteCount));
-				}
-			}*/
-			
-			/*BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			
-			StringBuilder sb = new StringBuilder();
-			String line;
-
-			long currentByteCount = 0;
-			long lastUpdate = 0;
-			long lastProgressUpdate = 0;
-			while ((line = reader.readLine()) != null) {
-				// add 1 to account for missing line endings
-				//currentByteCount += (line.getBytes().length) + 1;
-				currentByteCount += (line.length()) + 1;
-				
-				if (System.currentTimeMillis() > lastProgressUpdate + MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS) {
-					lastProgressUpdate = System.currentTimeMillis();
-					publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentByteCount));
-				}
-
-				sb.append(line);
-			}
-			
-			result = sb.toString();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		Log.d("GameSchemeDownload", "Data server download time: " + (System.currentTimeMillis() - start) + " ms");
-		return result;
-	}*/
 	
     private class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
@@ -294,7 +209,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
     }
 	
 	private class ImageDownloader implements Runnable {
-		private int index;
+		private final int index;
 		
 		public ImageDownloader(int index) {
 			this.index = index;
