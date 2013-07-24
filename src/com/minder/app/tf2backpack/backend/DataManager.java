@@ -208,29 +208,13 @@ public class DataManager {
 			HttpConnection connection = HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
 					Util.GetAPIKey() + "&SteamID=" + steamId64);
 			
-			/*String data = (String) connection.execute(null);
-			// fetch latest exception, if there is one
-			request.exception = connection.getException();
-
-			if (data == null) {
-				if (BuildConfig.DEBUG)
-					Log.d("DataManager", "loading item list from cache");
-				// if we could not get it from Internet - check if we have it cached
-				data = cacheManager.getString("itemlist", Long.toString(steamId64));
-			} else {
-				if (BuildConfig.DEBUG)
-					Log.d("DataManager", "loading item list from internet");
-				cacheManager.cacheString("itemlist", Long.toString(steamId64), data);
+			InputStream inputStream = connection.executeStream(null);
+			
+			if (inputStream == null) {
+				request.exception = connection.getException();
+				return null;
 			}
 			
-			// Parse data if available
-			if (data != null) {			
-				return new PlayerItemListParser(data);
-			} else {
-				return null;
-			}*/
-			
-			InputStream inputStream = connection.executeStream(null);
 			PlayerItemListParser parser = null;
 			try {
 				parser = new PlayerItemListParser(inputStream);

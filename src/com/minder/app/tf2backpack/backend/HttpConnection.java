@@ -151,7 +151,10 @@ public class HttpConnection {
 			}
 		}
 		
-		return new ProgressInputStream(stream, listener);
+		if (stream != null)
+			return new ProgressInputStream(stream, listener);
+		else
+			return null;
 	}
 	
 	/**

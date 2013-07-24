@@ -1,6 +1,7 @@
 package com.minder.app.tf2backpack.frontend;
 
 import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,6 +22,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.minder.app.tf2backpack.App;
+import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
@@ -273,17 +275,10 @@ public class BackpackFragment extends Fragment {
 					addPlayerDataToView();
 				}
 			} else {
-				// TODO handle exception
-				/*
-				 * Exception e = request.getException(); e.printStackTrace(); if
-				 * (Internet.isOnline(Backpack.this)){ if (e instanceof
-				 * UnknownHostException){ Toast.makeText(Backpack.this,
-				 * R.string.no_steam_api, Toast.LENGTH_LONG).show(); } else {
-				 * Toast.makeText(Backpack.this, e.getLocalizedMessage(),
-				 * Toast.LENGTH_LONG).show(); } } else {
-				 * Toast.makeText(Backpack.this, R.string.no_internet,
-				 * Toast.LENGTH_LONG).show(); }
-				 */
+				Exception e = request.getException(); 
+				e.printStackTrace();
+
+				Util.handleNetworkException(e, getActivity());
 			}
 
 			myProgressDialog.dismiss();

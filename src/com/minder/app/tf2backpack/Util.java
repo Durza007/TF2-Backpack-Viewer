@@ -2,6 +2,7 @@ package com.minder.app.tf2backpack;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.widget.Toast;
 
 public class Util {
 	public static int GetPxFromDp(Context context, float dp)
@@ -23,6 +25,20 @@ public class Util {
 	
 	public final static String GetTag(){
 		return "TF2Backpack";
+	}
+	
+	public final static void handleNetworkException(Exception e, Context context) {	
+		if (Internet.isOnline(context)) { 
+			if (e instanceof UnknownHostException) { 
+				Toast.makeText(context,
+						R.string.no_steam_api, Toast.LENGTH_LONG).show(); 
+			} else {
+				Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_LONG).show(); 
+			} 
+		} else {
+			Toast.makeText(context, R.string.no_internet,
+					Toast.LENGTH_LONG).show(); 
+		}	 
 	}
 	
     public final static int getItemColor(int quality){

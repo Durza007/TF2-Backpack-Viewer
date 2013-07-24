@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack;
 
-import java.net.SocketTimeoutException;
-
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -221,9 +219,7 @@ public class GameSchemeDownloaderService extends Service {
 				// default error message
 				notificationTitle = R.string.failed_download;
 				
-				if (exception instanceof SocketTimeoutException) {
-					notificationTitle = R.string.failed_download;
-				}
+				Util.handleNetworkException(exception, GameSchemeDownloaderService.this);
 			} else {
 				downloadGameSchemeSuccess = true;
 			}
