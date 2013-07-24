@@ -142,12 +142,13 @@ public class BackpackView extends TableLayout {
 		p.bitmap = Bitmap.createBitmap(colorSplat.getWidth(), colorSplat.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(p.bitmap);
 		Paint paint = new Paint();
-		paint.setColorFilter(new PorterDuffColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP));
+		//paint.setColorFilter(new PorterDuffColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP));
+		paint.setColorFilter(new LightingColorFilter((0xFF << 24) | color, 1));
 		// draw paintcan
 		canvas.drawBitmap(colorSplat, 0, 0, paint);
 		
 		if (color2 != 0) {
-			paint.setColorFilter(new PorterDuffColorFilter((0xFF << 24) | color2, PorterDuff.Mode.SRC_ATOP));
+			paint.setColorFilter(new LightingColorFilter((0xFF << 24) | color2, 1));
 			// draw paintcan
 			canvas.drawBitmap(colorTeamSpirit, 0, 0, paint);
 		}
@@ -299,7 +300,7 @@ public class BackpackView extends TableLayout {
 				holder.textCount.setVisibility(View.VISIBLE);
 				holder.textCount.setText(String.valueOf(item.getQuantity()));
 			} else {
-				holder.textCount.setVisibility(View.GONE);
+				holder.textCount.setVisibility(View.INVISIBLE);
 			}
 			
 			if (item.isEquipped()){
