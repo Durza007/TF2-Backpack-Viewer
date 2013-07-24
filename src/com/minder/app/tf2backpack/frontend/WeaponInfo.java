@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -226,8 +227,9 @@ public class WeaponInfo extends Activity {
 	        				break;
 	        				
 	        			case Attribute.FORMAT_ADDITIVE:
-	        				if (value != (int)value){
-	        					description = description.replace("%s1", String.valueOf(value)) + "\n";
+	        				if (value != (int)value) {
+	        					DecimalFormat df = new DecimalFormat("#.##");
+	        					description = description.replace("%s1", df.format(value)) + "\n";
 	        				} else {
 	        					description = description.replace("%s1", String.valueOf((int)value)) + "\n";
 	        				}
