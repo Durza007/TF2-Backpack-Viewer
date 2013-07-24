@@ -156,7 +156,7 @@ public class WeaponInfo extends Activity {
 	        		int attributeDefIndex = cAttribute.getInt(defIndexColumn);
 	        		
 	        		// check if hidden == false
-	        		if (cAttribute.getInt(hiddenColumn) == 0) {
+	        		if (cAttribute.getInt(hiddenColumn) == 0 || attributeDefIndex == 228) {
 	        			String description = cAttribute.getString(descriptionColumn);
 	        			int descriptionFormat = cAttribute.getInt(descriptionFormatColumn);
 	        			int effectType = cAttribute.getInt(effectTypeColumn);
@@ -353,27 +353,6 @@ public class WeaponInfo extends Activity {
 		        			name += " #" + (int)value;
 		        			tvName.setText(name);
 	        	        }
-	        		} else if (attributeDefIndex == 228) {
-	        			/**
-	        			 * Makers mark id - the attribute that shows who crafted the item
-	        			 */
-	        			
-	        			String personaName = null;
-	        			// set correct value for unique attributes
-	        	        for (ItemAttribute ia : itemAttributeList){
-	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)){    
-	        	        		personaName = ia.getSteamUser().steamName;
-	        	        		break;
-	        	        	}
-	        	        }
-	        	        
-	        	        String description = cAttribute.getString(descriptionColumn);
-        				description = description.replace("%s1", personaName) + "\n";
-        				
-	        			attributeText.append(description);
-	        			attributeText.setSpan(new ForegroundColorSpan(blueColor), textIndex, textIndex + description.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        			
-	        			textIndex += description.length();
 	        		}
 	        	}
 	        	
