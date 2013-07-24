@@ -78,7 +78,7 @@ public class WeaponInfo extends Activity {
         if (isPlayerItem){
         	cAttribute = sqlDb.rawQuery("SELECT description_string, defindex, description_format, effect_type, hidden FROM attributes " + sqlParam, null);
         } else {
-        	cAttribute = sqlDb.rawQuery("SELECT  description_string, value, description_format, effect_type, hidden, defindex FROM item_attributes, attributes WHERE itemdefindex = " + item.getDefIndex() + " AND defindex = attributedefindex", null);
+        	cAttribute = sqlDb.rawQuery("SELECT description_string, value, description_format, effect_type, hidden, defindex FROM item_attributes, attributes WHERE itemdefindex = " + item.getDefIndex() + " AND defindex = attributedefindex", null);
         }
         
         final int defIndexColumn = cAttribute.getColumnIndex("defindex");

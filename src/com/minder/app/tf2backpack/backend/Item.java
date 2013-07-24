@@ -88,6 +88,7 @@ public class Item implements Parcelable {
 	private long inventory;
 	private int backpackPosition;
 	private int itemColor;
+	private int itemColor2;
 	private int particleEffect;
 	private boolean flag_cannot_trade;
 	private boolean flag_cannot_craft;
@@ -161,6 +162,22 @@ public class Item implements Parcelable {
 		itemColor = color;
 	}
 	
+	public int getColor2() {
+		if (itemColor2 == -1) {
+			if (attributes != null) {
+				for (ItemAttribute attribute : attributes) {
+					if (attribute.defindex == 261) {
+						itemColor2 = (int)attribute.getFloatValue();
+						return itemColor2;
+					}
+				}
+			}
+			itemColor2 = 0;
+		}
+		
+		return itemColor2;
+	}
+	
 	public boolean isEquipped() {
 		return equipped != null;
 	}
@@ -219,22 +236,20 @@ public class Item implements Parcelable {
 
 	public Item() {
 		this.itemColor = -1;
+		this.itemColor2 = -1;
 		this.particleEffect = -1;
 		this.flag_cannot_trade = false;
 		this.level = -1;
 		this.backpackPosition = -1;
 	}
 	
-	public Item(int defIndex, int level, int quality, int quantity, long inventoryToken){
+	public Item(int defIndex, int level, int quality, int quantity, long inventoryToken) {
+		this();
 		this.setDefIndex(defIndex);
 		this.setLevel(level);
 		this.setQuality(quality);
 		this.setQuantity(quantity);
 		this.inventory = inventoryToken;
-		this.backpackPosition = -1;
-		this.itemColor = -1;
-		this.particleEffect = -1;
-		this.flag_cannot_trade = false;
 	}
 	
 	public Item(Parcel in){		
@@ -244,6 +259,7 @@ public class Item implements Parcelable {
 		this.level = in.readInt();
 		this.quality = in.readInt();
 		this.itemColor = in.readInt();
+		this.itemColor2 = in.readInt();
 		this.particleEffect = in.readInt();
 		boolean[] bools = new boolean[2];
 		in.readBooleanArray(bools);
@@ -281,6 +297,7 @@ public class Item implements Parcelable {
 		dest.writeInt(level);
 		dest.writeInt(quality);
 		dest.writeInt(itemColor);
+		dest.writeInt(itemColor2);
 		dest.writeInt(particleEffect);
 		dest.writeBooleanArray(new boolean[] {flag_cannot_trade, flag_cannot_craft});
 		dest.writeArray(attributes);

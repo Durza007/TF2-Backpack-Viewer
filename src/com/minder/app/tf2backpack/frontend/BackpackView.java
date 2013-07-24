@@ -242,7 +242,7 @@ public class BackpackView extends TableLayout {
 				allItemsWereKnown = false;
 			}
     		
-			if (coloredCells){
+			if (coloredCells) {
 				final int quality = item.getQuality();
 				if (quality >=1 && quality <= 13){
 					if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
@@ -266,8 +266,9 @@ public class BackpackView extends TableLayout {
 			}
 			
 			int color = item.getColor();
+			int color2 = item.getColor2();
 			if (color != 0){
-				if (color == 1){		
+				if (color2 != 0){		
 		    		Holder.colorSplat.setImageBitmap(colorTeamSpirit);
 					Holder.colorSplat.setVisibility(View.VISIBLE);
 		    		Holder.colorSplat.setColorFilter(null);
