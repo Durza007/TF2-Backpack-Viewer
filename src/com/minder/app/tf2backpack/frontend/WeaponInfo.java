@@ -1,6 +1,8 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -240,8 +242,9 @@ public class WeaponInfo extends Activity {
 	        				break;
 	        				
 	        			case Attribute.FORMAT_DATE:
+	        				DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
 	        				Date date = getDateFromUnix(((long)value) * 1000);
-	        				description = description.replace("%s1", date.toGMTString()) + "\n";
+	        				description = description.replace("%s1", formatter.format(date)) + "\n";
 	        				break;
 	        				
 	        			case Attribute.FORMAT_PARTICLE_INDEX:   					
