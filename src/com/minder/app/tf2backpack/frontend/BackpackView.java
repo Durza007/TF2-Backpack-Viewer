@@ -2,13 +2,18 @@ package com.minder.app.tf2backpack.frontend;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -48,6 +53,17 @@ public class BackpackView extends TableLayout {
 		}
 	}
 	
+	private static class PaintColor {
+		public Bitmap bitmap;
+		public final int color;
+		public final int color2;
+		
+		public PaintColor(int color, int color2) {
+			this.color = color;
+			this.color2 = color2;
+		}
+	}
+	
 	private final static int BACKPACK_CELL_COUNT = 50;
 	
 	private Context context;
@@ -59,6 +75,8 @@ public class BackpackView extends TableLayout {
 	private Bitmap colorTeamSpirit;
 	private boolean[] buttonsChanged; 
 	private boolean isTableCreated = false;
+	
+	private List<PaintColor> paintCache;
 	
 	private OnClickListener onClickListener;
 	private OnLayoutReadyListener onReady;
@@ -105,10 +123,37 @@ public class BackpackView extends TableLayout {
 		this.context = context;
 		this.setStretchAllColumns(true);
 		
+		paintCache = new LinkedList<PaintColor>();
+		
         Resources r = this.getResources();
 
-        colorSplat = BitmapFactory.decodeResource(r, R.drawable.color_circle);
-        colorTeamSpirit = BitmapFactory.decodeResource(r, R.drawable.color_circle_team_spirit);
+        colorSplat = BitmapFactory.decodeResource(r, R.drawable.full_paint);
+        colorTeamSpirit = BitmapFactory.decodeResource(r, R.drawable.team_half_paint);
+	}
+	
+	private Bitmap getPaintImage(int color, int color2) {
+		for (PaintColor p : paintCache) {
+			if (p.color == color && p.color2 == color2)
+				return p.bitmap;
+		}
+		
+		// Paintcolor did not exist -> create it!
+		PaintColor p = new PaintColor(color, color2);
+		p.bitmap = Bitmap.createBitmap(colorSplat.getWidth(), colorSplat.getHeight(), Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(p.bitmap);
+		Paint paint = new Paint();
+		paint.setColorFilter(new PorterDuffColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP));
+		// draw paintcan
+		canvas.drawBitmap(colorSplat, 0, 0, paint);
+		
+		if (color2 != 0) {
+			paint.setColorFilter(new PorterDuffColorFilter((0xFF << 24) | color2, PorterDuff.Mode.SRC_ATOP));
+			// draw paintcan
+			canvas.drawBitmap(colorTeamSpirit, 0, 0, paint);
+		}
+		
+		paintCache.add(p);	
+		return p.bitmap;
 	}
 	
 	private void createTable() {
@@ -266,17 +311,8 @@ public class BackpackView extends TableLayout {
 			int color = item.getColor();
 			int color2 = item.getColor2();
 			if (color != 0){
-				if (color2 != 0){		
-					holder.colorSplat.setImageBitmap(colorTeamSpirit);
-					holder.colorSplat.setVisibility(View.VISIBLE);
-					holder.colorSplat.setColorFilter(null);
-				} else {
-					//ColorFilter filter = new LightingColorFilter((0xFF << 24) | color, 1);
-					holder.colorSplat.setImageBitmap(colorSplat);
-					holder.colorSplat.setVisibility(View.VISIBLE);
-					holder.colorSplat.setColorFilter(null);
-					holder.colorSplat.setColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP);
-				}
+				holder.colorSplat.setImageBitmap(getPaintImage(color, color2));
+				holder.colorSplat.setVisibility(View.VISIBLE);
 			} else {
 				holder.colorSplat.setVisibility(View.GONE);
 			}

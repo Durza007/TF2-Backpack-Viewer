@@ -28,7 +28,8 @@
         android:layout_gravity="right"
         android:paddingRight="5dp"
         android:paddingTop="5dp"
-        android:visibility="gone" >
+        android:visibility="visible" >
+
     </ImageView>
 
     <TextView
