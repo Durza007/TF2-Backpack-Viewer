@@ -23,6 +23,7 @@
         android:layout_marginBottom="5dp"
         android:layout_marginRight="5dp"
         android:background="@drawable/bg_black"
+        android:lines="1"
         android:text="@string/equipped"
         android:textColor="@color/backpack_text"
         android:textSize="@dimen/backpack_text"
