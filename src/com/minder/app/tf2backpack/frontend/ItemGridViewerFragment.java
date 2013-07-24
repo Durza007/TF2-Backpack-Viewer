@@ -113,8 +113,10 @@ public class ItemGridViewerFragment extends Fragment {
 	};
 	
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
     	super.onDestroy();
+    	itemAdapter.stopImageLoader();
+    	
     	if (adView != null) {
     		adView.destroy();
     	}

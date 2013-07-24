@@ -64,6 +64,7 @@ public class SettingsFragment extends PreferenceFragment {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
 	    					ImageLoader il = new ImageLoader(App.getAppContext(), 128);
 	    					il.clearCache();
+	    					il.stopThread();
 	    					
 	    					Toast.makeText(getActivity(), "Cache cleared", Toast.LENGTH_SHORT).show();
 						}

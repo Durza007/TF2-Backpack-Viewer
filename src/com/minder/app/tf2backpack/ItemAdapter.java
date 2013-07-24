@@ -62,6 +62,10 @@ public class ItemAdapter extends BaseAdapter {
 		}
 	}
 	
+	public void stopImageLoader() {
+		imageLoader.stopThread();
+	}
+	
 	public void setOnClickListener(OnClickListener l) {
 		this.currentClickListener = l;
 	}

@@ -196,8 +196,7 @@ public class ImageLoader {
     class PhotosLoader extends Thread {
         public void run() {
             try {
-                while(true)
-                {
+                while (true) {
                     //thread waits until there are any images to load in the queue
                     if(photosQueue.photosToLoad.size() == 0)
                     {
@@ -206,7 +205,7 @@ public class ImageLoader {
                         }
                     }
                     
-                    if(photosQueue.photosToLoad.size() != 0)
+                    if (photosQueue.photosToLoad.size() != 0)
                     {
                         PhotoToLoad photoToLoad;
                         synchronized(photosQueue.photosToLoad){
@@ -219,7 +218,7 @@ public class ImageLoader {
                         BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.adapter);
                         photoToLoad.activity.runOnUiThread(bd);
                     }
-                    if(Thread.interrupted())
+                    if (Thread.interrupted())
                         break;
                 }
             } catch (InterruptedException e) {

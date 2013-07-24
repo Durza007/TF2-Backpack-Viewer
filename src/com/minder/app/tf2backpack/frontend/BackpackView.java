@@ -31,23 +31,20 @@ public class BackpackView extends TableLayout {
 	}
 	
 	private static class Holder {
-		public static TextView textCount;
-		public static TextView textEquipped;
-		public static ImageButton imageButton;
-		public static ImageView colorSplat;
+		public TextView textCount;
+		public TextView textEquipped;
+		public ImageButton imageButton;
+		public ImageView colorSplat;
 		
-		public static void setView(View v){
+		public Holder(View v) {
+			setView(v);
+		}
+		
+		public void setView(View v){
 			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
 			textCount = (TextView)v.findViewById(R.id.TextViewCount);
 			textEquipped = (TextView)v.findViewById(R.id.TextViewEquipped);
 			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
-		}
-		
-		public static void clear() {
-			colorSplat = null;
-			textCount = null;
-			textEquipped = null;
-			imageButton = null;
 		}
 	}
 	
@@ -119,24 +116,23 @@ public class BackpackView extends TableLayout {
         LayoutInflater mInflater = (LayoutInflater)this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         buttonList = new View[BACKPACK_CELL_COUNT];
         buttonsChanged = new boolean[BACKPACK_CELL_COUNT];
-        
+
         for (int f = 0; f < 5; f++) {
             TableRow tr = new TableRow(this.getContext());
             for (int c = 0; c < 10; c++) {
                 View b = mInflater.inflate(R.layout.backpack_cell, null);
                 b.setId(f * 10 + c);
-                Holder.setView(b);
+                
+                final Holder holder = new Holder(b);
                 //b.setImageBitmap(gw);
                 //b.setBackgroundResource(R.drawable.backpack_cell);
-                Holder.imageButton.setOnClickListener(onButtonBackpackClick);
+                holder.imageButton.setOnClickListener(onButtonBackpackClick);
                 //b.setPadding(0, 0, 0, 0);
                 tr.addView(b, backpackCellSize, backpackCellSize);
                 buttonList[b.getId()] = b;
             }
             this.addView(tr);
         }
-        
-        Holder.clear();
         
         isTableCreated = true;
         if (onReady != null){
@@ -208,17 +204,19 @@ public class BackpackView extends TableLayout {
      */
     public boolean setItems(List<Item> itemList, int cellIndexOffset) {
     	boolean allItemsWereKnown = true;
+    	
     	for (Item item : itemList) {
     		final int backpackPos = item.getBackpackPosition() - cellIndexOffset;
     		
     		if (backpackPos < 0 || backpackPos >= BACKPACK_CELL_COUNT)
     			throw new ArrayIndexOutOfBoundsException("Item with bad backpack pos: " + backpackPos);
     		
-    		Holder.setView(buttonList[backpackPos]);
+    		
+    		final Holder holder = new Holder(buttonList[backpackPos]);
     		buttonsChanged[backpackPos] = true;
     		
     		// give an pointer to the item object to the cell
-			Holder.imageButton.setTag(item);
+    		holder.imageButton.setTag(item);
     		try {
 				FileInputStream in = context.openFileInput(item.getDefIndex() + ".png");
 				
@@ -233,10 +231,10 @@ public class BackpackView extends TableLayout {
 					throw new FileNotFoundException();
 				}
 				
-				Holder.imageButton.setImageBitmap(image);
+				holder.imageButton.setImageBitmap(image);
     		} catch (FileNotFoundException e) {
-				Holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false));
-				Holder.imageButton.setTag(item);
+    			holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false));
+    			holder.imageButton.setTag(item);
 				e.printStackTrace();
 				
 				allItemsWereKnown = false;
@@ -246,41 +244,41 @@ public class BackpackView extends TableLayout {
 				final int quality = item.getQuality();
 				if (quality >=1 && quality <= 13){
 					if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
-						Holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
-						Holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
+						holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
+						holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
 					}
 				}
 			}
 			
 			if (item.getQuantity() > 1){
-				Holder.textCount.setVisibility(View.VISIBLE);
-				Holder.textCount.setText(String.valueOf(item.getQuantity()));
+				holder.textCount.setVisibility(View.VISIBLE);
+				holder.textCount.setText(String.valueOf(item.getQuantity()));
 			} else {
-				Holder.textCount.setVisibility(View.GONE);
+				holder.textCount.setVisibility(View.GONE);
 			}
 			
 			if (item.isEquipped()){
-				Holder.textEquipped.setVisibility(View.VISIBLE);
+				holder.textEquipped.setVisibility(View.VISIBLE);
 			} else {
-				Holder.textEquipped.setVisibility(View.GONE);
+				holder.textEquipped.setVisibility(View.GONE);
 			}
 			
 			int color = item.getColor();
 			int color2 = item.getColor2();
 			if (color != 0){
 				if (color2 != 0){		
-		    		Holder.colorSplat.setImageBitmap(colorTeamSpirit);
-					Holder.colorSplat.setVisibility(View.VISIBLE);
-		    		Holder.colorSplat.setColorFilter(null);
+					holder.colorSplat.setImageBitmap(colorTeamSpirit);
+					holder.colorSplat.setVisibility(View.VISIBLE);
+					holder.colorSplat.setColorFilter(null);
 				} else {
 					//ColorFilter filter = new LightingColorFilter((0xFF << 24) | color, 1);
-					Holder.colorSplat.setImageBitmap(colorSplat);
-					Holder.colorSplat.setVisibility(View.VISIBLE);
-		    		Holder.colorSplat.setColorFilter(null);
-					Holder.colorSplat.setColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP);
+					holder.colorSplat.setImageBitmap(colorSplat);
+					holder.colorSplat.setVisibility(View.VISIBLE);
+					holder.colorSplat.setColorFilter(null);
+					holder.colorSplat.setColorFilter((0xFF << 24) | color, PorterDuff.Mode.SRC_ATOP);
 				}
 			} else {
-				Holder.colorSplat.setVisibility(View.GONE);
+				holder.colorSplat.setVisibility(View.GONE);
 			}
     	}
     	
@@ -288,18 +286,16 @@ public class BackpackView extends TableLayout {
     	final int count = buttonsChanged.length;
     	for(int index = 0; index < count; index++){
     		if (!buttonsChanged[index]){
-        		Holder.setView(buttonList[index]);
-        		Holder.imageButton.setImageBitmap(null);
-        		if (coloredCells){
-        			Holder.imageButton.getBackground().clearColorFilter();
-        			Holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
+    			final Holder holder = new Holder(buttonList[index]);
+    			holder.imageButton.setImageBitmap(null);
+        		if (coloredCells) {
+        			holder.imageButton.getBackground().clearColorFilter();
+        			holder.imageButton.setBackgroundResource(R.drawable.backpack_cell);
         		}
-        		Holder.textCount.setVisibility(View.GONE);
-        		Holder.textEquipped.setVisibility(View.GONE);
-        		Holder.colorSplat.setVisibility(View.GONE);
-        		Holder.imageButton.setTag(null);
-        		
-        		Holder.clear();
+        		holder.textCount.setVisibility(View.GONE);
+        		holder.textEquipped.setVisibility(View.GONE);
+        		holder.colorSplat.setVisibility(View.GONE);
+        		holder.imageButton.setTag(null);
     		} else {
         		buttonsChanged[index] = false;
     		}

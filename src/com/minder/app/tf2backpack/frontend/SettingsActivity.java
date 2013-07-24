@@ -142,6 +142,7 @@ public class SettingsActivity extends PreferenceActivity {
     				public void onClick(DialogInterface dialog, int whichButton) {
     					ImageLoader il = new ImageLoader(SettingsActivity.this.getApplicationContext(), 128);
     					il.clearCache();
+    					il.stopThread();
     					
     					Toast.makeText(SettingsActivity.this, "Cache cleared", Toast.LENGTH_SHORT).show();
     				}
