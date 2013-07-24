@@ -3,8 +3,11 @@ package com.minder.app.tf2backpack.backend;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -183,6 +186,7 @@ public class GameSchemeParser {
         reader.endObject();
         reader.close();
         
+        linkQualities();
         linkItemAttributes();
         
 		if (sqlExecList != null){
@@ -207,6 +211,10 @@ public class GameSchemeParser {
 				parseStrangeItemLevels(reader);
 			} else if (name.equals("kill_eater_score_types")) {
 				parseStrangeScoreTypes(reader);
+			} else if (name.equals("qualities")) {
+				parseQualities(reader);
+			} else if (name.equals("qualityNames")) {
+				parseQualityNames(reader);
 			} else {
 				reader.skipValue();
 			}
@@ -380,7 +388,46 @@ public class GameSchemeParser {
 				}
 			}
 		}
-	}	
+	}
+	
+	private Map<String, Integer> qualities;
+	private Map<String, String> qualityNames;
+	
+	private void parseQualities(JsonReader reader) throws IOException {
+		qualities = new HashMap<String, Integer>();
+		
+		reader.beginObject();
+		while (reader.hasNext()) {
+			String name = reader.nextName();
+			qualities.put(name, reader.nextInt());
+		}
+		reader.endObject();
+	}
+	
+	private void parseQualityNames(JsonReader reader) throws IOException {
+		qualityNames = new HashMap<String, String>();
+		
+		reader.beginObject();
+		while (reader.hasNext()) {
+			String name = reader.nextName();
+			qualityNames.put(name, reader.nextString());
+		}
+		reader.endObject();
+	}
+	
+	private void linkQualities() {
+		if (qualities != null && qualityNames != null) {
+			Set<String> names = qualities.keySet();
+			
+			for (String s : names) {
+				final ContentValues values = new ContentValues(2);
+				values.put("id", qualities.get(s));
+				values.put("name", qualityNames.get(s));
+				
+				sqlExecList.add(new SqlCommand(Command.INSERT, "item_qualities", values));
+			}		
+		}
+	}
 	
 	public void saveToDB(){
 		new Thread(new Runnable() {
@@ -399,6 +446,7 @@ public class GameSchemeParser {
 					sqlDb.delete("item_attributes", null, null);
 					sqlDb.delete("particles", null, null);
 					sqlDb.delete("strange_score_types", null, null);
+					sqlDb.delete("item_qualities", null, null);
 					
 					// we need to fetch table names
 					final Cursor c = sqlDb.rawQuery("SELECT type_name FROM strange_item_levels", null);

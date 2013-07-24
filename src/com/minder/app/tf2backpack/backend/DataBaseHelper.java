@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
-	private static final int DB_VERSION = 9;
+	private static final int DB_VERSION = 10;
 
     private static String DB_NAME = "items";
 
@@ -25,6 +25,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String DICTIONARY_TABLE_CREATE_PARTICLES = "CREATE TABLE particles (id INTEGER PRIMARY KEY, name TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_STRANGE_SCORE_TYPES = "CREATE TABLE strange_score_types (type INTEGER PRIMARY KEY, type_name TEXT, level_data TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_STRANGE_ITEM_LEVEL_TYPES = "CREATE TABLE strange_item_levels (id INTEGER PRIMARY KEY, type_name TEXT);";
+    private static final String DICTIONARY_TABLE_CREATE_QUALITIES = "CREATE TABLE item_qualities (id INTEGER PRIMARY KEY, name TEXT);";
     
     /**
      * Constructor
@@ -47,6 +48,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		db.execSQL(DICTIONARY_TABLE_CREATE_PARTICLES);
 		db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_SCORE_TYPES);
 		db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_ITEM_LEVEL_TYPES);
+		db.execSQL(DICTIONARY_TABLE_CREATE_QUALITIES);
 	}
 
 	@Override
@@ -77,6 +79,26 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			db.execSQL(DICTIONARY_TABLE_CREATE_PARTICLES);
 			db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_SCORE_TYPES);
 			db.execSQL(DICTIONARY_TABLE_CREATE_STRANGE_ITEM_LEVEL_TYPES);
+		}
+		if (oldVersion <= 9) {
+			db.execSQL(DICTIONARY_TABLE_CREATE_QUALITIES);
+			
+			// Fill missing data so users don't have to reload schema files
+			// for seemingly no reason at all
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('0', 'Normal')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('1', 'Genuine')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('2', 'rarity2')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('3', 'Vintage')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('4', 'rarity3')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('5', 'Unusual')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('6', 'Unique')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('7', 'Community')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('8', 'Valve')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('9', 'Self-Made')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('10', 'Customized')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('11', 'Strange')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('12', 'Completed')");
+			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('13', 'Haunted')");
 		}
 	}
 

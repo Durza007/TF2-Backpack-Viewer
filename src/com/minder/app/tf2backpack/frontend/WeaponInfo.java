@@ -422,22 +422,16 @@ public class WeaponInfo extends Activity {
 	        }
 	        
 	        String namePrefix = "";
-	        if (item.getQuality() == 1) {
-	        	namePrefix = "Genuine ";
-	        } else if (item.getQuality() == 3) {
-	        	namePrefix = "Vintage ";
-	        } else if (item.getQuality() == 5) {
-	        	namePrefix = "Unusual ";
-	        } else if (item.getQuality() == 7) {
-	        	namePrefix = "Community ";
-	        } else if (item.getQuality() == 8) {
-	        	namePrefix = "Valve ";
-	        } else if (item.getQuality() == 9) {
-	        	namePrefix = "Self-Made ";
-	        } else if (item.getQuality() == 11) {
+	        if (item.getQuality() == 11) {
 	        	namePrefix = strangeNamePrefix;
-	        } else if (item.getQuality() == 13) {
-	        	namePrefix = "Haunted ";
+	        } else if (item.getQuality() != 6) {
+		        Cursor quality = sqlDb.rawQuery("SELECT name FROM item_qualities WHERE id = " + item.getQuality(), null);	   
+		        
+		        if (quality.moveToFirst()) {
+		        	namePrefix = quality.getString(0) + " ";
+		        }
+		        
+		        quality.close();
 	        }
 	     
 	        if (item.getCustomName() != null){
