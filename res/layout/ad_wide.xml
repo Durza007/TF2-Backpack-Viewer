@@ -9,7 +9,7 @@
     <com.google.ads.AdView
         android:id="@+id/ad"
         android:layout_width="fill_parent"
-        android:layout_height="80px"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         ads:adSize="IAB_BANNER"
         ads:adUnitId="a14cc88802a11a9"

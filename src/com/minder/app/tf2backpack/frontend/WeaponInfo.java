@@ -282,19 +282,15 @@ public class WeaponInfo extends Activity {
 	        					break;
 	        			}
 	        			
-	        			double value = 1337;
+	        			long value = 1337;
 	        			
 	        			if (!isPlayerItem)
-	        				value = cAttribute.getDouble(valueColumn);
+	        				value = (long) cAttribute.getDouble(valueColumn);
 	        			
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
-	        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {	
-	        	        		if (ia.getFloatValue() == 0){
-	        	        			value = ia.getValue();
-	        	        		} else {
-	        	        			value = ia.getFloatValue();
-	        	        		}
+	        	        	if (ia.getAttributeDefIndex() == attributeDefIndex) {
+	        	        		value = ia.getValue();
 	        	        		break;
 	        	        	}
 	        	        }
