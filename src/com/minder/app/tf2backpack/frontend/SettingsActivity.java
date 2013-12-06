@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
@@ -25,22 +24,19 @@ public class SettingsActivity extends PreferenceActivity {
 	private final static int CONFIRMATION_DIALOG_CACHE = 2;
 	private final static int CONFIRMATION_DIALOG_HISTORY = 3;
 	
-	private AdView adView;
-	
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.settings);
         setContentView(R.layout.list_content);     
-        adView = (AdView)findViewById(R.id.ad);
         
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
         	preHoneycombOnCreate();
         } else {
             if (savedInstanceState == null){
                 getFragmentManager().beginTransaction()
-            	.replace(R.id.listLayout, new SettingsFragment())
+            	.replace(R.id.frameLayoutRoot, new SettingsFragment())
             	.commit();
             }
         }
@@ -97,14 +93,6 @@ public class SettingsActivity extends PreferenceActivity {
             	return true;
             }
         });
-    }
-    
-    @Override
-    public void onDestroy(){ 	
-    	if (adView != null) {
-    		adView.destroy();
-    	}
-    	super.onDestroy();
     }
 
     @Override

@@ -44,32 +44,14 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/listContainer"
+    <ListView
+        android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content"
+        android:drawSelectorOnTop="false" 
+        android:background="@color/bg_color"
+        android:cacheColorHint="#00000000">
 
-        <FrameLayout
-            android:id="@+id/listLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/includeAd" >
-
-            <ListView
-                android:id="@android:id/list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawSelectorOnTop="false" >
-            </ListView>
-        </FrameLayout>
-
-        <include
-            android:id="@+id/includeAd"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            layout="@layout/ad" />
-
-    </RelativeLayout>
+    </ListView>
 
 </FrameLayout>

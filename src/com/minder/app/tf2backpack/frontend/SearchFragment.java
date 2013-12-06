@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
@@ -51,13 +50,10 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	private final int CONTEXTMENU_VIEW_BACKPACK = 0;
 	private final int CONTEXTMENU_VIEW_STEAMPAGE = 1;
 
-	private AdView adView;
-
 	public int searchPage = 1;
 	public String searchQuery;
 
 	private View progressContainer;
-	private View listContainer;
 	private ListView playerList;
 	private PlayerAdapter adapter;
 	private View footerView;
@@ -96,7 +92,7 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 		setNoResultFooterVisible(false);
 
 		progressContainer.setVisibility(View.VISIBLE);
-		listContainer.setVisibility(View.GONE);
+		playerList.setVisibility(View.GONE);
 
 		currentRequest = App.getDataManager().requestSteamUserSearch(
 				getUserSearchListener, searchQuery, searchPage);
@@ -124,10 +120,6 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.list_content, container, false);
 
-		// Look up the AdView as a resource and load a request.
-		adView = (AdView) view.findViewById(R.id.ad);
-
-		listContainer = view.findViewById(R.id.listContainer);
 		progressContainer = view.findViewById(R.id.progressContainer);
 
 		playerList = (ListView) view.findViewById(android.R.id.list);
@@ -159,7 +151,7 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 			adapter.setPlayers(steamUserList);
 		} else {
 			progressContainer.setVisibility(View.VISIBLE);
-			listContainer.setVisibility(View.GONE);
+			playerList.setVisibility(View.GONE);
 			steamUserList = new LinkedList<SteamUser>();
 			currentRequest = App.getDataManager().requestSteamUserSearch(
 					getUserSearchListener, searchQuery, searchPage);
@@ -234,9 +226,6 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (adView != null) {
-			adView.destroy();
-		}
 	}
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -332,7 +321,7 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 				final List<SteamUser> list = (List<SteamUser>) data;
 
 				progressContainer.setVisibility(View.GONE);
-				listContainer.setVisibility(View.VISIBLE);
+				playerList.setVisibility(View.VISIBLE);
 
 				nothingMoreToLoad = true;
 				if (list.size() > 0) {

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/linearLayoutRoot"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/bg_color" >
+    android:background="@color/bg_color"
+    android:orientation="vertical" >
 
     <GridView
         android:id="@+id/gridViewItems"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/includeAd"
-        android:layout_alignParentTop="true"
+        android:layout_height="match_parent"
         android:cacheColorHint="@color/bg_color"
         android:columnWidth="@dimen/button_size_tf2itemlist"
         android:fastScrollEnabled="true"
@@ -18,12 +17,4 @@
         android:stretchMode="columnWidth" >
     </GridView>
 
-    <include
-        android:id="@+id/includeAd"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        layout="@layout/ad" >
-    </include>
-
-</RelativeLayout>
+</LinearLayout>

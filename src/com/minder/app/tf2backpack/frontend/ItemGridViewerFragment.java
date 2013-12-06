@@ -15,7 +15,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
-import com.google.ads.AdView;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.ItemAdapter;
 import com.minder.app.tf2backpack.R;
@@ -35,7 +34,6 @@ public class ItemGridViewerFragment extends Fragment {
 	
 	private String title;
 	private String action;
-	private AdView adView;
 	private ItemAdapter itemAdapter;
 	private List<Item> itemList;
 	
@@ -72,8 +70,6 @@ public class ItemGridViewerFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// TODO find out why false is needed here and not anywhere else
 		View view = inflater.inflate(R.layout.item_grid, container, false);
-		
-		adView = (AdView)view.findViewById(R.id.ad);
 		
 		final GridView grid = (GridView)view.findViewById(R.id.gridViewItems);
 		itemAdapter = new ItemAdapter(getActivity(), true);
@@ -116,10 +112,6 @@ public class ItemGridViewerFragment extends Fragment {
     public void onDestroy() {
     	super.onDestroy();
     	itemAdapter.stopImageLoader();
-    	
-    	if (adView != null) {
-    		adView.destroy();
-    	}
     }
     
     private void loadItems() {

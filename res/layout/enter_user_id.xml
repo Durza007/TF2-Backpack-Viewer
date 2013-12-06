@@ -36,8 +36,7 @@
         android:id="@+id/TextViewPoweredBySteam"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/includeAd"
-        android:layout_alignParentBottom="false"
+        android:layout_alignParentBottom="true"
         android:layout_below="@+id/buttonCommunityId"
         android:gravity="bottom|center_horizontal"
         android:text="@string/powered_by_steam" >
@@ -53,14 +52,6 @@
         android:text="@android:string/ok"
         android:width="80dp" >
     </Button>
-
-    <include
-        android:id="@+id/includeAd"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        layout="@layout/ad" >
-    </include>
 
     <Button
         android:id="@+id/buttonCommunityId"

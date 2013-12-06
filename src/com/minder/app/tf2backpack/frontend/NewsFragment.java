@@ -32,7 +32,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.ads.AdView;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.R;
 
@@ -166,9 +165,7 @@ public class NewsFragment extends Fragment {
 	private List<NewsHeaderClickedListener> headerListeners;
 	private ListView newsList;
 	private NewsAdapter adapter;
-	private AdView adView;
 
-	private View listContainer;
 	private View progressContainer;
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -183,13 +180,8 @@ public class NewsFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.list_content, container, false);
-		
-        // Look up the AdView as a resource and load a request.
-        adView = (AdView)view.findViewById(R.id.ad);
         
-		listContainer = view.findViewById(R.id.listContainer);
-		progressContainer = view.findViewById(R.id.progressContainer);
-        
+		progressContainer = view.findViewById(R.id.progressContainer);        
         newsList = (ListView)view.findViewById(android.R.id.list);
         
         // Set up our adapter
@@ -223,32 +215,14 @@ public class NewsFragment extends Fragment {
         if (adapter.isEmpty()) {
         	new DownloadNewsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, sp.getString("newscount", "10"));
 			progressContainer.setVisibility(View.VISIBLE);
-			listContainer.setVisibility(View.GONE);
+			newsList.setVisibility(View.GONE);
         } else {
 			progressContainer.setVisibility(View.GONE);
-			listContainer.setVisibility(View.VISIBLE);
+			newsList.setVisibility(View.VISIBLE);
         }
 		
 		return view;
 	}
-    
-	@Override
-    public void onResume(){
-    	super.onResume();
-    }
-    
-    @Override
-    public void onStop(){
-    	super.onStop();
-    }
-    
-    @Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	if (adView != null) {
-    		adView.destroy();
-    	}
-    }
     
     public void addNewsHeaderClickedListener(NewsHeaderClickedListener listener) {
     	headerListeners.add(listener);
@@ -368,7 +342,7 @@ public class NewsFragment extends Fragment {
         	}
         	
 			progressContainer.setVisibility(View.GONE);
-			listContainer.setVisibility(View.VISIBLE);
+			newsList.setVisibility(View.VISIBLE);
         }
     	
     }

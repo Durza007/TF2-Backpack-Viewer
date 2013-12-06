@@ -25,7 +25,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
@@ -45,7 +44,6 @@ public class PlayerListFragment extends Fragment {
 	private final int CONTEXTMENU_VIEW_STEAMPAGE = 1;
 
 	//private ProgressDialog mProgress;
-	private AdView adView;
 
 	private final boolean friendList = true;
 	private boolean searchList;
@@ -53,7 +51,6 @@ public class PlayerListFragment extends Fragment {
 	public String searchQuery;
 
 	private View progressContainer;
-	private View listContainer;
 	private boolean choiceModeEnabled = false;
 	private ListView playerList;
 	private PlayerAdapter adapter;
@@ -99,7 +96,7 @@ public class PlayerListFragment extends Fragment {
 		if (adapter != null) {
 			adapter.setPlayers(players);
 			progressContainer.setVisibility(View.GONE);
-			listContainer.setVisibility(View.VISIBLE);
+			playerList.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -127,11 +124,7 @@ public class PlayerListFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.list_content, container, false);
-
-		// Look up the AdView as a resource and load a request.
-		adView = (AdView) view.findViewById(R.id.ad);
 		
-		listContainer = view.findViewById(R.id.listContainer);
 		progressContainer = view.findViewById(R.id.progressContainer);
 
 		playerList = (ListView) view.findViewById(android.R.id.list);
@@ -159,7 +152,7 @@ public class PlayerListFragment extends Fragment {
 			adapter.setPlayers(steamUserList);
 		} else {
 			progressContainer.setVisibility(View.VISIBLE);
-			listContainer.setVisibility(View.GONE);
+			playerList.setVisibility(View.GONE);
 		}	 
 
 		playerList
@@ -212,14 +205,6 @@ public class PlayerListFragment extends Fragment {
 		super.onStop();
 		adapter.stopBackgroundLoading();
 		Log.d("PlayerList", "stop");
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (adView != null) {
-			adView.destroy();
-		}
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem,

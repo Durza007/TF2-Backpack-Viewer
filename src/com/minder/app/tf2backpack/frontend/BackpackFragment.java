@@ -1,7 +1,6 @@
 package com.minder.app.tf2backpack.frontend;
 
 import java.lang.ref.WeakReference;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,7 +21,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.minder.app.tf2backpack.App;
-import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;

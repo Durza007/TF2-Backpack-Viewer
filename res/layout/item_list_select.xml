@@ -21,12 +21,4 @@
         <!-- Preview: listitem=@layout/item_list_item -->
 
     </GridView>
-
-    <include
-        android:id="@+id/includeAd"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        layout="@layout/ad" />
-
 </LinearLayout>

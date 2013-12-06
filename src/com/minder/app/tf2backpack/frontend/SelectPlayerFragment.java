@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.google.ads.AdView;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.Internet;
 import com.minder.app.tf2backpack.R;
@@ -195,7 +194,6 @@ public class SelectPlayerFragment extends Fragment {
 	private Button buttonOk;
 	private AutoCompleteTextView editTextPlayer;
 	private ProgressDialog myProgressDialog;
-	private AdView adView;
 	
 	private Request request;
 
@@ -286,9 +284,6 @@ public class SelectPlayerFragment extends Fragment {
 		final Button buttonCommunity = (Button)view.findViewById(R.id.buttonCommunityId);
 		buttonCommunity.setOnClickListener(onButtonCommunityClick);
 
-		// Look up the AdView as a resource and load a request.
-		adView = (AdView) view.findViewById(R.id.ad);
-
 		return null;
 	}
 
@@ -304,14 +299,6 @@ public class SelectPlayerFragment extends Fragment {
 				}
 			}
 
-		}
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (adView != null) {
-			adView.destroy();
 		}
 	}
 
