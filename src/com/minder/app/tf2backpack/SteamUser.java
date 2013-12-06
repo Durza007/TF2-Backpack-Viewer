@@ -41,6 +41,11 @@ public class SteamUser implements Parcelable {
 		this.avatarUrl = source.readString();
 		this.wrenchNumber = source.readInt();
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("{ %s:%s }", steamName, steamdId64);
+	}
 
 	// Parcelable functions
 	public int describeContents() {
