@@ -73,11 +73,16 @@
             android:title="@string/changelog" >
             <Preference android:layout="@layout/changelog_list" />
         </PreferenceScreen>
+        
+        <Preference 
+            android:key="donate"
+            android:summary="@string/donate_description"
+            android:title="@string/donate"/>
 
         <Preference
             android:key="aboutcreator"
             android:summary="by Patrik Minder"
-            android:title="TF2 Backpack Viewer" >
+            android:title="@string/app_name" >
         </Preference>
     </PreferenceCategory>
 

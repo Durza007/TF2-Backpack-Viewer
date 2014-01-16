@@ -74,6 +74,11 @@
             <Preference
                 android:layout="@layout/changelog_list"/>
         </PreferenceScreen>
+        
+        <Preference 
+            android:key="donate"
+            android:summary="@string/donate_description"
+            android:title="@string/donate"/>
 
         <Preference
             android:key="aboutcreator"

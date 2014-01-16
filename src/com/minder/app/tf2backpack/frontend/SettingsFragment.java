@@ -1,8 +1,11 @@
 package com.minder.app.tf2backpack.frontend;
 
+import java.net.URL;
+
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -101,6 +104,18 @@ public class SettingsFragment extends PreferenceFragment {
             	return true;
             }
         });
+        	
+		Preference donate = (Preference) findPreference("donate");
+		donate.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(
+						new Intent(
+								Intent.ACTION_VIEW, 
+								Uri.parse("https://www.paypal.com/cgi-bin/webscr" +
+										"?cmd=_s-xclick&hosted_button_id=DV6NWAQ99X3X4")));
+				return true;
+			}
+		});
         
         Preference aboutCreator = (Preference)findPreference("aboutcreator");
         aboutCreator.setOnPreferenceClickListener(new OnPreferenceClickListener() {

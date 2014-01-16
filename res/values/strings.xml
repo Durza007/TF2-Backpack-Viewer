@@ -99,4 +99,6 @@
     <string name="particle_effect">Effect: </string>
     <string name="item_level">Level</string>
     <string name="unknown_item_description">The TF2 game files needs to be updated. Go to: Settings -&gt; Refresh TF2 Game Files</string>
+    <string name="donate">Donate!</string>
+    <string name="donate_description">If you like the app you can donate!</string>
 </resources>
