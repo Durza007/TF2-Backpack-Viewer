@@ -3,10 +3,13 @@ package com.minder.app.tf2backpack.backend;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 
 public class PlayerItemListParser {
@@ -72,8 +75,14 @@ public class PlayerItemListParser {
 		Gson gson = new Gson();
 		reader.beginArray();
 		
-		while (reader.hasNext()) {	
-			itemList.add((Item)gson.fromJson(reader, Item.class));
+		try {
+			while (reader.hasNext()) {
+				itemList.add((Item)gson.fromJson(reader, Item.class));
+			}
+		} catch (JsonSyntaxException json) {
+			throw new IOException("Failed to get data from Steam!");
+		} catch (JsonIOException json) {
+			throw new IOException("Failed to get data from Steam!");
 		}
 		
 		reader.endArray();
