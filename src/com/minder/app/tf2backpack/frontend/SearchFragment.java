@@ -133,7 +133,7 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 		footerView = inflater.inflate(R.layout.loading_footer, null);
 		noResultFooterView = inflater.inflate(R.layout.noresult_footer, null);
 		playerList.addFooterView(footerView, null, false);
-		playerList.addFooterView(noResultFooterView);
+		playerList.addFooterView(noResultFooterView, null, false);
 		playerList.setAdapter(adapter);
 		// playerList.removeFooterView(footerView);
 		setLoadingFooterVisible(false);
