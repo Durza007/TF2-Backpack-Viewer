@@ -99,6 +99,10 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 				e1.printStackTrace();
 				request.exception = e1;
 				return null;
+			} catch (SocketTimeoutException e1) {
+				e1.printStackTrace();
+				request.exception = e1;
+				return null;
 			} finally {
 				try {
 					inputStream.close();
