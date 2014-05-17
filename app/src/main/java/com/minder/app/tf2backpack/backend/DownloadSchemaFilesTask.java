@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,12 +17,12 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
+import com.minder.app.tf2backpack.ApiKey;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.R;
-import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.GameSchemeParser.TF2Weapon;
 import com.minder.app.tf2backpack.backend.HttpConnection.DownloadProgressListener;
@@ -75,7 +74,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		
 		HttpConnection connection = 
 				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
-						Util.GetAPIKey() + "&format=json&language=en");
+						ApiKey.get() + "&format=json&language=en");
 		
 		InputStream inputStream = connection.executeStream(new DownloadProgressListener() {
 			private int totalSize;

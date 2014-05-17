@@ -1,5 +1,19 @@
 package com.minder.app.tf2backpack.backend;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.minder.app.tf2backpack.ApiKey;
+import com.minder.app.tf2backpack.AsyncTask;
+import com.minder.app.tf2backpack.BuildConfig;
+import com.minder.app.tf2backpack.PersonaState;
+import com.minder.app.tf2backpack.SteamUser;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,20 +24,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
-import com.minder.app.tf2backpack.AsyncTask;
-import com.minder.app.tf2backpack.BuildConfig;
-import com.minder.app.tf2backpack.PersonaState;
-import com.minder.app.tf2backpack.SteamUser;
-import com.minder.app.tf2backpack.Util;
 
 public class DataManager {
 	// Inner classes
@@ -206,7 +206,7 @@ public class DataManager {
 			
 			// try to fetch online first
 			HttpConnection connection = HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
-					Util.GetAPIKey() + "&SteamID=" + steamId64);
+					ApiKey.get() + "&SteamID=" + steamId64);
 			
 			InputStream inputStream = connection.executeStream(null);
 			
@@ -263,7 +263,7 @@ public class DataManager {
             SQLiteDatabase sqlDb = databaseHandler.getReadableDatabase();
 	        try {
 	        	//String xml = (String) new HttpConnection().getDirect("http://steamcommunity.com/profiles/" + params[0] + "/friends/?xml=1", 86400);
-                URL url = new URL("http://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=" + Util.GetAPIKey() + 
+                URL url = new URL("http://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=" + ApiKey.get() +
                 		"&steamid=" + params[0].steamdId64 + "&relationship=all&format=xml");
 	        	
 	            pullMaker = XmlPullParserFactory.newInstance();
@@ -400,8 +400,8 @@ public class DataManager {
 	        	sb.deleteCharAt(sb.length() - 1);
 	        	
 		        try {
-		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&steamids=" + player.steamdId64 + "&format=xml", 0);
-		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=***REMOVED***&format=xml&steamids=" + sb.toString());
+		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + ApiKey.get() + "&steamids=" + player.steamdId64 + "&format=xml", 0);
+		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + ApiKey.get() + "&format=xml&steamids=" + sb.toString());
 	
 		            InputStream fis = url.openStream();
 	
