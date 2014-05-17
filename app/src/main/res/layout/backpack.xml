@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/RelativeLayoutBackpack"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_color" >
+
+    <HorizontalScrollView
+        android:id="@+id/HorizontalScrollViewBackpack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayoutControls"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" >
+
+        <com.minder.app.tf2backpack.frontend.BackpackView
+            android:id="@+id/TableLayoutBackPack"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:fadeScrollbars="true" >
+        </com.minder.app.tf2backpack.frontend.BackpackView>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutControls"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="right|center_vertical" >
+
+        <Button
+            android:id="@+id/buttonNew"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:text="@string/new_ungiven_item"
+            android:visibility="gone" >
+        </Button>
+
+        <Button
+            android:id="@+id/buttonFullscreen"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:text="⇱"
+            android:textSize="16dip" />
+
+        <Button
+            android:id="@+id/ButtonPrevious"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="&lt;"
+            android:width="50dp"
+            tools:ignore="HardcodedText" >
+        </Button>
+
+        <Button
+            android:id="@+id/ButtonPageNumber"
+            style="@style/dash_board_button_style"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:text="1/6"
+            android:textColor="@color/backpack_text"
+            android:textSize="34dp"
+            android:width="110dp"
+            tools:ignore="HardcodedText" >
+
+        </Button>
+
+        <Button
+            android:id="@+id/ButtonNext"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=">"
+            android:width="50dp"
+            tools:ignore="HardcodedText" >
+
+        </Button>
+    </LinearLayout>
+
+</RelativeLayout>
