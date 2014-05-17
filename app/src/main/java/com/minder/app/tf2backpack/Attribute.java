@@ -111,7 +111,7 @@ public class Attribute {
 		return values;
 	}
 	
-    public final static byte getDescriptionFormat(String format){
+    public static byte getDescriptionFormat(String format){
     	if (format != null){
     		if (format.equals("value_is_percentage")) {
     			return FORMAT_PERCENTAGE;
@@ -136,7 +136,7 @@ public class Attribute {
     	return 0;
     }
 	
-    public final static byte getEffectType(String effect){
+    public static byte getEffectType(String effect){
     	if (effect != null){
     		if (effect.equals("positive")) {
     			return EFFECT_POSITIVE;

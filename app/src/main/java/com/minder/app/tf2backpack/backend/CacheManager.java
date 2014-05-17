@@ -43,7 +43,7 @@ public class CacheManager {
     public String getString(String folder, String url) {
     	String filename = Util.md5Hash(url);
     	
-    	File f = null;
+    	File f;
     	if (folder != null) {
     		f = new File(cacheDir, folder + "-" + filename);
     	} else {
@@ -56,7 +56,7 @@ public class CacheManager {
 	    	fi = new FileInputStream(f);
 	    	BufferedReader reader = new BufferedReader(new InputStreamReader(fi));
 	    	
-			String row = "";
+			String row;
 			buffer = new StringBuffer();
 			while ((row = reader.readLine()) != null) {
 				buffer.append(row);
@@ -91,7 +91,7 @@ public class CacheManager {
     public void cacheString(String folder, String url, String data) {
     	String filename = Util.md5Hash(url);
     	
-    	File f = null;
+    	File f;
     	if (folder != null) {
     		f = new File(cacheDir, folder + "-" + filename);
     	} else {

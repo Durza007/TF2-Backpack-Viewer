@@ -19,15 +19,15 @@ public class Util {
 		return (int)(dp * scale + 0.5f);
 	}
 	
-	public final static String GetAPIKey(){
+	public static String GetAPIKey(){
 		return "***REMOVED***";
 	}
 	
-	public final static String GetTag(){
+	public static String GetTag(){
 		return "TF2Backpack";
 	}
 	
-	public final static void handleNetworkException(Exception e, Context context) {	
+	public static void handleNetworkException(Exception e, Context context) {
 		if (Internet.isOnline(context)) { 
 			if (e instanceof UnknownHostException) { 
 				Toast.makeText(context,
@@ -41,7 +41,7 @@ public class Util {
 		}	 
 	}
 	
-    public final static int getItemColor(int quality){
+    public static int getItemColor(int quality){
     	switch (quality) {
 	    	case 1: {
 	    		return Color.rgb(77, 116, 85);
@@ -79,28 +79,6 @@ public class Util {
     	}  	
     }
 	
-	public static void chkStatus(Context context)
-	{
-		final ConnectivityManager connMgr = (ConnectivityManager)
-		context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		
-		final android.net.NetworkInfo wifi =
-			connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		
-		final android.net.NetworkInfo mobile =
-			connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-		
-		if (wifi.isAvailable()){
-
-		}
-		else if (mobile.isAvailable()){
-		}
-		else
-		{
-
-		}
-	}
-	
     public static void CopyStream(InputStream is, OutputStream os)
     {
         final int buffer_size=1024;
@@ -124,7 +102,7 @@ public class Util {
 	    	byte[] digest = digester.digest(s.getBytes());
 	    	
 	        // Create Hex String
-	        StringBuffer hexString = new StringBuffer();
+	        StringBuilder hexString = new StringBuilder();
 	        for (int i = 0; i < digest.length; i++)
 	            hexString.append(Integer.toHexString(0xFF & digest[i]));
 	        return hexString.toString();

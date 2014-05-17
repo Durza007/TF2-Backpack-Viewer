@@ -137,10 +137,10 @@ public class HttpConnection implements Runnable {
 			if (method < BITMAP) {
 				if (BuildConfig.DEBUG) {
 					Header[] headers = response.getAllHeaders();
-					
-					for (int i = 0; i < headers.length; i++) {
-						Log.d("HttpConnection-HEader", headers[i].toString());
-					}
+
+                    for (Header header : headers) {
+                        Log.d("HttpConnection-Header", header.toString());
+                    }
 				}
 				
 				processEntity(response.getEntity());

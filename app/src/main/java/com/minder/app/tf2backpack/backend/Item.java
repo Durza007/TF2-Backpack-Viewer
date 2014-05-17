@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack.backend;
 
-import java.util.Arrays;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

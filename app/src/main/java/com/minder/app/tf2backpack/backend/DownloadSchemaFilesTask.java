@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -99,10 +100,6 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 				e1.printStackTrace();
 				request.exception = e1;
 				return null;
-			} catch (SocketTimeoutException e1) {
-				e1.printStackTrace();
-				request.exception = e1;
-				return null;
 			} finally {
 				try {
 					inputStream.close();
@@ -191,25 +188,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		listener.onPostExecute(request);
 		App.getDataManager().removeRequest(request);
 	}
-	
-    private class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
-        public void uncaughtException(Thread thread, Throwable ex) {
-            Log.e("UncaughtException", "Got an uncaught exception: " + ex.toString());
-            if(ex.getClass().equals(OutOfMemoryError.class))
-            {
-                try {
-                    android.os.Debug.dumpHprofData("/sdcard/dump.hprof");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                System.exit(1337);
-            }
-            ex.printStackTrace();
-        }
-    }
-
-	
     /**
      * Deletes all item images
      */
@@ -217,9 +196,9 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		File file = new File(context.getFilesDir().getPath());
 		if (file.isDirectory()) {
 	        String[] children = file.list();
-	        for (int i = 0; i < children.length; i++) {
-	            new File(file, children[i]).delete();
-	        }
+            for (String child : children) {
+                new File(file, child).delete();
+            }
 	    }
 
     }

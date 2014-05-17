@@ -25,7 +25,7 @@ public class DataServerConnection {
 		return this.output;
 	}
 	
-	public DataServerConnection() throws UnknownHostException, IOException {
+	public DataServerConnection() throws IOException {
 		socket = new Socket(host, port);
 		
 		input = socket.getInputStream();

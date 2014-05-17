@@ -4,7 +4,6 @@
     <string name="user_id">Enter user ID:\n – http://steamcommunity.com/id/XXX\n – http://steamcommunity.com/profiles/XXX\n – STEAM_X:X:XXXXXXXX\n – X:X:XXXXXXXX</string>
     <string name="powered_by_steam">Powered by Steam</string>
     <string name="steam_userid"></string>
-    <string name="STEAM_API_KEY">***REMOVED***</string>
     <string name="download_notice">Download Notice</string>
     <string name="gamescheme_downloadinfo">The app needs to download the files for all TF2 items.\n\nThe total download size is ~4 MB. It is recommended that you are on a wifi connection\n\nDo you want to download the files?</string>
     <string name="alert_dialog_cancel">Cancel</string>
@@ -14,7 +13,6 @@
     <string name="friendlist">Friend List</string>
     <string name="loading">Loading…</string>
     <string name="friends">Friends</string>
-    <string name="golden_wrench_list">Golden Wrench List</string>
     <string name="backack_private">Backpack is private</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="download_successful">Download Successful!</string>
@@ -37,7 +35,6 @@
     <string name="not_tradable">( Not Tradable )</string>
     <string name="not_craftable">( Not Usable in Crafting )</string>
     <string name="not_tradable_craftable">( Not Tradable, Not Usable in Crafting )</string>
-    <string name="gamescheme_updateinfo1">The app has been updated with new features, for they to work you have to re–download the TF2 game files.\n\nThe total file size is ~500 kB.\n\nDo you want to download the files?</string>
     <string name="show_backpack_rarity">Show Backpack Rarity</string>
     <string name="backpack_rarity_on">The backpack cell will be colored with the item quality color</string>
     <string name="backpack_rarity_off">Backpack will be shown as normal</string>
@@ -71,7 +68,6 @@
     <string name="default_string">Default</string>
     <string name="downloading_images">Downloading images…</string>
     <string name="parsing_schema">Parsing data…</string>
-    <string name="select_backpack_in_list"><![CDATA[<— Select a backpack to view]]></string>
     <string name="whats_new">What\'s new!</string>
     <string name="download">Download</string>
     <string name="dismiss">Dismiss</string>
@@ -101,4 +97,5 @@
     <string name="unknown_item_description">The TF2 game files needs to be updated. Go to: Settings -&gt; Refresh TF2 Game Files</string>
     <string name="donate">Donate!</string>
     <string name="donate_description">If you like the app you can donate!</string>
+    <string name="view_profile">View Profile</string>
 </resources>

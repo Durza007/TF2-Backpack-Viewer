@@ -13,16 +13,14 @@ import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 
 public class SelectBackpack extends Activity {
-	private Typeface tf2TypeFace;
-	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setTitle(R.string.select_backpack);      
         setContentView(R.layout.select_backpack);
-        
-        tf2TypeFace = Typeface.createFromAsset(getAssets(), "fonts/TF2Build.ttf");
+
+        Typeface tf2TypeFace = Typeface.createFromAsset(getAssets(), "fonts/TF2Build.ttf");
         
         Button myBackpackButton = (Button)findViewById(R.id.ButtonMyBackpack);
         myBackpackButton.setTypeface(tf2TypeFace);

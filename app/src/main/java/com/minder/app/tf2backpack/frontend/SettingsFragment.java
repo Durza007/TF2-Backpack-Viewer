@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.net.URL;
-
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;

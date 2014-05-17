@@ -15,7 +15,7 @@ public class DatabaseHandler implements Runnable {
 	private Thread sqlThread;
 	
 	private Queue<String> sqlQueryQueue;
-	private Object mLock;
+	private final Object mLock;
 	private boolean mRunning;
 	
 	public DatabaseHandler(Context context){

@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -62,8 +63,7 @@ public class WeaponInfo extends Activity {
         LinkedList<ItemAttribute> itemAttributeList = new LinkedList<ItemAttribute>();
         
         if (array != null) {
-        	for (ItemAttribute a : array)
-        		itemAttributeList.add(a);
+            Collections.addAll(itemAttributeList, array);
         }
         
         String sqlParam = null;
@@ -367,48 +367,47 @@ public class WeaponInfo extends Activity {
 	        String strangeNamePrefix = "";
 	        
 	        if (item.getQuality() == 11) {
-		        for (int index = 0; index < strangeQualities.length; index++) {
-					if (strangeQualities[index].isChanged()) {
-						final StrangeQuality sq = strangeQualities[index];
-						Cursor strangeType = 
-								sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + sq.getStrangeType(), null);
-						
-						if (strangeType.moveToFirst()) {
-							Cursor strangeLevel = 
-									sqlDb.rawQuery("SELECT COALESCE(" +
-											"(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + sq.getValue() + " LIMIT 1)," +
-											"(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
-							
-							if (strangeLevel.moveToFirst()) {
-								if (namePrefixSet) {
-									strangeTextBuilder
-									.append('(')
-									.append(strangeType.getString(0))
-									.append(": ")
-									.append(sq.getValue())
-									.append(")\n");
-								} else {
-									strangeTextBuilder
-										.append(strangeLevel.getString(0))
-										.append(' ')
-										.append(weaponClass)
-										.append(" - ")
-										.append(strangeType.getString(0))
-										.append(": ")
-										.append(sq.getValue())
-										.append('\n');
-									
-									strangeNamePrefix = strangeLevel.getString(0) + " ";
-									namePrefixSet = true;
-								}
-							} else {
-								// TODO this should NOT happen!!!
-							}
-						} else {
-							// TODO handle missing strange type
-						}
-					}
-				}
+                for (StrangeQuality strangeQuality : strangeQualities) {
+                    if (strangeQuality.isChanged()) {
+                        Cursor strangeType =
+                                sqlDb.rawQuery("SELECT type_name, level_data FROM strange_score_types WHERE type=" + strangeQuality.getStrangeType(), null);
+
+                        if (strangeType.moveToFirst()) {
+                            Cursor strangeLevel =
+                                    sqlDb.rawQuery("SELECT COALESCE(" +
+                                            "(SELECT name FROM " + strangeType.getString(1) + " WHERE required_score>" + strangeQuality.getValue() + " LIMIT 1)," +
+                                            "(SELECT name FROM (SELECT MAX(required_score), name FROM " + strangeType.getString(1) + ")))", null);
+
+                            if (strangeLevel.moveToFirst()) {
+                                if (namePrefixSet) {
+                                    strangeTextBuilder
+                                            .append('(')
+                                            .append(strangeType.getString(0))
+                                            .append(": ")
+                                            .append(strangeQuality.getValue())
+                                            .append(")\n");
+                                } else {
+                                    strangeTextBuilder
+                                            .append(strangeLevel.getString(0))
+                                            .append(' ')
+                                            .append(weaponClass)
+                                            .append(" - ")
+                                            .append(strangeType.getString(0))
+                                            .append(": ")
+                                            .append(strangeQuality.getValue())
+                                            .append('\n');
+
+                                    strangeNamePrefix = strangeLevel.getString(0) + " ";
+                                    namePrefixSet = true;
+                                }
+                            } else {
+                                // TODO this should NOT happen!!!
+                            }
+                        } else {
+                            // TODO handle missing strange type
+                        }
+                    }
+                }
 		        
 		        // do we have any stuff to add?
 		        if (strangeTextBuilder.length() != 0) {

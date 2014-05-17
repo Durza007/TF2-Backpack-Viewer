@@ -227,11 +227,6 @@ public class BackpackView extends TableLayout {
     	    }
     	});
 	}
-
-    @Override
-    protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
     
     OnClickListener onButtonBackpackClick = new OnClickListener(){
 		public void onClick(View v) {

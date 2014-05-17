@@ -10,8 +10,7 @@ import com.minder.app.tf2backpack.R;
 
 public class ChangelogDialogFragment extends DialogFragment {
     public static ChangelogDialogFragment newInstance() {
-    	ChangelogDialogFragment frag = new ChangelogDialogFragment();
-        return frag;
+        return new ChangelogDialogFragment();
     }
 
     @Override

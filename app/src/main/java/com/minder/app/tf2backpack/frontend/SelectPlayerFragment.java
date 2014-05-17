@@ -84,12 +84,11 @@ public class SelectPlayerFragment extends Fragment {
 				params = null;
 			}
 
-			Cursor cursor = App
-					.getDataManager()
-					.getDatabaseHandler()
-					.querySql("SELECT * FROM name_history WHERE name LIKE ?",
-							params);
-			return cursor;
+            return App
+                    .getDataManager()
+                    .getDatabaseHandler()
+                    .querySql("SELECT * FROM name_history WHERE name LIKE ?",
+                            params);
 		}
 
 		/**
@@ -105,8 +104,7 @@ public class SelectPlayerFragment extends Fragment {
 		@Override
 		public String convertToString(Cursor cursor) {
 			final int columnIndex = cursor.getColumnIndexOrThrow("name");
-			final String str = cursor.getString(columnIndex);
-			return str;
+            return cursor.getString(columnIndex);
 		}
 
 		/**
@@ -147,10 +145,9 @@ public class SelectPlayerFragment extends Fragment {
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			final LayoutInflater inflater = LayoutInflater.from(context);
-			final View view = inflater.inflate(
-					android.R.layout.simple_dropdown_item_1line, parent, false);
 
-			return view;
+            return inflater.inflate(
+                    android.R.layout.simple_dropdown_item_1line, parent, false);
 		}
 
 		/**
@@ -190,9 +187,7 @@ public class SelectPlayerFragment extends Fragment {
 
 	private WeakReference<OnPlayerSelectedListener> playerSelectedListener;
 	private WeakReference<OnSearchClickedListener> searchClickedListener;
-	private Typeface tf2Secondary;
-	private Button buttonOk;
-	private AutoCompleteTextView editTextPlayer;
+    private AutoCompleteTextView editTextPlayer;
 	private ProgressDialog myProgressDialog;
 	
 	private Request request;
@@ -248,8 +243,8 @@ public class SelectPlayerFragment extends Fragment {
 		 * else { setSteamId = false; } }
 		 */
 
-		tf2Secondary = Typeface.createFromAsset(getActivity().getAssets(),
-				"fonts/TF2secondary.ttf");
+        Typeface tf2Secondary = Typeface.createFromAsset(getActivity().getAssets(),
+                "fonts/TF2secondary.ttf");
 
 		TextView textView = (TextView) view.findViewById(R.id.user_id_textView);
 		textView.setTypeface(tf2Secondary, 0);
@@ -275,7 +270,7 @@ public class SelectPlayerFragment extends Fragment {
 			}
 		});
 
-		buttonOk = (Button) view.findViewById(R.id.ButtonOk);
+        Button buttonOk = (Button) view.findViewById(R.id.ButtonOk);
 		buttonOk.setOnClickListener(onButtonOkClick);
 
 		Button buttonSearch = (Button) view.findViewById(R.id.buttonSearch);

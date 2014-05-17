@@ -1,16 +1,15 @@
 package com.minder.app.tf2backpack.backend;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.SocketTimeoutException;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PlayerItemListParser {
 	private List<Item> itemList;
