@@ -205,8 +205,14 @@ public class DataManager {
 			long steamId64 = params[0].steamdId64;
 			
 			// try to fetch online first
-			HttpConnection connection = HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" + 
-					ApiKey.get() + "&SteamID=" + steamId64);
+			String url = "http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" +
+					ApiKey.get() + "&SteamID=" + steamId64;
+
+			if (BuildConfig.DEBUG) {
+				Log.d("PlayerItemListParser", "GetPlayerInfo - " + url);
+			}
+
+			HttpConnection connection = HttpConnection.string(url);
 			
 			InputStream inputStream = connection.executeStream(null);
 			

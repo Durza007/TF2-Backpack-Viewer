@@ -232,7 +232,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 					link = item.getImageUrl();
 				}
 				
-				if (link.length() != 0) {
+				if (link != null && link.length() != 0) {
 					HttpConnection conn = HttpConnection.bitmap(link);
 					data = conn.execute(null);
 				}
