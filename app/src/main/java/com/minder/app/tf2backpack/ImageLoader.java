@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -11,57 +12,66 @@ import java.net.URL;
 import java.util.Stack;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.BaseAdapter;
+import android.graphics.Canvas;
+import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.util.Log;
 
 public class ImageLoader {
+    public interface ImageLoadedInterface {
+        void imageReady(Bitmap bitmap);
+    }
     MemoryCache memoryCache = new MemoryCache();
     FileCache fileCache;
-    private int requiredSize;
+    private Activity activity;
     private PhotosLoader photoLoaderThread;
     
-    public ImageLoader(Context context, int requiredSize) {
+    public ImageLoader(Activity activity) {
+        this.activity = activity;
     	createThread();
     	// TODO lazy start on this thread?
     	photoLoaderThread.start();
         
-        this.requiredSize = requiredSize;
-        
-        fileCache = new FileCache(context);
+        fileCache = new FileCache(activity);
     }
     
     final static int stub_id = R.drawable.unknown;
     
-    public Bitmap displayImage(String url, Activity activity, BaseAdapter adapter, boolean isLocal)
+    public Bitmap displayImage(String url, ImageLoadedInterface callbackObj, int requiredSize, boolean isLocal)
     {
+        if (requiredSize < 1) {
+            throw new RuntimeException("requiredSize cannot be lower than 1");
+        }
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
             return bitmap;
         } else {
-            queuePhoto(url, activity, adapter, isLocal);
+            queuePhoto(url, callbackObj, requiredSize, isLocal);
             return null;
         }    
     }
         
-    private void queuePhoto(String url, Activity activity, BaseAdapter adapter, boolean isLocal)
+    private void queuePhoto(String url, ImageLoadedInterface callbackObj, int requiredSize, boolean isLocal)
     {
         synchronized(photosQueue.photosToLoad){
             //This ImageView may be used for other images before. So there may be some old tasks in the queue. We need to discard them. 
-            photosQueue.clean(adapter);
-            PhotoToLoad p = new PhotoToLoad(url, activity, adapter, isLocal);
-            
+            //photosQueue.clean(adapter);
+            PhotoToLoad p = new PhotoToLoad(url, callbackObj, requiredSize, isLocal);
+
+            photosQueue.clean(callbackObj);
             photosQueue.photosToLoad.push(p);
             photosQueue.photosToLoad.notifyAll();
         }
     }
     
-    private Bitmap getBitmap(String url, Context context, boolean isLocal) 
+    private Bitmap getBitmap(String url, int requiredSize, boolean isLocal)
     {
     	if (isLocal) {
 			try {
-				FileInputStream in = context.openFileInput(url);
+				FileInputStream in = activity.openFileInput(url);
 				
 				Bitmap image = BitmapFactory.decodeStream(in);
 				if (image != null){
@@ -81,32 +91,100 @@ public class ImageLoader {
 			}
     	}
         File f = fileCache.getFile(url);
-        
+
         //from SD cache
-        Bitmap b = decodeFile(f);
+        Bitmap b = decodeFile(f, requiredSize);
         if(b != null)
             return b;
-        
+
         //from web
+        HttpURLConnection conn = null;
+        InputStream is = null;
+        OutputStream os = null;
         try {
-            Bitmap bitmap = null;
+            int itemColor = 0;
+            int itemColor2 = 0;
+            if (url.startsWith("paint:")) {
+                int secondColon = url.indexOf(":", 6);
+                int thirdColon = url.indexOf(":", secondColon + 1);
+                itemColor = Integer.parseInt(url.substring(6, secondColon));
+                itemColor2 = Integer.parseInt(url.substring(secondColon + 1, thirdColon));
+                url = url.substring(thirdColon + 1);
+            }
+
             URL imageUrl = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
+            conn = (HttpURLConnection)imageUrl.openConnection();
             conn.setConnectTimeout(30000);
             conn.setReadTimeout(30000);
-            InputStream is = conn.getInputStream();
-            OutputStream os = new FileOutputStream(f);
-            Util.CopyStream(is, os);
-            os.close();
-            bitmap = decodeFile(f);
-            return bitmap;
-        } catch (Exception ex){
-           return null;
+            is = conn.getInputStream();
+            if (itemColor != 0 || itemColor2 != 0) {
+                b = BitmapFactory.decodeStream(is);
+
+                // General paint can stuff
+                Bitmap newBitmap = Bitmap.createBitmap(b.getWidth(), b.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(newBitmap);
+                Paint paint = new Paint();
+                paint.setColorFilter(new LightingColorFilter((0xFF << 24) | itemColor, 1));
+                // draw paintcan
+                canvas.drawBitmap(b, 0, 0, null);
+
+                final BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+                bitmapOptions.inScaled = false;
+                if (itemColor2 != 0) {
+                    Bitmap teamPaintRed = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.teampaint_red_mask, bitmapOptions);
+                    Bitmap teamPaintBlue = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.teampaint_blu_mask, bitmapOptions);
+                    // draw first paint color
+                    canvas.drawBitmap(teamPaintRed, null, new Rect(0, 0, b.getWidth(), b.getHeight()), paint);
+                    // draw second paint color
+                    paint.setColorFilter(new LightingColorFilter((0xFF << 24) | itemColor2, 1));
+                    canvas.drawBitmap(teamPaintBlue, null, new Rect(0, 0, b.getWidth(), b.getHeight()), paint);
+                }
+                else {
+                    Bitmap paintColor = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.paintcan_paintcolor, bitmapOptions);
+                    // draw paint color
+                    canvas.drawBitmap(paintColor, null, new Rect(0, 0, b.getWidth(), b.getHeight()), paint);
+                }
+
+                // recycle old image
+                b.recycle();
+                b = newBitmap;
+
+                os = new FileOutputStream(f);
+                boolean saved = b.compress(Bitmap.CompressFormat.PNG, 100, os);
+                os.flush();
+                if (!saved) {
+                    Log.e(Util.GetTag(), "Failed to save image: " + url);
+                }
+            }
+            else {
+                os = new FileOutputStream(f);
+                Util.CopyStream(is, os);
+                b = decodeFile(f, requiredSize);
+            }
+        } catch (Exception ex) {
+            Log.e(Util.GetTag(), "Failed to download image: " + url + ": " + ex.getMessage());
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) conn.disconnect();
         }
+        return b;
     }
 
     //decodes image and scales it to reduce memory consumption
-    private Bitmap decodeFile(File f){
+    private Bitmap decodeFile(File f, int requiredSize){
         try {
             //decode image size
             BitmapFactory.Options o = new BitmapFactory.Options();
@@ -135,14 +213,14 @@ public class ImageLoader {
     //Task for the queue
     private class PhotoToLoad {
         public final String url;
-        public final Activity activity;
-        public final BaseAdapter adapter;
+        public final ImageLoadedInterface callbackObj;
+        public final int requiredSize;
         public final boolean isLocal;
         
-        public PhotoToLoad(String u, Activity ac, BaseAdapter a, boolean isLocal){
-            url = u; 
-            activity = ac;
-            adapter = a;
+        public PhotoToLoad(String url, ImageLoadedInterface callbackObj, int requiredSize, boolean isLocal){
+            this.url = url;
+            this.callbackObj = callbackObj;
+            this.requiredSize = requiredSize;
             this.isLocal = isLocal;
         }
     }
@@ -182,10 +260,10 @@ public class ImageLoader {
         private Stack<PhotoToLoad> photosToLoad = new Stack<PhotoToLoad>();
         
         //removes all instances of this ImageView
-        public void clean(BaseAdapter adapter)
+        public void clean(ImageLoadedInterface callbackObj)
         {
             for (int j = 0; j < photosToLoad.size();){
-                if (photosToLoad.get(j).adapter == adapter)
+                if (photosToLoad.get(j).callbackObj == callbackObj)
                     photosToLoad.remove(j);
                 else
                     ++j;
@@ -212,11 +290,11 @@ public class ImageLoader {
                             photoToLoad = photosQueue.photosToLoad.pop();
                         }
 
-                        Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.activity, photoToLoad.isLocal);
+                        Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.requiredSize, photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
                         
-                        BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.adapter);
-                        photoToLoad.activity.runOnUiThread(bd);
+                        BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.callbackObj);
+                        activity.runOnUiThread(bd);
                     }
                     if (Thread.interrupted())
                         break;
@@ -230,15 +308,15 @@ public class ImageLoader {
     //Used to display bitmap in the UI thread
     class BitmapDisplayer implements Runnable
     {
-        Bitmap bitmap;
-        BaseAdapter adapter;
-        public BitmapDisplayer(Bitmap b, BaseAdapter a) {
+        final Bitmap bitmap;
+        final ImageLoadedInterface callbackObj;
+        public BitmapDisplayer(Bitmap b, ImageLoadedInterface a) {
         	bitmap = b;
-        	adapter = a;
+            callbackObj = a;
         }
         
         public void run() {
-            adapter.notifyDataSetChanged();
+            callbackObj.imageReady(bitmap);
         }
     }
 

@@ -52,7 +52,7 @@ public class PlayerAdapter extends BaseAdapter {
         
         //imageSize = activity.getResources().getDimensionPixelSize(android.R.attr.listPreferredItemHeight);
         
-        imageLoader = new ImageLoader(activity, imageSize);     
+        imageLoader = new ImageLoader(activity);
 		defaultImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.avatar_64blank);
 		
 		{ // scale the bitmap
@@ -94,7 +94,7 @@ public class PlayerAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         // Create textview to hold player name
         
-        ViewHolder holder;
+        final ViewHolder holder;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
@@ -125,7 +125,11 @@ public class PlayerAdapter extends BaseAdapter {
         	
 	        // set player avatar
 	        if (player.avatarUrl != null && player.avatarUrl.length() > 0) {
-	    		Bitmap b = imageLoader.displayImage(player.avatarUrl, activity, this, false);
+	    		Bitmap b = imageLoader.displayImage(player.avatarUrl, new ImageLoader.ImageLoadedInterface() {
+					public void imageReady(Bitmap bitmap) {
+						holder.avatar.setImageBitmap(bitmap);
+					}
+				}, imageSize,false);
 	    		if (b != null)
 	    			holder.avatar.setImageBitmap(b);
 	    		else

@@ -1,10 +1,12 @@
 package com.minder.app.tf2backpack.backend;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.minder.app.tf2backpack.ApiKey;
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.PersonaState;
@@ -24,6 +26,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class DataManager {
 	// Inner classes
@@ -58,6 +62,11 @@ public class DataManager {
 			return this.exception;
 		}
 	}
+
+
+	public static final String PREF_NAME = "gamefiles";
+	public static final String PREF_DOWNLOAD_VERSION = "download_version";
+	public static final String PREF_DOWNLOAD_HIGHRES = "download_highres";
 	
 	public final static int PROGRESS_DOWNLOADING_SCHEMA_UPDATE = 1;
 	public final static int PROGRESS_PARSING_SCHEMA = 2;
@@ -72,6 +81,14 @@ public class DataManager {
 	private final static int TYPE_PLAYER_ITEM_LIST = 10;
 	private final static int TYPE_SCHEMA_FILES = 11;
 	private final static int TYPE_PLAYER_SEARCH = 12;
+	private final static int TYPE_SCHEMA_OVERVIEW = 13;
+
+	private static boolean gameSchemeChecked = false;
+	private static boolean gameSchemeReady = false;
+	private static boolean gameSchemeUpToDate = false;
+
+	private static int currentGameSchemeVersion;
+	private static boolean downloadingGameScheme = false;
 	
 	Context context;
 	
@@ -93,6 +110,57 @@ public class DataManager {
 	
 	public DatabaseHandler getDatabaseHandler() {
 		return this.databaseHandler;
+	}
+
+	public static boolean isGameSchemeReady() {
+		if (!gameSchemeChecked) {
+			getGameSchemeVersion();
+			gameSchemeReady = currentGameSchemeVersion != -1;
+			gameSchemeUpToDate = currentGameSchemeVersion == DataManager.CURRENT_GAMESCHEMA_VERSION;
+
+			gameSchemeChecked = true;
+		}
+
+		return gameSchemeReady;
+	}
+
+	public static boolean isGameSchemeUpToDate() {
+		if (!gameSchemeChecked) {
+			isGameSchemeReady();
+		}
+
+		return gameSchemeUpToDate;
+	}
+
+	public static boolean isGameSchemeDownloading() {
+		return downloadingGameScheme;
+	}
+
+	private static void getGameSchemeVersion() {
+		SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+		currentGameSchemeVersion = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
+	}
+
+	public static void saveGameSchemeDownloaded() {
+		SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+
+		SharedPreferences.Editor editor = gamePrefs.edit();
+		editor.putInt(PREF_DOWNLOAD_VERSION, DataManager.CURRENT_GAMESCHEMA_VERSION);
+		editor.commit();
+
+		downloadingGameScheme = false;
+		gameSchemeReady = true;
+		gameSchemeUpToDate = true;
+		currentGameSchemeVersion = DataManager.CURRENT_GAMESCHEMA_VERSION;
+	}
+
+	public static void addPlayerNameToHistory(String name) {
+		App.getDataManager()
+				.getDatabaseHandler()
+				.execSql("INSERT INTO name_history (name) \n" +
+						"SELECT ? \n" +
+						"WHERE NOT EXISTS(SELECT 1 FROM name_history WHERE name = ?)",
+						new Object[] { name, name });
 	}
 	
 	public Request requestPlayerItemList(AsyncTaskListener listener, SteamUser player) {
@@ -122,9 +190,19 @@ public class DataManager {
 		
 		return request;
 	}
+
+	public Request requestSchemaFilesOverviewDownload() {
+		Request request = new Request(TYPE_SCHEMA_OVERVIEW);
+		DownloadSchemaOverviewTask asyncTask = new DownloadSchemaOverviewTask(context);
+
+		downloadingGameScheme = true;
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+		return request;
+	}
 	
 	public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages, boolean downloadHighresImages) {
-		Request request = new Request(TYPE_SCHEMA_FILES);	
+		Request request = new Request(TYPE_SCHEMA_FILES);
 		DownloadSchemaFilesTask asyncTask = new DownloadSchemaFilesTask(context, listener, request, refreshImages, downloadHighresImages);
 		
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -205,7 +283,7 @@ public class DataManager {
 			long steamId64 = params[0].steamdId64;
 			
 			// try to fetch online first
-			String url = "http://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/?key=" +
+			String url = "http://api.steampowered.com/IEconItems_440/GetPlayerItems/v1/?key=" +
 					ApiKey.get() + "&SteamID=" + steamId64;
 
 			if (BuildConfig.DEBUG) {
@@ -630,67 +708,66 @@ public class DataManager {
 			}
 		}
 
-		private String downloadText(String URL) {
+		private String downloadText(String urlString) {
 			int BUFFER_SIZE = 2000;
 			InputStream in = null;
+			URLConnection connection = null;
 			try {
-				in = openHttpConnection(URL);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				return "";
-			}
 
-			if (in != null) {
-				InputStreamReader isr = new InputStreamReader(in);
-				int charRead;
-				String str = "";
-				char[] inputBuffer = new char[BUFFER_SIZE];
+				URL url = new URL(urlString);
+				connection = url.openConnection();
+
+				if (!(connection instanceof HttpURLConnection))
+					throw new IOException("Not an HTTP connection");
+
 				try {
-					while ((charRead = isr.read(inputBuffer)) > 0) {
-						// ---convert the chars to a String---
-						String readString = String.copyValueOf(inputBuffer, 0,
-								charRead);
-						str += readString;
-						inputBuffer = new char[BUFFER_SIZE];
+					HttpURLConnection httpConn = (HttpURLConnection) connection;
+					httpConn.setAllowUserInteraction(false);
+					httpConn.setInstanceFollowRedirects(true);
+					httpConn.setRequestMethod("GET");
+					httpConn.connect();
+
+					int response = httpConn.getResponseCode();
+					if (response == HttpURLConnection.HTTP_OK) {
+						in = httpConn.getInputStream();
 					}
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return "";
+				} catch (Exception ex) {
+					throw new IOException("Error connecting");
 				}
-				return str;
+
+				if (in != null) {
+					InputStreamReader isr = new InputStreamReader(in);
+					int charRead;
+					String str = "";
+					char[] inputBuffer = new char[BUFFER_SIZE];
+					try {
+						while ((charRead = isr.read(inputBuffer)) > 0) {
+							// ---convert the chars to a String---
+							String readString = String.copyValueOf(inputBuffer, 0,
+									charRead);
+							str += readString;
+							inputBuffer = new char[BUFFER_SIZE];
+						}
+						in.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+						return "";
+					}
+					return str;
+				}
+			} catch (IOException e) {
+
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				if (connection != null && connection instanceof HttpURLConnection) ((HttpURLConnection) connection).disconnect();
 			}
 			return "";
-		}
-
-		private InputStream openHttpConnection(String urlString)
-				throws IOException {
-			InputStream in = null;
-			int response = -1;
-
-			URL url = new URL(urlString);
-			URLConnection conn = url.openConnection();
-
-			if (!(conn instanceof HttpURLConnection))
-				throw new IOException("Not an HTTP connection");
-
-			try {
-				HttpURLConnection httpConn = (HttpURLConnection) conn;
-				httpConn.setAllowUserInteraction(false);
-				httpConn.setInstanceFollowRedirects(true);
-				httpConn.setRequestMethod("GET");
-				httpConn.connect();
-
-				response = httpConn.getResponseCode();
-				if (response == HttpURLConnection.HTTP_OK) {
-					in = httpConn.getInputStream();
-				}
-			} catch (Exception ex) {
-				throw new IOException("Error connecting");
-			}
-			return in;
 		}
 	}
 }

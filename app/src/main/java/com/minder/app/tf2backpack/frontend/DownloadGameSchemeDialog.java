@@ -2,6 +2,7 @@ package com.minder.app.tf2backpack.frontend;
 
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.backend.DataManager;
 
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -50,19 +51,14 @@ public class DownloadGameSchemeDialog extends DialogFragment {
     	
     	buttonCancel.setOnClickListener(cancelClickListener);
     	buttonDownload.setOnClickListener(downloadClickListener);
-    	
-    	checkBoxHighresImages.setChecked(GameSchemeDownloaderService.isCurrentGameSchemeHighres());
+
     	updateCheckBoxes();
     	return view;
     }
     
     private void updateCheckBoxes() {  	
-    	if (GameSchemeDownloaderService.isGameSchemeReady()) {
+    	if (DataManager.isGameSchemeReady()) {
     		checkBoxResetImages.setEnabled(true);
-    		checkBoxHighresImages.setEnabled(checkBoxResetImages.isChecked());
-    		
-    		if (!checkBoxResetImages.isChecked())
-    			checkBoxHighresImages.setChecked(GameSchemeDownloaderService.isCurrentGameSchemeHighres());
     	} else {
     		checkBoxResetImages.setEnabled(false);
     	}

@@ -7,25 +7,38 @@ import java.util.Queue;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.minder.app.tf2backpack.Util;
 
 public class DatabaseHandler implements Runnable {
+	private static class Query {
+		final String sql;
+		final Object[] args;
+
+		public Query(String sql, Object[] args) {
+			this.sql = sql;
+			this.args = args;
+		}
+	}
+
 	private DataBaseHelper db;
-	private SQLiteDatabase sqlDb;
-	
 	private Thread sqlThread;
-	
-	private Queue<String> sqlQueryQueue;
+
+	private Context context;
+	private Queue<Query> sqlQueryQueue;
 	private final Object mLock;
 	private boolean mRunning;
 	
 	public DatabaseHandler(Context context){
-		db = new DataBaseHelper(context);
-		sqlQueryQueue = new LinkedList<String>();
+		this.context = context;
+		this.db = new DataBaseHelper(context);
+		sqlQueryQueue = new LinkedList<Query>();
 		mLock = new Object();
 		mRunning = true;
 	}
 	
-	public void execSql(String sql){
+	public void execSql(String sql, Object[] args){
 		if (sqlThread == null){
 			sqlThread = new Thread(this);
 			sqlThread.setDaemon(true);
@@ -34,19 +47,9 @@ public class DatabaseHandler implements Runnable {
 		}
 		
 		synchronized (mLock){
-			sqlQueryQueue.add(sql);
+			sqlQueryQueue.add(new Query(sql, args));
 			mLock.notify();
 		}
-	}
-	
-	public Cursor querySql(String sql, String params[]) {
-		Cursor c = null;
-        synchronized (mLock)
-        {
-        	OpenDB();
-        	c = sqlDb.rawQuery(sql, params);
-        }
-        return c;
 	}
 	
 	public SQLiteDatabase getReadableDatabase(){
@@ -56,7 +59,7 @@ public class DatabaseHandler implements Runnable {
 	public void run() {
         while (mRunning)
         {
-            String sql;
+            Query query;
             // lock queue for thread safe work
             synchronized (mLock)
             {
@@ -69,28 +72,19 @@ public class DatabaseHandler implements Runnable {
 						e.printStackTrace();
 					}
                 }
-                sql = sqlQueryQueue.poll();
+				query = sqlQueryQueue.poll();
             }
 
-            if (sql != null)
+            if (query != null)
             {
-            	OpenDB();
-            	sqlDb.execSQL(sql);
+            	final Query finalQuery = query;
+				DataBaseHelper.runWithWritableDb(context, new DataBaseHelper.RunWithWritableDb() {
+					public void run(SQLiteDatabase db) {
+						db.execSQL(finalQuery.sql, finalQuery.args);
+					}
+				});
             }
         }
-	}
-	
-	public void OpenDB(){
-		if (sqlDb == null){
-			sqlDb = db.getWritableDatabase();
-		}
-	}
-	
-	public void CloseDB(){
-		if (sqlDb.isOpen()){
-			sqlDb.close();
-			sqlDb = null;
-		}
 	}
 
 }

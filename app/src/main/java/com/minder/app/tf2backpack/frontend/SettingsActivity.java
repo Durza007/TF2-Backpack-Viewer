@@ -141,7 +141,7 @@ public class SettingsActivity extends PreferenceActivity {
     			.setMessage(R.string.alert_dialog_are_you_sure)
     			.setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
     				public void onClick(DialogInterface dialog, int whichButton) {
-    					ImageLoader il = new ImageLoader(SettingsActivity.this.getApplicationContext(), 128);
+    					ImageLoader il = new ImageLoader(SettingsActivity.this);
     					il.clearCache();
     					il.stopThread();
     					
@@ -159,7 +159,7 @@ public class SettingsActivity extends PreferenceActivity {
         		.setMessage(R.string.alert_dialog_are_you_sure)
         		.setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
-                		App.getDataManager().getDatabaseHandler().execSql("DELETE FROM name_history");
+                		App.getDataManager().getDatabaseHandler().execSql("DELETE FROM name_history", new Object[] {});
                 		
                 		Toast.makeText(SettingsActivity.this, "History cleared", Toast.LENGTH_SHORT).show();
         			}

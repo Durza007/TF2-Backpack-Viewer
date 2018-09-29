@@ -16,6 +16,11 @@ public class App extends Application {
     	super.onCreate();
         context = getApplicationContext();
         dataManager = new DataManager(context);
+
+        if (!dataManager.isGameSchemeReady() ||
+                !dataManager.isGameSchemeUpToDate()) {
+           dataManager.requestSchemaFilesOverviewDownload();
+        }
     }
 
     public static Context getAppContext() {

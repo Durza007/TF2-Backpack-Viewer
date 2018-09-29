@@ -63,7 +63,7 @@ public class SettingsFragment extends PreferenceFragment {
             	dialog.setClickListener(new DialogInterface.OnClickListener() {				
 					public void onClick(DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-	    					ImageLoader il = new ImageLoader(App.getAppContext(), 128);
+	    					ImageLoader il = new ImageLoader(getActivity());
 	    					il.clearCache();
 	    					il.stopThread();
 	    					
@@ -89,7 +89,7 @@ public class SettingsFragment extends PreferenceFragment {
             	dialog.setClickListener(new DialogInterface.OnClickListener() {				
 					public void onClick(DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-	                		App.getDataManager().getDatabaseHandler().execSql("DELETE FROM name_history");
+	                		App.getDataManager().getDatabaseHandler().execSql("DELETE FROM name_history", new Object[]{});
 	                		
 	                		Toast.makeText(getActivity(), "History cleared", Toast.LENGTH_SHORT).show();
 						}

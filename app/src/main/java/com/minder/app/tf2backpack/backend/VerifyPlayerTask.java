@@ -61,10 +61,10 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 				id = java.net.URLEncoder.encode(id);
 				
 				try {
-					URL url = new URL("http://steamcommunity.com/id/" + id + "/?xml=1");
+					URL url = new URL("https://steamcommunity.com/id/" + id + "/?xml=1");
 					
 					InputStream fis = url.openStream();
-					
+
 		            parser.setInput(fis, null);
 		            
 		            user = parseXml(parser);
@@ -80,6 +80,8 @@ class VerifyPlayerTask extends AsyncTask<String, Void, SteamUser> {
 				} catch (SteamException e) {
 					request.exception = e;
 					steamError = true;
+				} catch (Exception e) {
+					request.exception = e;
 				}
 				
 			}

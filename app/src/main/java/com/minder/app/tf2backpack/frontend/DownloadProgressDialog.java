@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.backend.DataManager;
 
 public class DownloadProgressDialog extends DialogFragment implements Runnable {
 	private final static int REFRESH_INTERVALL_MS = 500;
@@ -80,8 +81,8 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 		if (!keepUpdating)
 			return;
 		
-		if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
-			if (GameSchemeDownloaderService.isGameSchemeReady()) {
+		if (!DataManager.isGameSchemeDownloading()) {
+			if (DataManager.isGameSchemeReady()) {
 				GenericDialog dialog = GenericDialog.newInstance(R.string.download, R.string.download_successful);
 				dialog.setNeutralButtonText(android.R.string.ok);
 				dialog.setClickListener(new DialogInterface.OnClickListener() {				

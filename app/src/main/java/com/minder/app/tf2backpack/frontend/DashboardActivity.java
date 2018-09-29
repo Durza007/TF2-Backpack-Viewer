@@ -1,11 +1,14 @@
 package com.minder.app.tf2backpack.frontend;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.frontend.NewsFragment.NewsHeaderClickedListener;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -27,12 +30,11 @@ public class DashboardActivity extends FragmentActivity {
         
         newsFragment.addNewsHeaderClickedListener(headerListener);
         
-        if (!GameSchemeDownloaderService.isGameSchemeDownloading()) {
-	        if (!GameSchemeDownloaderService.isGameSchemeReady()) {
-        		DownloadGameSchemeDialog.show(getSupportFragmentManager(), false);
-	        } else if (!GameSchemeDownloaderService.isGameSchemeUpToDate()) {
-	        	DownloadGameSchemeDialog.show(getSupportFragmentManager(), true);
-	        }
+        if (!DataManager.isGameSchemeDownloading()) {
+			if (!DataManager.isGameSchemeReady() ||
+					!DataManager.isGameSchemeUpToDate()) {
+				App.getDataManager().requestSchemaFilesOverviewDownload();
+			}
         }
     }
     

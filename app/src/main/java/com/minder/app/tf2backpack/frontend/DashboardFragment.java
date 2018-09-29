@@ -10,6 +10,7 @@ import android.widget.GridView;
 
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.backend.DataManager;
 
 public class DashboardFragment extends Fragment {
 	private ItemListSelectAdapter adapter;
@@ -50,13 +51,13 @@ public class DashboardFragment extends Fragment {
 			} else if (string.equals("VIEW_FRIENDS")) {
 				startActivity(new Intent(getActivity(), PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
 			} else if (string.equals("VIEW_ITEM_LISTS")) {
-		    	if (GameSchemeDownloaderService.isGameSchemeReady()) {
+		    	if (DataManager.isGameSchemeReady()) {
 					startActivity(new Intent(getActivity(), CatalogActivity.class));
 		    	} else {
-		    		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
-		    			DownloadProgressDialog.show(getActivity().getSupportFragmentManager());
+		    		if (DataManager.isGameSchemeDownloading()) {
+		    			// TODO: STUB: DownloadProgressDialog.show(getActivity().getSupportFragmentManager());
 		    		} else {
-		    			DownloadGameSchemeDialog.show(getActivity().getSupportFragmentManager(), false);
+		    			// TODO: STUB: DownloadGameSchemeDialog.show(getActivity().getSupportFragmentManager(), false);
 		    		}
 		    	}
 			} else if (string.equals("VIEW_SETTINGS")) {

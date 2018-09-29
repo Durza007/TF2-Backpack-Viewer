@@ -33,6 +33,7 @@ import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
+import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.backend.SteamException;
@@ -87,7 +88,8 @@ public class SelectPlayerFragment extends Fragment {
             return App
                     .getDataManager()
                     .getDatabaseHandler()
-                    .querySql("SELECT * FROM name_history WHERE name LIKE ?",
+					.getReadableDatabase()
+					.rawQuery("SELECT * FROM name_history WHERE name LIKE ?",
                             params);
 		}
 
@@ -375,8 +377,8 @@ public class SelectPlayerFragment extends Fragment {
 				SteamUser user = (SteamUser)result;
 				
 				notifyPlayerSelectedListener(user);
-				
-				storeName(editTextPlayer.getText().toString());
+
+				DataManager.addPlayerNameToHistory(editTextPlayer.getText().toString());
 			} else {
 				// handle error
 				Exception e = request.getException();
@@ -402,12 +404,6 @@ public class SelectPlayerFragment extends Fragment {
 			}
 		}
 	};
-
-	private void storeName(String name) {
-		Thread thread = new Thread(new SaveNameToDb(App.getAppContext(), name));
-		thread.setDaemon(true);
-		thread.start();
-	}
 
 	private static class SaveNameToDb implements Runnable {
 		private DataBaseHelper db;

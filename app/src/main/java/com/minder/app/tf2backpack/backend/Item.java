@@ -78,6 +78,7 @@ public class Item implements Parcelable {
 	}
 	
 	private int defindex;
+	private String image_url;
 	private String custom_name;
 	private String custom_desc; 
 	private int level;
@@ -99,6 +100,10 @@ public class Item implements Parcelable {
 	
 	public int getDefIndex(){
 		return defindex;
+	}
+
+	public String getImageUrl() {
+		return image_url;
 	}
 
 	public ItemAttribute[] getAttributeList() {
@@ -239,6 +244,7 @@ public class Item implements Parcelable {
 		this.flag_cannot_trade = false;
 		this.level = -1;
 		this.backpackPosition = -1;
+		this.image_url = null;
 	}
 	
 	public Item(int defIndex, int level, int quality, int quantity, long inventoryToken) {
@@ -248,6 +254,14 @@ public class Item implements Parcelable {
 		this.setQuality(quality);
 		this.setQuantity(quantity);
 		this.inventory = inventoryToken;
+	}
+
+	public Item(int defIndex,int quality, String image_url) {
+		this();
+		this.setDefIndex(defIndex);
+		this.setQuality(quality);
+		this.inventory = 0;
+		this.image_url = image_url;
 	}
 	
 	public Item(Parcel in){		

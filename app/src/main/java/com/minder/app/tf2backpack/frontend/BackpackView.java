@@ -5,8 +5,12 @@ import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -25,8 +29,10 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
+import com.minder.app.tf2backpack.backend.DataBaseHelper;
 import com.minder.app.tf2backpack.backend.Item;
 
 public class BackpackView extends TableLayout {
@@ -66,6 +72,7 @@ public class BackpackView extends TableLayout {
 	private final static int BACKPACK_CELL_COUNT = 50;
 	
 	private Context context;
+	private ImageLoader imageLoader;
 	private int fixedWidth;
 	public int backpackCellSize;
 	private View[] buttonList;
@@ -121,7 +128,8 @@ public class BackpackView extends TableLayout {
 	private void init(Context context, AttributeSet attrs) {
 		this.context = context;
 		this.setStretchAllColumns(true);
-		
+
+		imageLoader = new ImageLoader(getActivity());
 		paintCache = new LinkedList<PaintColor>();
 		
         Resources r = this.getResources();
@@ -129,6 +137,17 @@ public class BackpackView extends TableLayout {
         colorSplat = BitmapFactory.decodeResource(r, R.drawable.full_paint);
         colorTeamSpirit = BitmapFactory.decodeResource(r, R.drawable.team_half_paint);
 	}
+
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
+    }
 	
 	private Bitmap getPaintImage(int color, int color2) {
 		for (PaintColor p : paintCache) {
@@ -244,74 +263,104 @@ public class BackpackView extends TableLayout {
      */
     public boolean setItems(List<Item> itemList, int cellIndexOffset) {
     	boolean allItemsWereKnown = true;
-    	
-    	for (Item item : itemList) {
-    		final int backpackPos = item.getBackpackPosition() - cellIndexOffset;
-    		
-    		if (backpackPos < 0 || backpackPos >= BACKPACK_CELL_COUNT)
-    			throw new ArrayIndexOutOfBoundsException("Item with bad backpack pos: " + backpackPos);
-    		
-    		
-    		final Holder holder = new Holder(buttonList[backpackPos]);
-    		buttonsChanged[backpackPos] = true;
-    		
-    		// give an pointer to the item object to the cell
-    		holder.imageButton.setTag(item);
-    		try {
-				FileInputStream in = context.openFileInput(item.getDefIndex() + ".png");
-				
-				Bitmap image = BitmapFactory.decodeStream(in);
-				if (image != null){
-					Bitmap newImage = Bitmap.createScaledBitmap(image, backpackCellSize, backpackCellSize, false);
-					if (newImage != image) {
-						image.recycle();
+
+		DataBaseHelper db = new DataBaseHelper(getContext());
+		SQLiteDatabase sqlDb = db.getReadableDatabase();
+
+		try {
+			for (Item item : itemList) {
+				final int backpackPos = item.getBackpackPosition() - cellIndexOffset;
+
+				if (backpackPos < 0 || backpackPos >= BACKPACK_CELL_COUNT)
+					throw new ArrayIndexOutOfBoundsException("Item with bad backpack pos: " + backpackPos);
+
+
+				final Holder holder = new Holder(buttonList[backpackPos]);
+				buttonsChanged[backpackPos] = true;
+
+				// give an pointer to the item object to the cell
+				holder.imageButton.setTag(item);
+				Cursor c = sqlDb.rawQuery("SELECT image_url FROM items WHERE defindex=?", new String[] { Integer.toString(item.getDefIndex()) });
+
+				String url = null;
+				if (c != null) {
+					try {
+						if (c.moveToFirst()) {
+							url = c.getString(0);
+						}
+					} finally {
+						c.close();
 					}
-					image = newImage;
+				}
+				Bitmap b = null;
+				if (url != null) {
+					b = imageLoader.displayImage(url, new ImageLoader.ImageLoadedInterface() {
+						public void imageReady(Bitmap bitmap) {
+							holder.imageButton.setImageBitmap(bitmap);
+						}
+					}, backpackCellSize,false);
+				}
+				if (b == null) {
+					b = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false);
+				}
+				holder.imageButton.setImageBitmap(b);
+				/*try {
+					FileInputStream in = context.openFileInput(item.getDefIndex() + ".png");
+
+					Bitmap image = BitmapFactory.decodeStream(in);
+					if (image != null){
+						Bitmap newImage = Bitmap.createScaledBitmap(image, backpackCellSize, backpackCellSize, false);
+						if (newImage != image) {
+							image.recycle();
+						}
+						image = newImage;
+					} else {
+						throw new FileNotFoundException();
+					}
+
+					holder.imageButton.setImageBitmap(image);
+				} catch (FileNotFoundException e) {
+					holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false));
+					e.printStackTrace();
+
+					allItemsWereKnown = false;
+				}*/
+
+				if (coloredCells) {
+					final int quality = item.getQuality();
+					if (quality >=1 && quality <= 13){
+						if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
+							holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
+							holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
+						}
+					}
+				}
+
+				if (item.getQuantity() > 1){
+					holder.textCount.setVisibility(View.VISIBLE);
+					holder.textCount.setText(String.valueOf(item.getQuantity()));
 				} else {
-					throw new FileNotFoundException();
+					holder.textCount.setVisibility(View.INVISIBLE);
 				}
-				
-				holder.imageButton.setImageBitmap(image);
-    		} catch (FileNotFoundException e) {
-    			holder.imageButton.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false));
-    			holder.imageButton.setTag(item);
-				e.printStackTrace();
-				
-				allItemsWereKnown = false;
-			}
-    		
-			if (coloredCells) {
-				final int quality = item.getQuality();
-				if (quality >=1 && quality <= 13){
-					if (quality != 4 || quality != 6 || quality != 2 || quality != 12){
-						holder.imageButton.setBackgroundResource(R.drawable.backpack_cell_white);
-						holder.imageButton.getBackground().setColorFilter(Util.getItemColor(quality), PorterDuff.Mode.MULTIPLY);
-					}
+
+				if (item.isEquipped()){
+					holder.textEquipped.setVisibility(View.VISIBLE);
+				} else {
+					holder.textEquipped.setVisibility(View.GONE);
+				}
+
+				int color = item.getColor();
+				int color2 = item.getColor2();
+				if (color != 0){
+					holder.colorSplat.setImageBitmap(getPaintImage(color, color2));
+					holder.colorSplat.setVisibility(View.VISIBLE);
+				} else {
+					holder.colorSplat.setVisibility(View.GONE);
 				}
 			}
-			
-			if (item.getQuantity() > 1){
-				holder.textCount.setVisibility(View.VISIBLE);
-				holder.textCount.setText(String.valueOf(item.getQuantity()));
-			} else {
-				holder.textCount.setVisibility(View.INVISIBLE);
-			}
-			
-			if (item.isEquipped()){
-				holder.textEquipped.setVisibility(View.VISIBLE);
-			} else {
-				holder.textEquipped.setVisibility(View.GONE);
-			}
-			
-			int color = item.getColor();
-			int color2 = item.getColor2();
-			if (color != 0){
-				holder.colorSplat.setImageBitmap(getPaintImage(color, color2));
-				holder.colorSplat.setVisibility(View.VISIBLE);
-			} else {
-				holder.colorSplat.setVisibility(View.GONE);
-			}
-    	}
+		} finally {
+			sqlDb.close();
+		}
     	
     	// reset anything we haven't changed
     	final int count = buttonsChanged.length;

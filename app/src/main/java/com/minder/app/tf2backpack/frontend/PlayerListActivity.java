@@ -18,6 +18,7 @@ import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
+import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.BackpackFragment.OnFullscreenClickListener;
@@ -107,7 +108,7 @@ public class PlayerListActivity extends FragmentActivity {
      * @param index The index of the user in the user list
      */
     private void showBackpack(SteamUser user, int index) {
-    	if (GameSchemeDownloaderService.isGameSchemeReady()) {
+    	if (DataManager.isGameSchemeReady()) {
 			if (hasBackpackView) {
 				
 				// check if we already have a fragment
@@ -132,7 +133,7 @@ public class PlayerListActivity extends FragmentActivity {
 		        	.putExtra("com.minder.app.tf2backpack.SteamUser", user));
 			}
     	} else {
-    		if (GameSchemeDownloaderService.isGameSchemeDownloading()) {
+    		if (DataManager.isGameSchemeDownloading()) {
     			showDownloadDialog();
     		} else {
     			DownloadGameSchemeDialog.show(getSupportFragmentManager(), false);

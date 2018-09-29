@@ -9,15 +9,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 public class DataBaseHelper extends SQLiteOpenHelper {
-	private static final int DB_VERSION = 10;
+	private static final int DB_VERSION = 11;
 
     private static String DB_NAME = "items";
 
     private SQLiteDatabase myDataBase; 
     private final Context myContext;
     
-    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, item_slot TEXT, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC);";
+    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, item_slot TEXT, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC, image_url TEXT, image_url_large TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_ATTRIBUTES = "CREATE TABLE attributes (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, description_string TEXT, description_format NUMERIC, effect_type NUMERIC, hidden NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ITEM_ATTRIBUTES = "CREATE TABLE item_attributes (_id INTEGER PRIMARY KEY, itemdefindex NUMERIC, attributedefindex NUMERIC, value REAL);";
     private static final String DICTIONARY_TABLE_CREATE_NAME_HISTORY = "CREATE TABLE name_history (_id INTEGER PRIMARY KEY, name TEXT);";
@@ -100,6 +103,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('12', 'Completed')");
 			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('13', 'Haunted')");
 		}
+		if (oldVersion <= 10) {
+			db.execSQL("ALTER TABLE items ADD image_url TEXT");
+			db.execSQL("ALTER TABLE items ADD image_url_large TEXT");
+		}
 	}
 
 	public static String getSteamUserName(SQLiteDatabase db, long steamId) {
@@ -120,7 +127,30 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	public static void cacheSteamUserName(long steamid, String name) {
 		// TODO could probably remove this null check...
 		if (name != null) {
-			App.getDataManager().getDatabaseHandler().execSql("REPLACE INTO steamid_cache (steamid, name) VALUES ('" + steamid + "', '" + name.replace("'", "''") + "');");
+			App.getDataManager()
+                    .getDatabaseHandler()
+                    .execSql("REPLACE INTO steamid_cache (steamid, name) VALUES (?, ?);",
+                            new Object[]{ steamid, name });
+		}
+	}
+
+	public interface RunWithWritableDb {
+    	void run(SQLiteDatabase db);
+	}
+
+	static Object mLock = new Object();
+	public static void runWithWritableDb(Context context, RunWithWritableDb runner) {
+    	synchronized (mLock) {
+			DataBaseHelper db = new DataBaseHelper(context);
+			SQLiteDatabase sqlDb = db.getWritableDatabase();
+
+			try {
+				runner.run(sqlDb);
+			}
+			finally {
+				sqlDb.close();
+				db.close();
+			}
 		}
 	}
 }

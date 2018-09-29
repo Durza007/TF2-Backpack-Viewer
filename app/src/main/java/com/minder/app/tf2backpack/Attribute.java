@@ -189,6 +189,14 @@ public class Attribute {
 		public void setValue(long value) {
 			this.longValue = value;
 		}
+
+		public void setFloatValue(float floatValue) {
+			this.value = floatValue;
+		}
+
+		public float getFloatValue() {
+			return value;
+		}
 		
 		public long getValue() {
 			return longValue;
@@ -239,14 +247,6 @@ public class Attribute {
 			dest.writeFloat(value);
 			dest.writeLong(accountSteamId);
 			dest.writeString(accountPersonaName);
-		}
-		
-		public void setFloatValue(float floatValue) {
-			this.value = floatValue;
-		}
-
-		public float getFloatValue() {
-			return value;
 		}
 
 		public static final Parcelable.Creator<ItemAttribute> CREATOR = new Parcelable.Creator<ItemAttribute>() 

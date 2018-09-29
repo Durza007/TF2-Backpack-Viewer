@@ -22,18 +22,9 @@ import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.frontend.DashboardActivity;
 
 public class GameSchemeDownloaderService extends Service {
-	private static final String DEBUG_TAG = "GameSchemeDownloaderService";
-	private static final String PREF_NAME = "gamefiles";
-	private static final String PREF_DOWNLOAD_VERSION = "download_version";
-	private static final String PREF_DOWNLOAD_HIGHRES = "download_highres";
+	private static final String DEBUG_TAG = "DownloaderService";
+
 	private static final int DOWNLOAD_NOTIFICATION_ID = 1337;
-	private static boolean gameSchemeChecked = false;
-	private static boolean gameSchemeReady = false;
-	private static boolean gameSchemeUpToDate = false;
-	private static boolean currentGameSchemeImagesIsHighres;
-	
-	private static int currentGameSchemeVersion;
-	private static boolean downloadingGameScheme = false;
 	public static boolean downloadGameSchemeSuccess = false;
 	public static long totalBytes;
 	public static long currentBytes;
@@ -43,48 +34,13 @@ public class GameSchemeDownloaderService extends Service {
 	
 	private Request gameSchemeRequest;
 	private boolean downloadHighresImages;
-	
-	public static boolean isGameSchemeReady() {
-		if (!gameSchemeChecked) {
-			getGameSchemeVersion();
-			gameSchemeReady = currentGameSchemeVersion != -1;
-			gameSchemeUpToDate = currentGameSchemeVersion == DataManager.CURRENT_GAMESCHEMA_VERSION;
-			
-			gameSchemeChecked = true;
-		}
-		
-		return gameSchemeReady;
-	}
-	
-	public static boolean isGameSchemeUpToDate() {
-		if (!gameSchemeChecked) {
-			isGameSchemeReady();
-		}
-		
-		return gameSchemeUpToDate;
-	}
-	
-	public static boolean isGameSchemeDownloading() {
-		return downloadingGameScheme;
-	}
-	
-	public static boolean isCurrentGameSchemeHighres() {
-		return currentGameSchemeImagesIsHighres;
-	}
+
 	
 	public static void startGameSchemeDownload(Activity starterActivity, boolean refreshImages, boolean highresImages) {
     	Intent intent = new Intent(starterActivity, GameSchemeDownloaderService.class);
     	intent.putExtra("refreshImages", refreshImages);
     	intent.putExtra("highresImages", highresImages);
     	starterActivity.startService(intent);
-	}
- 
-	// This is the old onStart method that will be called on the pre-2.0
-	// platform.  On 2.0 or later we override onStartCommand() so this
-	// method will not be called.
-	@Override
-	public void onStart(Intent intent, int startId) {
-	    handleCommand(intent);
 	}
 	
 	@Override
@@ -106,41 +62,10 @@ public class GameSchemeDownloaderService extends Service {
     	gameSchemeRequest = App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages, downloadHighresImages);
     }
     
-    private void removeGameSchemeDownloaded() {
-    	gameSchemeReady = false;
-    	
-    	SharedPreferences gamePrefs = this.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-    	
-        Editor editor = gamePrefs.edit();
-        editor.putInt(PREF_DOWNLOAD_VERSION, 0);
-        editor.commit();
-    }
-    
-    private void saveGameSchemeDownloaded() {
-    	SharedPreferences gamePrefs = this.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-    	
-        Editor editor = gamePrefs.edit();
-        editor.putInt(PREF_DOWNLOAD_VERSION, DataManager.CURRENT_GAMESCHEMA_VERSION);
-        editor.putBoolean(PREF_DOWNLOAD_HIGHRES, downloadHighresImages);
-        editor.commit();
-        
-        gameSchemeReady = true;
-        gameSchemeUpToDate = true;
-        currentGameSchemeVersion = DataManager.CURRENT_GAMESCHEMA_VERSION;
-        currentGameSchemeImagesIsHighres = downloadHighresImages;
-    }
-    
-    private static void getGameSchemeVersion() {
-    	SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);	
-    	currentGameSchemeVersion = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
-    	currentGameSchemeImagesIsHighres = gamePrefs.getBoolean(PREF_DOWNLOAD_HIGHRES, false);
-    }
-    
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {
     	private Notification notification;
     	
 		public void onPreExecute() {
-			downloadingGameScheme = true;
 			
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			
@@ -163,10 +88,6 @@ public class GameSchemeDownloaderService extends Service {
 			if (BuildConfig.DEBUG)
 				Log.d(DEBUG_TAG, "Showing notification");
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
-			
-			// the gamescheme files will be in a undefined state from
-			// here on. Reflect that by saying they dont exist
-			removeGameSchemeDownloaded();
 		}
 
 		public void onProgressUpdate(ProgressUpdate progress) {	
@@ -191,8 +112,6 @@ public class GameSchemeDownloaderService extends Service {
 				currentTaskStringId = R.string.parsing_schema;
 				
 			} else if (progress.updateType == DataManager.PROGRESS_DOWNLOADING_IMAGES_UPDATE) {
-				// this means game files are downloaded
-				saveGameSchemeDownloaded();
 
 				notification.contentView.setProgressBar(R.id.progressBarDownload, progress.totalCount, progress.count, false);
 				notification.contentView.setTextViewText(R.id.textViewTitle, getResources().getText(R.string.downloading_images));
@@ -238,8 +157,7 @@ public class GameSchemeDownloaderService extends Service {
 			
 			final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notification);
-			
-			downloadingGameScheme = false;
+
 			// we are done so stop the service
 			GameSchemeDownloaderService.this.stopSelf();
 		}

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -23,6 +24,7 @@ import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.backend.GameSchemeParser.TF2Weapon;
 import com.minder.app.tf2backpack.backend.HttpConnection.DownloadProgressListener;
@@ -66,30 +68,77 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 	protected void onPreExecute() {
 		listener.onPreExecute();
 	}
+
+	public static void downloadParseAndSaveSchemaFilesToDb(SQLiteDatabase sqlDb, DownloadProgressListener listener, int start) throws Exception {
+		HttpConnection connection =
+				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchemaItems/v1/?key=" +
+						ApiKey.get() + "&format=json&language=en" + (start >= 0 ? "&start=" + start : ""));
+
+		InputStream inputStream = connection.executeStream(listener);
+
+		if (inputStream != null) {
+			GameSchemeParser gs;
+			try {
+				gs = new GameSchemeParser(inputStream, sqlDb);
+			} finally {
+				try {
+					inputStream.close();
+				} catch (IOException e) {}
+			}
+			if (gs.getNextStart() >= 0) {
+				downloadParseAndSaveSchemaFilesToDb(sqlDb, listener, gs.getNextStart());
+			}
+		}
+		else {
+			throw connection.getException();
+		}
+	}
 	
 	@Override
 	protected Void doInBackground(Void... params) {
-		if (refreshImages)
-			deleteItemImages();
-		
-		HttpConnection connection = 
-				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
-						ApiKey.get() + "&format=json&language=en");
-		
-		InputStream inputStream = connection.executeStream(new DownloadProgressListener() {
+		final DownloadProgressListener listener = new DownloadProgressListener() {
 			private int totalSize;
 			public void totalSize(long totalSize) {
 				this.totalSize = (int)totalSize;
 				publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, this.totalSize, 0));
 			}
-			
+
 			public void progressUpdate(long currentSize) {
 				if (currentSize == -1)
 					publishProgress(new ProgressUpdate(DataManager.PROGRESS_PARSING_SCHEMA, 0, 0));
 				else
 					publishProgress(new ProgressUpdate(DataManager.PROGRESS_DOWNLOADING_SCHEMA_UPDATE, totalSize, (int)currentSize));
 			}
+		};
+
+		Log.i(Util.GetTag(), "Starting GameSchemeFiles download...");
+		final long start = System.currentTimeMillis();
+
+		DataBaseHelper.runWithWritableDb(context, new DataBaseHelper.RunWithWritableDb() {
+			public void run(SQLiteDatabase sqlDb) {
+				sqlDb.beginTransaction();
+				try {
+					// removes everything from database, else we would get duplicates
+					sqlDb.delete("items", null, null);
+					sqlDb.delete("item_attributes", null, null);
+
+					downloadParseAndSaveSchemaFilesToDb(sqlDb, listener, -1);
+					sqlDb.setTransactionSuccessful();
+				} catch (Exception e) {
+					e.printStackTrace();
+					request.exception = e;
+				} finally {
+					sqlDb.endTransaction();
+				}
+				Log.i(Util.GetTag(), "GameSchemeFiles: Save to database finished - Time: " + (System.currentTimeMillis() - start) + " ms");
+			}
 		});
+		
+		/*HttpConnection connection =
+				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchema/v0001/?key=" + 
+						ApiKey.get() + "&format=json&language=en");
+		
+		InputStream inputStream = connection.executeStream(listener);
 		
 		if (inputStream != null) {
 			GameSchemeParser gs = null;
@@ -173,7 +222,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 			// handle error
 			if (connection != null)
 				request.exception = connection.getException();
-		}
+		}*/
 		return null;
 	}
 	
@@ -187,20 +236,6 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 		listener.onPostExecute(request);
 		App.getDataManager().removeRequest(request);
 	}
-
-    /**
-     * Deletes all item images
-     */
-    private void deleteItemImages() {
-		File file = new File(context.getFilesDir().getPath());
-		if (file.isDirectory()) {
-	        String[] children = file.list();
-            for (String child : children) {
-                new File(file, child).delete();
-            }
-	    }
-
-    }
 	
 	private class ImageDownloader implements Runnable {
 		private final int index;

@@ -142,49 +142,49 @@ public class ItemGridViewerFragment extends Fragment {
 	        DataBaseHelper db = new DataBaseHelper(getActivity());
 	        SQLiteDatabase sqlDb = db.getReadableDatabase();
 	        
-	        String query;
+	        String where;
 	        switch (filter) {
 		        case ITEM_FILTER_HATS:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE type_name = 'Hat'";
+                    where = "type_name = 'Hat'";
 		        	break;
 		        	
 		        case ITEM_FILTER_DEFAULT:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE quality = 0";
+                    where = "quality = 0";
 		        	break;
 		        	
 		        case ITEM_FILTER_TOOLS:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE type_name = 'Tool'";
+                    where = "type_name = 'Tool'";
 		        	break;
 		        	
 		        case ITEM_FILTER_MISC:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'misc'";
+                    where = "item_slot = 'misc'";
 		        	break;
 		        	
 		        case ITEM_FILTER_PRIMARY:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'primary'";
+                    where = "item_slot = 'primary'";
 		        	break;
 		        	
 		        case ITEM_FILTER_SECONDARY:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'secondary'";
+                    where = "item_slot = 'secondary'";
 		        	break;
 		        	
 		        case ITEM_FILTER_MELEE:
-		        	query = "SELECT defindex, quality, type_name FROM items WHERE item_slot = 'melee'";
+                    where = "item_slot = 'melee'";
 		        	break;
 		        	
 		        // use the same for the default and no filter
-		        case ITEM_FILTER_NONE:	        	
+                case ITEM_FILTER_NONE:
 		        default:
-		        	query = "SELECT defindex, quality FROM items";
+                    where = null;
 		        	break;
 	        }
-	        
-	        
+
+	        String query = "SELECT defindex, quality, image_url FROM items" + (where != null ? " WHERE " + where : "");
 	        Cursor c = sqlDb.rawQuery(query, null);
 	        
 	        if (c != null) {
 	        	while (c.moveToNext()) {
-	        		Item item = new Item(c.getInt(0), -1, c.getInt(1), 0, 0);
+	        		Item item = new Item(c.getInt(0), c.getInt(1), c.getString(2));
 	        		publishProgress(item);
 	        	}
 	        	

@@ -16,12 +16,13 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.backend.Item;
 
 public class ItemAdapter extends BaseAdapter {
-	private class ViewHolder {
+	private class ViewHolder implements ImageLoader.ImageLoadedInterface {
 		public TextView textCount;
 		public ImageButton imageButton;
 		public ImageView colorSplat;
@@ -32,6 +33,10 @@ public class ItemAdapter extends BaseAdapter {
 			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
 			textCount = (TextView)v.findViewById(R.id.TextViewCount);
 			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
+		}
+
+		public void imageReady(Bitmap bitmap) {
+			imageButton.setImageBitmap(bitmap);
 		}
 	}
 	
@@ -49,7 +54,7 @@ public class ItemAdapter extends BaseAdapter {
 		this.mInflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		this.coloredCells = coloredCells;
 		imageSize = activity.getResources().getDimensionPixelSize(R.dimen.button_size_tf2itemlist);
-		imageLoader = new ImageLoader(activity, imageSize);
+		imageLoader = new ImageLoader(activity);
 		itemList = new ArrayList<Item>();
 		
 		defaultImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.unknown);
@@ -98,12 +103,13 @@ public class ItemAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {	        
-        ViewHolder holder;
+        final ViewHolder holder;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.backpack_cell, null);
             holder = new ViewHolder();
             holder.SetView(convertView);            
             holder.imageButton.setOnClickListener(onClickListener);
+            holder.imageButton.setLayoutParams(new RelativeLayout.LayoutParams(imageSize, imageSize));
 
             convertView.setTag(holder);
         } else {
@@ -113,12 +119,15 @@ public class ItemAdapter extends BaseAdapter {
         Item item = itemList.get(position);
         holder.imageButton.setTag(position);
 
-		Bitmap b = imageLoader.displayImage(item.getDefIndex() + ".png", activity, this, true);
-		if (b != null)
-			holder.imageButton.setImageBitmap(b);
-		else
-			holder.imageButton.setImageBitmap(defaultImage);
-		
+		Bitmap b = null;
+		if (item.getImageUrl() != null) {
+            b = imageLoader.displayImage(item.getImageUrl(), holder, imageSize, false);
+        }
+		if (b == null)
+			b = defaultImage;
+
+        holder.imageButton.setImageBitmap(b);
+
 		if (coloredCells){
 			final int quality = item.getQuality();
 			if (quality >= 1 && quality <= 9){
