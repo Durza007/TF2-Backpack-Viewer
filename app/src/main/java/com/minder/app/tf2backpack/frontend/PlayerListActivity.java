@@ -133,11 +133,17 @@ public class PlayerListActivity extends FragmentActivity {
 		        	.putExtra("com.minder.app.tf2backpack.SteamUser", user));
 			}
     	} else {
-    		if (DataManager.isGameSchemeDownloading()) {
-    			showDownloadDialog();
-    		} else {
-    			DownloadGameSchemeDialog.show(getSupportFragmentManager(), false);
-    		}
+			if (!DataManager.isGameSchemeDownloading()) {
+				App.getDataManager().requestSchemaFilesDownload();
+			}
+
+			DownloadProgressDialog.show(getSupportFragmentManager(), new DownloadProgressDialog.ClosedListener() {
+				public void onClosed(boolean dismissed) {
+					if (!dismissed && DataManager.isGameSchemeReady()) {
+						startActivity(new Intent(PlayerListActivity.this, CatalogActivity.class));
+					}
+				}
+			});
     	}
     }
     

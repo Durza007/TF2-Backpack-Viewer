@@ -22,8 +22,8 @@ public class ItemListSelectAdapter extends BaseAdapter {
 		public ImageButton imageButton;
 		
 		public void setView(View v){
-			title = (TextView)v.findViewById(R.id.textViewTitle);
-			imageButton = (ImageButton)v.findViewById(R.id.imageButtonItem);
+			title = v.findViewById(R.id.textViewTitle);
+			imageButton = v.findViewById(R.id.imageButtonItem);
 		}
 	}
 	

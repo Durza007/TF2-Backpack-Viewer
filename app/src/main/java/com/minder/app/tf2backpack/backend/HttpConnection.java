@@ -1,10 +1,15 @@
 package com.minder.app.tf2backpack.backend;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,8 +22,10 @@ import org.apache.http.params.HttpConnectionParams;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.minder.app.tf2backpack.BuildConfig;
+import com.minder.app.tf2backpack.Util;
 
 public class HttpConnection {
 	public static interface DownloadProgressListener {
@@ -77,7 +84,7 @@ public class HttpConnection {
 	
 	private HttpClient httpClient;
 	private Exception exception;
-	private String url;
+	private URL url;
 	private boolean isBitmap = false;
 	
 	/**
@@ -93,7 +100,7 @@ public class HttpConnection {
 	 * @param url
 	 * @return A HttpConnection object used for downloading
 	 */
-	public static HttpConnection string(String url) {
+	public static HttpConnection string(String url) throws MalformedURLException {
 		return new HttpConnection(url);
 	}
 	
@@ -102,14 +109,14 @@ public class HttpConnection {
 	 * @param url
 	 * @return A HttpConnection object used for downloading
 	 */
-	public static HttpConnection bitmap(String url) {
+	public static HttpConnection bitmap(String url) throws MalformedURLException {
 		HttpConnection conn = new HttpConnection(url);
 		conn.isBitmap = true;
 		return conn;
 	}
 	
-	private HttpConnection(String url) {
-		this.url = url;
+	private HttpConnection(String url) throws MalformedURLException {
+		this.url = new URL(url);
 		this.exception = null;
 		
 		httpClient = new DefaultHttpClient();
@@ -117,40 +124,35 @@ public class HttpConnection {
 	}
 	
 	public InputStream executeStream(DownloadProgressListener listener) {
-		HttpResponse response = null;
+		InputStream stream = null;
 		try {
-			response = httpClient.execute(new HttpGet(url));
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.connect();
+
+			Log.d(Util.GetTag(), "HttpConnection: contentLength: " + connection.getContentLength());
+
+			if (listener != null)
+				listener.totalSize(connection.getContentLength());
+
+			stream = connection.getInputStream();
 		} catch (ClientProtocolException e) {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
 			}
 			exception = e;
+		} catch (FileNotFoundException e) {
+			if (BuildConfig.DEBUG) {
+				e.printStackTrace();
+			}
+			exception = new RuntimeException("Content not found");
 		} catch (IOException e) {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
 			}
 			exception = e;
 		}
-		
-		InputStream stream = null;
-		if (response != null) {
-			try {
-				stream = response.getEntity().getContent();
-				if (listener != null)
-					listener.totalSize(response.getEntity().getContentLength());
-			} catch (IllegalStateException e) {
-				if (BuildConfig.DEBUG) {
-					e.printStackTrace();
-				}
-				exception = e;
-			} catch (IOException e) {
-				if (BuildConfig.DEBUG) {
-					e.printStackTrace();
-				}
-				exception = e;
-			}
-		}
-		
+
 		if (stream != null)
 			return new ProgressInputStream(stream, listener);
 		else
@@ -165,13 +167,18 @@ public class HttpConnection {
 	public Object execute(DownloadProgressListener listener) {
 		HttpResponse response = null;
 		try {
-			response = httpClient.execute(new HttpGet(url));
+			response = httpClient.execute(new HttpGet(url.toURI()));
 		} catch (ClientProtocolException e) {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
 			}
 			exception = e;
 		} catch (IOException e) {
+			if (BuildConfig.DEBUG) {
+				e.printStackTrace();
+			}
+			exception = e;
+		} catch (URISyntaxException e) {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
 			}

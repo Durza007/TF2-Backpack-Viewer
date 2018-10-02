@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,31 +69,6 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 	protected void onPreExecute() {
 		listener.onPreExecute();
 	}
-
-	public static void downloadParseAndSaveSchemaFilesToDb(SQLiteDatabase sqlDb, DownloadProgressListener listener, int start) throws Exception {
-		HttpConnection connection =
-				HttpConnection.string("http://api.steampowered.com/IEconItems_440/GetSchemaItems/v1/?key=" +
-						ApiKey.get() + "&format=json&language=en" + (start >= 0 ? "&start=" + start : ""));
-
-		InputStream inputStream = connection.executeStream(listener);
-
-		if (inputStream != null) {
-			GameSchemeParser gs;
-			try {
-				gs = new GameSchemeParser(inputStream, sqlDb);
-			} finally {
-				try {
-					inputStream.close();
-				} catch (IOException e) {}
-			}
-			if (gs.getNextStart() >= 0) {
-				downloadParseAndSaveSchemaFilesToDb(sqlDb, listener, gs.getNextStart());
-			}
-		}
-		else {
-			throw connection.getException();
-		}
-	}
 	
 	@Override
 	protected Void doInBackground(Void... params) {
@@ -122,7 +98,7 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 					sqlDb.delete("items", null, null);
 					sqlDb.delete("item_attributes", null, null);
 
-					downloadParseAndSaveSchemaFilesToDb(sqlDb, listener, -1);
+					//downloadParseAndSaveSchemaFilesToDb(sqlDb, listener, -1);
 					sqlDb.setTransactionSuccessful();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -268,8 +244,11 @@ public class DownloadSchemaFilesTask extends AsyncTask<Void, ProgressUpdate, Voi
 				}
 				
 				if (link != null && link.length() != 0) {
-					HttpConnection conn = HttpConnection.bitmap(link);
-					data = conn.execute(null);
+				    try {
+                        HttpConnection conn = HttpConnection.bitmap(link);
+                        data = conn.execute(null);
+                    }
+                    catch (MalformedURLException e) { e.printStackTrace(); }
 				}
 				if (data != null) {
 					// save

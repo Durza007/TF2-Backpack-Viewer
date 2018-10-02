@@ -56,7 +56,7 @@ public class ItemListSelectFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.item_list_select, container, false);
 		
-		gridView = (GridView)view.findViewById(R.id.itemListSelectGridView);
+		gridView = view.findViewById(R.id.itemListSelectGridView);
 		if (columns != -1)
 			setNumberOfColumns(columns);
 		

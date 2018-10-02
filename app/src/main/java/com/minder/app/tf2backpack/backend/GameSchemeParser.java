@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.minder.app.tf2backpack.Attribute.ItemAttribute;
+import com.minder.app.tf2backpack.Util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,20 @@ import java.io.InputStreamReader;
 
 public class GameSchemeParser {
 	public static class TF2Weapon {
+		public static final int USED_BY_SCOUT = 1 << 0;
+		public static final int USED_BY_PYRO = 1 << 1;
+		public static final int USED_BY_DEMOMAN = 1 << 2;
+		public static final int USED_BY_SOLDIER = 1 << 3;
+		public static final int USED_BY_HEAVY = 1 << 4;
+		public static final int USED_BY_ENGINEER = 1 << 5;
+		public static final int USED_BY_MEDIC = 1 << 6;
+		public static final int USED_BY_SNIPER = 1 << 7;
+		public static final int USED_BY_SPY = 1 << 8;
+
+		
+		public static final int USED_BY_ALL = USED_BY_SCOUT | USED_BY_PYRO | USED_BY_DEMOMAN |
+			USED_BY_SOLDIER | USED_BY_HEAVY | USED_BY_ENGINEER | USED_BY_MEDIC | USED_BY_SNIPER | USED_BY_SPY;
+
 		private int defindex;
 		private String item_slot;
 		private int item_quality;
@@ -23,6 +38,7 @@ public class GameSchemeParser {
 		private String image_url_large;
 		private String item_description;
 		private ItemAttribute[] attributes;
+		private String[] used_by_classes;
 		
 		public void setQuality(int quality){
 			this.item_quality = quality;
@@ -105,6 +121,43 @@ public class GameSchemeParser {
 		
 		public ContentValues getSqlValues() {
 			final ContentValues values = new ContentValues(7);
+
+			int usedByClasses = USED_BY_ALL;
+			if (used_by_classes != null && used_by_classes.length != 0) {
+				usedByClasses = 0;
+				for (String className : used_by_classes) {
+					if (className.equals("Scout")) {
+						usedByClasses |= USED_BY_SCOUT;
+					}
+					else if (className.equals("Pyro")) {
+						usedByClasses |= USED_BY_PYRO;
+					}
+					else if (className.equals("Demoman")) {
+						usedByClasses |= USED_BY_DEMOMAN;
+					}
+					else if (className.equals("Soldier")) {
+						usedByClasses |= USED_BY_SOLDIER;
+					}
+					else if (className.equals("Heavy")) {
+						usedByClasses |= USED_BY_HEAVY;
+					}
+					else if (className.equals("Engineer")) {
+						usedByClasses |= USED_BY_ENGINEER;
+					}
+					else if (className.equals("Medic")) {
+						usedByClasses |= USED_BY_MEDIC;
+					}
+					else if (className.equals("Sniper")) {
+						usedByClasses |= USED_BY_SNIPER;
+					}
+					else if (className.equals("Spy")) {
+						usedByClasses |= USED_BY_SPY;
+					}
+					else {
+						Log.d(Util.GetTag(), "Item " + defindex + " has unkown used by class: " + className);
+					}
+				}
+			}
 			
 			values.put("name", item_name);
 			values.put("defindex", defindex);
@@ -113,6 +166,7 @@ public class GameSchemeParser {
 			values.put("type_name", item_type_name);
 			values.put("description", item_description);
 			values.put("proper_name", 0);
+			values.put("used_by_classes", usedByClasses);
 			values.put("image_url", image_url);
 			values.put("image_url_large", image_url_large);
 			
@@ -126,8 +180,10 @@ public class GameSchemeParser {
 	
 	private SQLiteDatabase sqlDb;
 	private int nextItemId = -1;
+	private int parsedItems = 0;
 	
 	public int getNextStart() { return nextItemId; }
+	public int getParsedItems() { return parsedItems; }
 	
 	public GameSchemeParser(InputStream inputStream, SQLiteDatabase sqlDb) throws IOException {
 		this.sqlDb = sqlDb;
@@ -197,6 +253,7 @@ public class GameSchemeParser {
 				item.setImageUrlLarge("paint:" + itemColor + ":" + itemColor2 + ":" + item.getLargeImageUrl());
 			}
 
+			parsedItems++;
 			sqlDb.insert("items", null, item.getSqlValues());
 		}
 		reader.endArray();

@@ -20,7 +20,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private SQLiteDatabase myDataBase; 
     private final Context myContext;
     
-    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, item_slot TEXT, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC, image_url TEXT, image_url_large TEXT);";
+    private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, item_slot TEXT, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC, used_by_classes INTEGER, image_url TEXT, image_url_large TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_ATTRIBUTES = "CREATE TABLE attributes (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, description_string TEXT, description_format NUMERIC, effect_type NUMERIC, hidden NUMERIC);";
     private static final String DICTIONARY_TABLE_CREATE_ITEM_ATTRIBUTES = "CREATE TABLE item_attributes (_id INTEGER PRIMARY KEY, itemdefindex NUMERIC, attributedefindex NUMERIC, value REAL);";
     private static final String DICTIONARY_TABLE_CREATE_NAME_HISTORY = "CREATE TABLE name_history (_id INTEGER PRIMARY KEY, name TEXT);";
@@ -104,6 +104,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			db.execSQL("INSERT INTO item_qualities (id, name) VALUES ('13', 'Haunted')");
 		}
 		if (oldVersion <= 10) {
+			db.execSQL("ALTER TABLE items ADD used_by_classes INTEGER");
 			db.execSQL("ALTER TABLE items ADD image_url TEXT");
 			db.execSQL("ALTER TABLE items ADD image_url_large TEXT");
 		}

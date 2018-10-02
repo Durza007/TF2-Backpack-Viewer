@@ -1,7 +1,5 @@
 package com.minder.app.tf2backpack.frontend;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +20,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.HorizontalScrollView;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
@@ -40,21 +38,28 @@ public class BackpackView extends TableLayout {
 		public abstract void onReady();
 	}
 	
-	private static class Holder {
+	private static class Holder implements ImageLoader.ImageLoadedInterface {
 		public TextView textCount;
 		public TextView textEquipped;
 		public ImageButton imageButton;
 		public ImageView colorSplat;
+		public String loadingUrl;
 		
 		public Holder(View v) {
 			setView(v);
 		}
 		
 		public void setView(View v){
-			colorSplat = (ImageView)v.findViewById(R.id.ImageViewItemColor);
-			textCount = (TextView)v.findViewById(R.id.TextViewCount);
-			textEquipped = (TextView)v.findViewById(R.id.TextViewEquipped);
-			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
+			colorSplat = v.findViewById(R.id.ImageViewItemColor);
+			textCount = v.findViewById(R.id.TextViewCount);
+			textEquipped = v.findViewById(R.id.TextViewEquipped);
+			imageButton = v.findViewById(R.id.ImageButtonCell);
+		}
+
+		public void imageReady(String url, Bitmap bitmap) {
+			if (url == loadingUrl) {
+				imageButton.setImageBitmap(bitmap);
+			}
 		}
 	}
 	
@@ -101,8 +106,8 @@ public class BackpackView extends TableLayout {
 	
 	public void setFixedWidth(int fixedWidth) {
 		this.fixedWidth = fixedWidth;
-		
-		final HorizontalScrollView.LayoutParams params = (HorizontalScrollView.LayoutParams) this.getLayoutParams();
+
+		final ViewGroup.LayoutParams params = this.getLayoutParams();
 		params.width = fixedWidth;
 		this.setLayoutParams(params);
 	}
@@ -294,11 +299,8 @@ public class BackpackView extends TableLayout {
 				}
 				Bitmap b = null;
 				if (url != null) {
-					b = imageLoader.displayImage(url, new ImageLoader.ImageLoadedInterface() {
-						public void imageReady(Bitmap bitmap) {
-							holder.imageButton.setImageBitmap(bitmap);
-						}
-					}, backpackCellSize,false);
+					holder.loadingUrl = url;
+					b = imageLoader.displayImage(url, holder, backpackCellSize, false);
 				}
 				if (b == null) {
 					b = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.unknown), backpackCellSize, backpackCellSize, false);

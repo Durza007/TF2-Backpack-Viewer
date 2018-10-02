@@ -3,13 +3,16 @@ package com.minder.app.tf2backpack.frontend;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
+import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataManager;
 
 public class DashboardFragment extends Fragment {
@@ -54,11 +57,17 @@ public class DashboardFragment extends Fragment {
 		    	if (DataManager.isGameSchemeReady()) {
 					startActivity(new Intent(getActivity(), CatalogActivity.class));
 		    	} else {
-		    		if (DataManager.isGameSchemeDownloading()) {
-		    			// TODO: STUB: DownloadProgressDialog.show(getActivity().getSupportFragmentManager());
-		    		} else {
-		    			// TODO: STUB: DownloadGameSchemeDialog.show(getActivity().getSupportFragmentManager(), false);
-		    		}
+		    		if (!DataManager.isGameSchemeDownloading()) {
+						App.getDataManager().requestSchemaFilesDownload();
+					}
+
+					DownloadProgressDialog.show(getActivity().getSupportFragmentManager(), new DownloadProgressDialog.ClosedListener() {
+						public void onClosed(boolean dismissed) {
+							if (!dismissed && DataManager.isGameSchemeReady()) {
+								startActivity(new Intent(getActivity(), CatalogActivity.class));
+							}
+						}
+					});
 		    	}
 			} else if (string.equals("VIEW_SETTINGS")) {
 				startActivity(settingsIntent);

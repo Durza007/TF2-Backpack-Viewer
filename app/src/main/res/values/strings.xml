@@ -98,4 +98,13 @@
     <string name="donate">Donate!</string>
     <string name="donate_description">If you like the app you can donate!</string>
     <string name="view_profile">View Profile</string>
+    <string name="scout">Scout</string>
+    <string name="pyro">Pyro</string>
+    <string name="demoman">Demoman</string>
+    <string name="soldier">Soldier</string>
+    <string name="heavy">Heavy</string>
+    <string name="engineer">Engineer</string>
+    <string name="medic">Medic</string>
+    <string name="sniper">Sniper</string>
+    <string name="spy">Spy</string>
 </resources>

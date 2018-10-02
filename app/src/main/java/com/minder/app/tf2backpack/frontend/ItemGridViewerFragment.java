@@ -20,6 +20,7 @@ import com.minder.app.tf2backpack.ItemAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
+import com.minder.app.tf2backpack.backend.GameSchemeParser;
 import com.minder.app.tf2backpack.backend.Item;
 
 public class ItemGridViewerFragment extends Fragment {
@@ -31,6 +32,15 @@ public class ItemGridViewerFragment extends Fragment {
 	private final int ITEM_FILTER_PRIMARY = 5;
 	private final int ITEM_FILTER_SECONDARY = 6;
 	private final int ITEM_FILTER_MELEE = 7;
+	private final int ITEM_FILTER_SCOUT = 8;
+	private final int ITEM_FILTER_PYRO = 9;
+	private final int ITEM_FILTER_DEMOMAN = 10;
+	private final int ITEM_FILTER_SOLDIER = 11;
+	private final int ITEM_FILTER_HEAVY = 12;
+	private final int ITEM_FILTER_ENGINEER = 13;
+	private final int ITEM_FILTER_MEDIC = 14;
+	private final int ITEM_FILTER_SNIPER = 15;
+	private final int ITEM_FILTER_SPY = 16;
 	
 	private String title;
 	private String action;
@@ -132,6 +142,24 @@ public class ItemGridViewerFragment extends Fragment {
 			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_SECONDARY);
 		} else if (action.equals("VIEW_ALL_MELEE")){
 			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_MELEE);
+		} else if (action.equals("VIEW_ALL_SCOUT")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_SCOUT);
+		} else if (action.equals("VIEW_ALL_PYRO")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_PYRO);
+		} else if (action.equals("VIEW_ALL_DEMOMAN")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_DEMOMAN);
+		} else if (action.equals("VIEW_ALL_SOLDIER")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_SOLDIER);
+		} else if (action.equals("VIEW_ALL_HEAVY")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_HEAVY);
+		} else if (action.equals("VIEW_ALL_ENGINEER")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_ENGINEER);
+		} else if (action.equals("VIEW_ALL_MEDIC")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_MEDIC);
+		} else if (action.equals("VIEW_ALL_SNIPER")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_SNIPER);
+		} else if (action.equals("VIEW_ALL_SPY")){
+			new LoadAllItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ITEM_FILTER_SPY);
 		}
     }
     
@@ -167,10 +195,46 @@ public class ItemGridViewerFragment extends Fragment {
 		        case ITEM_FILTER_SECONDARY:
                     where = "item_slot = 'secondary'";
 		        	break;
+
+				case ITEM_FILTER_MELEE:
+					where = "item_slot = 'melee'";
+					break;
 		        	
-		        case ITEM_FILTER_MELEE:
-                    where = "item_slot = 'melee'";
-		        	break;
+		        case ITEM_FILTER_SCOUT:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_SCOUT + ") != 0";
+					break;
+
+				case ITEM_FILTER_PYRO:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_PYRO + ") != 0";
+					break;
+
+				case ITEM_FILTER_DEMOMAN:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_DEMOMAN + ") != 0";
+					break;
+
+				case ITEM_FILTER_SOLDIER:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_SOLDIER + ") != 0";
+					break;
+
+				case ITEM_FILTER_HEAVY:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_HEAVY + ") != 0";
+					break;
+
+				case ITEM_FILTER_ENGINEER:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_ENGINEER + ") != 0";
+					break;
+
+				case ITEM_FILTER_MEDIC:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_MEDIC + ") != 0";
+					break;
+
+				case ITEM_FILTER_SNIPER:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_SNIPER + ") != 0";
+					break;
+
+				case ITEM_FILTER_SPY:
+					where = "used_by_classes != " + GameSchemeParser.TF2Weapon.USED_BY_ALL + " AND (used_by_classes & " + GameSchemeParser.TF2Weapon.USED_BY_SPY + ") != 0";
+					break;
 		        	
 		        // use the same for the default and no filter
                 case ITEM_FILTER_NONE:

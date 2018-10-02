@@ -22,7 +22,7 @@ import android.util.Log;
 
 public class ImageLoader {
     public interface ImageLoadedInterface {
-        void imageReady(Bitmap bitmap);
+        void imageReady(String url, Bitmap bitmap);
     }
     MemoryCache memoryCache = new MemoryCache();
     FileCache fileCache;
@@ -52,6 +52,37 @@ public class ImageLoader {
             queuePhoto(url, callbackObj, requiredSize, isLocal);
             return null;
         }    
+    }
+
+    public Bitmap displayImageWithCachedTemporary(String mainUrl, String tempUrl, ImageLoadedInterface callbackObj, int requiredSize, boolean isLocal)
+    {
+        if (mainUrl == null) return null;
+        if (requiredSize < 1) {
+            throw new RuntimeException("requiredSize cannot be lower than 1");
+        }
+
+        Bitmap bitmap = memoryCache.get(mainUrl);
+        if (bitmap != null) {
+            return bitmap;
+        } else {
+            if (tempUrl != null) {
+                bitmap = memoryCache.get(tempUrl);
+                if (bitmap != null) {
+                    callbackObj.imageReady(mainUrl, bitmap);
+                }
+                else {
+                    File f = fileCache.getFile(tempUrl);
+
+                    //from SD cache
+                    bitmap = decodeFile(f, requiredSize);
+                    if (bitmap != null) {
+                        callbackObj.imageReady(mainUrl, bitmap);
+                    }
+                }
+            }
+            queuePhoto(mainUrl, callbackObj, requiredSize, isLocal);
+            return null;
+        }
     }
         
     private void queuePhoto(String url, ImageLoadedInterface callbackObj, int requiredSize, boolean isLocal)
@@ -120,6 +151,7 @@ public class ImageLoader {
             if (itemColor != 0 || itemColor2 != 0) {
                 b = BitmapFactory.decodeStream(is);
 
+                boolean isLarge = b.getWidth() > 128;
                 // General paint can stuff
                 Bitmap newBitmap = Bitmap.createBitmap(b.getWidth(), b.getHeight(), Bitmap.Config.ARGB_8888);
                 Canvas canvas = new Canvas(newBitmap);
@@ -131,8 +163,8 @@ public class ImageLoader {
                 final BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
                 bitmapOptions.inScaled = false;
                 if (itemColor2 != 0) {
-                    Bitmap teamPaintRed = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.teampaint_red_mask, bitmapOptions);
-                    Bitmap teamPaintBlue = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.teampaint_blu_mask, bitmapOptions);
+                    Bitmap teamPaintRed = BitmapFactory.decodeResource(this.activity.getResources(), isLarge ? R.drawable.teampaint_red_mask_large : R.drawable.teampaint_red_mask, bitmapOptions);
+                    Bitmap teamPaintBlue = BitmapFactory.decodeResource(this.activity.getResources(), isLarge ? R.drawable.teampaint_blu_mask_large : R.drawable.teampaint_blu_mask, bitmapOptions);
                     // draw first paint color
                     canvas.drawBitmap(teamPaintRed, null, new Rect(0, 0, b.getWidth(), b.getHeight()), paint);
                     // draw second paint color
@@ -140,7 +172,7 @@ public class ImageLoader {
                     canvas.drawBitmap(teamPaintBlue, null, new Rect(0, 0, b.getWidth(), b.getHeight()), paint);
                 }
                 else {
-                    Bitmap paintColor = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.paintcan_paintcolor, bitmapOptions);
+                    Bitmap paintColor = BitmapFactory.decodeResource(this.activity.getResources(), isLarge ? R.drawable.paintcan_paintcolor_large : R.drawable.paintcan_paintcolor, bitmapOptions);
                     // draw paint color
                     canvas.drawBitmap(paintColor, null, new Rect(0, 0, b.getWidth(), b.getHeight()), paint);
                 }
@@ -293,7 +325,7 @@ public class ImageLoader {
                         Bitmap bmp = getBitmap(photoToLoad.url, photoToLoad.requiredSize, photoToLoad.isLocal);
                         memoryCache.put(photoToLoad.url, bmp);
                         
-                        BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad.callbackObj);
+                        BitmapDisplayer bd = new BitmapDisplayer(photoToLoad.url, bmp, photoToLoad.callbackObj);
                         activity.runOnUiThread(bd);
                     }
                     if (Thread.interrupted())
@@ -308,15 +340,17 @@ public class ImageLoader {
     //Used to display bitmap in the UI thread
     class BitmapDisplayer implements Runnable
     {
+        final String url;
         final Bitmap bitmap;
         final ImageLoadedInterface callbackObj;
-        public BitmapDisplayer(Bitmap b, ImageLoadedInterface a) {
+        public BitmapDisplayer(String url, Bitmap b, ImageLoadedInterface a) {
+            this.url = url;
         	bitmap = b;
             callbackObj = a;
         }
         
         public void run() {
-            callbackObj.imageReady(bitmap);
+            callbackObj.imageReady(url, bitmap);
         }
     }
 

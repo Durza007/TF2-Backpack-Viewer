@@ -59,7 +59,7 @@ public class GameSchemeDownloaderService extends Service {
     	downloadHighresImages = intent.getExtras().getBoolean("highresImages");
     	
     	// start the request
-    	gameSchemeRequest = App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages, downloadHighresImages);
+    	gameSchemeRequest = null;//App.getDataManager().requestSchemaFilesDownload(gameSchemeListener, refreshImages, downloadHighresImages);
     }
     
     AsyncTaskListener gameSchemeListener = new AsyncTaskListener() {

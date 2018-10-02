@@ -27,6 +27,7 @@ public class ItemAdapter extends BaseAdapter {
 		public ImageButton imageButton;
 		public ImageView colorSplat;
 		public FrameLayout root;
+		public String loadingUrl;
 		
 		public void SetView(View v){
 			root = (FrameLayout)v.findViewById(R.id.FrameLayoutRoot);
@@ -35,8 +36,10 @@ public class ItemAdapter extends BaseAdapter {
 			imageButton = (ImageButton)v.findViewById(R.id.ImageButtonCell);
 		}
 
-		public void imageReady(Bitmap bitmap) {
-			imageButton.setImageBitmap(bitmap);
+		public void imageReady(String url, Bitmap bitmap) {
+			if (loadingUrl == url) {
+				imageButton.setImageBitmap(bitmap);
+			}
 		}
 	}
 	
@@ -121,10 +124,12 @@ public class ItemAdapter extends BaseAdapter {
 
 		Bitmap b = null;
 		if (item.getImageUrl() != null) {
-            b = imageLoader.displayImage(item.getImageUrl(), holder, imageSize, false);
+			holder.loadingUrl = item.getImageUrl();
+            b = imageLoader.displayImage(holder.loadingUrl, holder, imageSize, false);
         }
-		if (b == null)
+		if (b == null) {
 			b = defaultImage;
+		}
 
         holder.imageButton.setImageBitmap(b);
 

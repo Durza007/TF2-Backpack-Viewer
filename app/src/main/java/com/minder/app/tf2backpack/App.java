@@ -19,7 +19,7 @@ public class App extends Application {
 
         if (!dataManager.isGameSchemeReady() ||
                 !dataManager.isGameSchemeUpToDate()) {
-           dataManager.requestSchemaFilesOverviewDownload();
+           dataManager.requestSchemaFilesDownload();
         }
     }
 

@@ -3,15 +3,22 @@ package com.minder.app.tf2backpack.backend;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.ContactsContract;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.minder.app.tf2backpack.ApiKey;
 import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.PersonaState;
 import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.Util;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -20,12 +27,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -86,9 +96,12 @@ public class DataManager {
 	private static boolean gameSchemeChecked = false;
 	private static boolean gameSchemeReady = false;
 	private static boolean gameSchemeUpToDate = false;
+	private static boolean downloadingGameScheme = false;
+	private static float   gameSchemeDownloadProgress = 0.0f;
+	private static ArrayList<DownloadSchemaOverviewTask.ProgressListener> gameSchemeDownloadListeners
+			= new ArrayList<DownloadSchemaOverviewTask.ProgressListener>();
 
 	private static int currentGameSchemeVersion;
-	private static boolean downloadingGameScheme = false;
 	
 	Context context;
 	
@@ -136,12 +149,23 @@ public class DataManager {
 		return downloadingGameScheme;
 	}
 
+	public static void addGameSchemeDownloadListener(DownloadSchemaOverviewTask.ProgressListener listener) {
+		gameSchemeDownloadListeners.add(listener);
+		if (downloadingGameScheme) {
+			listener.onProgress(gameSchemeDownloadProgress);
+		}
+	}
+
+	public static void removeGameSchemeDownloadListener(DownloadSchemaOverviewTask.ProgressListener listener) {
+		gameSchemeDownloadListeners.remove(listener);
+	}
+
 	private static void getGameSchemeVersion() {
 		SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 		currentGameSchemeVersion = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
 	}
 
-	public static void saveGameSchemeDownloaded() {
+	public static void saveGameSchemeDownloaded(Date dataLastModified) {
 		SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
 		SharedPreferences.Editor editor = gamePrefs.edit();
@@ -191,24 +215,48 @@ public class DataManager {
 		return request;
 	}
 
-	public Request requestSchemaFilesOverviewDownload() {
+	public Request requestSchemaFilesDownload() {
 		Request request = new Request(TYPE_SCHEMA_OVERVIEW);
-		DownloadSchemaOverviewTask asyncTask = new DownloadSchemaOverviewTask(context);
+		DownloadSchemaOverviewTask asyncTask = new DownloadSchemaOverviewTask(context, new DownloadSchemaOverviewTask.ProgressListener() {
+			public void onProgress(float t) {
+				DataManager.gameSchemeDownloadProgress = t;
+				for (DownloadSchemaOverviewTask.ProgressListener l : gameSchemeDownloadListeners) {
+					l.onProgress(t);
+				}
+			}
+			public void onComplete(Date dataLastModified) {
+				DataManager.saveGameSchemeDownloaded(dataLastModified);
+				for (DownloadSchemaOverviewTask.ProgressListener l : gameSchemeDownloadListeners) {
+					l.onComplete(dataLastModified);
+				}
+				gameSchemeDownloadListeners.clear();
+			}
+			public void onError(Exception error) {
+				DataManager.downloadingGameScheme = false;
+				DataManager.gameSchemeReady = false;
+				Log.e(Util.GetTag(), "Error while trying to download scheme files: " + error);
+				for (DownloadSchemaOverviewTask.ProgressListener l : gameSchemeDownloadListeners) {
+					l.onError(error);
+				}
+				gameSchemeDownloadListeners.clear();
+			}
+		});
 
+		gameSchemeDownloadProgress = 0;
 		downloadingGameScheme = true;
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 		return request;
 	}
 	
-	public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages, boolean downloadHighresImages) {
+	/*public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages, boolean downloadHighresImages) {
 		Request request = new Request(TYPE_SCHEMA_FILES);
 		DownloadSchemaFilesTask asyncTask = new DownloadSchemaFilesTask(context, listener, request, refreshImages, downloadHighresImages);
 		
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		
 		return request;
-	}
+	}*/
 	
 	public Request requestSteamUserSearch(AsyncTaskListener listener, String searchTerm, int pageNumber) {
 		Request request = new Request(TYPE_PLAYER_SEARCH);
@@ -257,6 +305,18 @@ public class DataManager {
 	protected void removeRequest(Request request) {
 		asyncWorkList.remove(request);
 	}
+
+	private String sessionId;
+	protected String getSessionId() {
+		if (sessionId == null) {
+			sessionId = UUID.randomUUID().toString().replaceAll("-", "");
+			if (sessionId.length() > 16) {
+				sessionId = sessionId.substring(0, 16);
+			}
+		}
+
+		return sessionId;
+	}
 	
 	/****************************
 	 * 
@@ -290,7 +350,14 @@ public class DataManager {
 				Log.d("PlayerItemListParser", "GetPlayerInfo - " + url);
 			}
 
-			HttpConnection connection = HttpConnection.string(url);
+			HttpConnection connection;
+			try {
+				connection = HttpConnection.string(url);
+			}
+			catch (MalformedURLException e) {
+				request.exception = e;
+				return null;
+			}
 			
 			InputStream inputStream = connection.executeStream(null);
 			
@@ -623,11 +690,20 @@ public class DataManager {
     }
     
     private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
+		private class SearchResult {
+			public int success;
+			public String search_text;
+			public int search_result_count;
+			public String search_filter;
+			public int search_page;
+			public String html;
+		}
+
 		private final AsyncTaskListener listener;
 		private final Request request;
 		private final int pageNumber;
 		
-		public DownloadSearchListTask(AsyncTaskListener listener, Request request,int pageNumber) {
+		public DownloadSearchListTask(AsyncTaskListener listener, Request request, int pageNumber) {
 			this.listener = listener;
 			this.request = request;
 			this.pageNumber = pageNumber;
@@ -642,54 +718,54 @@ public class DataManager {
 		protected ArrayList<SteamUser> doInBackground(String... params) {
 			ArrayList<SteamUser> players = new ArrayList<SteamUser>();
 
-			String data = downloadText("http://steamcommunity.com/actions/Search?p="
-					+ pageNumber + "&T=Account&K=\"" + params[0] + "\"");
+			String sessionId = getSessionId();
 
-			int curIndex = 0;
-			SteamUser newPlayer;
-			while (curIndex < data.length()) {
-				int index = data
-						.indexOf(
-								"<a class=\"linkTitle\" href=\"http://steamcommunity.com/profiles/",
-								curIndex);
-				
-				int avatarIndex = data.indexOf("<img src=\"http://media.steampowered.com/steamcommunity/public/images/avatars/", curIndex);
-				if (index != -1) {
-					int endIndex = data.indexOf("\">", index);
-					newPlayer = new SteamUser();
-					newPlayer.steamdId64 = Long.parseLong(data.substring(
-							index + 62, endIndex));
+			String data = downloadText("https://steamcommunity.com/search/SearchCommunityAjax?text="
+					+ params[0] + "&filter=users&sessionid=" + sessionId + "&page=" + pageNumber, "sessionid=" + sessionId + ";");
 
-					index = data.indexOf("</a>", endIndex);
-					newPlayer.steamName = data.substring(endIndex + 2, index);
+			Log.d(Util.GetTag(), "Search result: " + data);
+			Gson gson = new Gson();
+			SearchResult result = gson.fromJson(data, SearchResult.class);
+			if (result == null || result.search_result_count == 0) {
+				return players;
+			}
 
-					players.add(newPlayer);
-					curIndex = index;
-				} else {
-					index = data
-							.indexOf(
-									"<a class=\"linkTitle\" href=\"http://steamcommunity.com/id/",
-									curIndex);
-					if (index != -1) {
-						int endIndex = data.indexOf("\">", index);
-						newPlayer = new SteamUser();
-						newPlayer.communityId = data.substring(index + 56,
-								endIndex);
+			final String id64Pattern = ".*/profiles/[\\d]*$";
+			final String communityIdPattern = ".*/id/[^/]*$";
 
-						index = data.indexOf("</a>", endIndex);
-						newPlayer.steamName = data.substring(endIndex + 2,
-								index);
+			Document doc = Jsoup.parse(result.html);
+			Elements rows = doc.select(".search_row");
+			for (Element e : rows) {
+				SteamUser newPlayer = new SteamUser();
+				Element link = e.select(".searchPersonaName").first();
+				if (link == null) continue;
 
-						players.add(newPlayer);
-						curIndex = index;
-					} else {
-						break;
+				newPlayer.steamName = link.text();
+				String profileUrl = link.attr("href");
+
+				if (profileUrl.matches(id64Pattern)) {
+					int index  = profileUrl.lastIndexOf('/');
+					newPlayer.steamdId64 = Long.parseLong(profileUrl.substring(index + 1));
+				}
+				else if (profileUrl.matches(communityIdPattern)) {
+					int index  = profileUrl.lastIndexOf('/');
+					newPlayer.communityId = profileUrl.substring(index + 1);
+				}
+				else {
+					Log.d(Util.GetTag(), "Could not parse profile url: " + profileUrl);
+					continue;
+				}
+
+				Element avatarDiv = e.select(".avatarMedium").first();
+				if (avatarDiv != null) {
+					Element img = avatarDiv.select("img").first();
+					if (img != null) {
+						newPlayer.avatarUrl = img.attr("src");
 					}
 				}
-				
-				// get avatar
-				int endIndex = data.indexOf("\" />", avatarIndex);
-				newPlayer.avatarUrl = data.substring(avatarIndex + 10, endIndex);
+
+				Log.d(Util.GetTag(), "Found player: " + newPlayer.steamName + ", avatar: " + newPlayer.avatarUrl);
+				players.add(newPlayer);
 			}
 
 			return players;
@@ -708,7 +784,7 @@ public class DataManager {
 			}
 		}
 
-		private String downloadText(String urlString) {
+		private String downloadText(String urlString, String cookie) {
 			int BUFFER_SIZE = 2000;
 			InputStream in = null;
 			URLConnection connection = null;
@@ -725,6 +801,7 @@ public class DataManager {
 					httpConn.setAllowUserInteraction(false);
 					httpConn.setInstanceFollowRedirects(true);
 					httpConn.setRequestMethod("GET");
+					httpConn.setRequestProperty("Cookie", cookie);
 					httpConn.connect();
 
 					int response = httpConn.getResponseCode();

@@ -17,8 +17,15 @@ import android.widget.TextView;
 import com.minder.app.tf2backpack.GameSchemeDownloaderService;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.backend.DataManager;
+import com.minder.app.tf2backpack.backend.DownloadSchemaOverviewTask;
 
-public class DownloadProgressDialog extends DialogFragment implements Runnable {
+import java.util.Date;
+
+public class DownloadProgressDialog extends DialogFragment implements DownloadSchemaOverviewTask.ProgressListener {
+	public interface ClosedListener {
+		void onClosed(boolean dismissed);
+	}
+
 	private final static int REFRESH_INTERVALL_MS = 500;
 	
 	private final Handler updateHandler;
@@ -26,20 +33,38 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 	private TextView textViewTask;
 	private ProgressBar progressBar;
 	private TextView textViewImageCount;
+
+	private float progress = -1;
+	private boolean uiReady = false;
 	
-    private OnClickListener listener = new OnClickListener() {
-		public void onClick(View view) {
-			getDialog().dismiss();
-		}
-	};
+    private ClosedListener closedListener;
 	
-	public static void show(FragmentManager manager) {
-        final DownloadProgressDialog editNameDialog = new DownloadProgressDialog();
-        editNameDialog.show(manager, "download_dialog");
+	public static void show(FragmentManager manager, ClosedListener closedListener) {
+        final DownloadProgressDialog progressDialog = new DownloadProgressDialog();
+        progressDialog.closedListener = closedListener;
+        progressDialog.show(manager, "download_dialog");
 	}
 	
 	public DownloadProgressDialog() {
 		updateHandler = new Handler();
+		DataManager.addGameSchemeDownloadListener(this);
+	}
+
+	public void onProgress(float t) {
+		progress = t;
+		if (uiReady) {
+			progressBar.setIndeterminate(false);
+			progressBar.setMax(100);
+			progressBar.setProgress((int)Math.max(0, Math.min(100, progress * 100)));
+		}
+	}
+
+	public void onComplete(Date dataLastModified) {
+		getDialog().dismiss();
+	}
+
+	public void onError(Exception error) {
+
 	}
 	
     @Override
@@ -48,16 +73,28 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
     	View view = inflater.inflate(R.layout.download_progress_dialog, container);
     	getDialog().setTitle(R.string.download);
     	
-    	textViewTask = (TextView)view.findViewById(R.id.textViewTask);
-    	progressBar = (ProgressBar)view.findViewById(R.id.progressBarDownload);
-    	textViewImageCount = (TextView)view.findViewById(R.id.textViewImageCount);
+    	textViewTask = view.findViewById(R.id.textViewTask);
+    	progressBar = view.findViewById(R.id.progressBarDownload);
+    	textViewImageCount = view.findViewById(R.id.textViewImageCount);
     	
-    	final Button buttonOk = (Button)view.findViewById(R.id.buttonDismiss);
-    	buttonOk.setOnClickListener(listener);
+    	final Button buttonOk = view.findViewById(R.id.buttonDismiss);
+    	buttonOk.setOnClickListener(new OnClickListener() {
+			public void onClick(View view) {
+				getDialog().dismiss();
+			}
+		});
     	
     	textViewImageCount.setVisibility(View.GONE);
-    	progressBar.setMax(100);
-    	progressBar.setProgress(0);	
+		if (progress == -1) {
+			progressBar.setIndeterminate(true);
+		}
+		else {
+			progressBar.setIndeterminate(false);
+			progressBar.setMax(100);
+			progressBar.setProgress((int)Math.max(0, Math.min(100, progress * 100)));
+		}
+		
+		uiReady = true;
     	
         return view;
     }
@@ -67,17 +104,22 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
     	super.onStart();
     	
     	keepUpdating = true;
-    	this.run();
+    	//this.run();
     }
     
     @Override
     public void onStop() {
     	super.onStop();
     	
+		DataManager.removeGameSchemeDownloadListener(this);
+		uiReady = false;
     	keepUpdating = false;
+    	if (closedListener != null) {
+    		closedListener.onClosed(!DataManager.isGameSchemeReady());
+		}
     }
 
-	public void run() {
+	/*public void run() {
 		if (!keepUpdating)
 			return;
 		
@@ -127,5 +169,5 @@ public class DownloadProgressDialog extends DialogFragment implements Runnable {
 		if (keepUpdating) {
 			updateHandler.postAtTime(this, SystemClock.uptimeMillis() + REFRESH_INTERVALL_MS);
 		}
-	}
+	}*/
 }

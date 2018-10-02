@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,10 +22,12 @@ import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.Attribute.StrangeQuality;
+import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
 import com.minder.app.tf2backpack.backend.DataBaseHelper;
@@ -36,6 +39,7 @@ public class WeaponInfo extends Activity {
 	private static final int redColor = Color.rgb(255, 64, 64);
 	private static final int whiteColor = Color.rgb(236, 227, 203);
 
+	private ImageLoader imageLoader;
 	private TextView tvAttributes;
 	private SpannableStringBuilder attributeText;
 	private boolean hideLargeCraftOrder;
@@ -47,6 +51,8 @@ public class WeaponInfo extends Activity {
         // no titlebar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.weapon_info);
+
+		imageLoader = new ImageLoader(this);
         
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         hideLargeCraftOrder = sp.getBoolean("hidelargecraftnumber", false);
@@ -56,7 +62,7 @@ public class WeaponInfo extends Activity {
         DataBaseHelper db = new DataBaseHelper(this.getApplicationContext());
         SQLiteDatabase sqlDb = db.getReadableDatabase();
         
-        Cursor c = sqlDb.rawQuery("SELECT name, type_name, description FROM items WHERE defindex = "
+        Cursor c = sqlDb.rawQuery("SELECT name, type_name, description, image_url, image_url_large FROM items WHERE defindex = "
         		+ item.getDefIndex(), null);
         
         ItemAttribute[] array = item.getAttributeList();
@@ -90,14 +96,25 @@ public class WeaponInfo extends Activity {
         final int effectTypeColumn = cAttribute.getColumnIndex("effect_type");
         final int valueColumn = cAttribute.getColumnIndex("value");
         final int hiddenColumn = cAttribute.getColumnIndex("hidden");
-        
-        TextView tvName = (TextView)findViewById(R.id.TextViewWeaponName);
-        TextView tvLevel = (TextView)findViewById(R.id.TextViewWeaponLevel);
-        TextView tvDescription = (TextView)findViewById(R.id.TextViewDescription);
-        TextView tvTradable = (TextView)findViewById(R.id.TextViewTradable);
-        tvAttributes = (TextView)findViewById(R.id.TextViewAttributes);
+
+		final ImageView imgWeapon = findViewById(R.id.ImageViewWeapon);
+        TextView tvName = findViewById(R.id.TextViewWeaponName);
+        TextView tvLevel = findViewById(R.id.TextViewWeaponLevel);
+        TextView tvDescription = findViewById(R.id.TextViewDescription);
+        TextView tvTradable = findViewById(R.id.TextViewTradable);
+        tvAttributes = findViewById(R.id.TextViewAttributes);
         
         if (c != null && c.moveToFirst()) {
+            final String imageUrl = c.getString(c.getColumnIndex("image_url"));
+        	final String imageUrlLarge = c.getString(c.getColumnIndex("image_url_large"));
+			imageLoader.displayImageWithCachedTemporary(imageUrlLarge, imageUrl, new ImageLoader.ImageLoadedInterface() {
+				public void imageReady(String url, Bitmap bitmap) {
+					if (url == imageUrlLarge) {
+						imgWeapon.setImageBitmap(bitmap);
+					}
+				}
+			}, 512, false);
+
 	        String weaponClass = c.getString(c.getColumnIndex("type_name"));
 	        if (weaponClass.contains("TF_")){
 	        	weaponClass = "";

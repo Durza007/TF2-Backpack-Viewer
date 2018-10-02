@@ -9,6 +9,16 @@
         <item>@string/item_list_hats</item>
         <item>@string/item_list_tools</item>
         <item>@string/item_list_misc</item>
+
+        <item>@string/scout</item>
+        <item>@string/pyro</item>
+        <item>@string/demoman</item>
+        <item>@string/soldier</item>
+        <item>@string/heavy</item>
+        <item>@string/engineer</item>
+        <item>@string/medic</item>
+        <item>@string/sniper</item>
+        <item>@string/spy</item>
     </array>
     <array name="images">
         <item>@drawable/catalog_book</item>
@@ -19,6 +29,16 @@
         <item>@drawable/hat</item>
         <item>@drawable/name_tag</item>
         <item>@drawable/badge</item>
+
+        <item>@drawable/class_scoutred</item>
+        <item>@drawable/class_pyrored</item>
+        <item>@drawable/class_demored</item>
+        <item>@drawable/class_soldierred</item>
+        <item>@drawable/class_heavyred</item>
+        <item>@drawable/class_engired</item>
+        <item>@drawable/class_medicred</item>
+        <item>@drawable/class_sniperred</item>
+        <item>@drawable/class_spyred</item>
     </array>
     <array name="list">
         <item>"VIEW_ALL_ITEMS"</item>
@@ -29,6 +49,15 @@
         <item>"VIEW_ALL_HATS"</item>
         <item>"VIEW_ALL_TOOLS"</item>
         <item>"VIEW_ALL_MISC"</item>
+        <item>"VIEW_ALL_SCOUT"</item>
+        <item>"VIEW_ALL_PYRO"</item>
+        <item>"VIEW_ALL_DEMOMAN"</item>
+        <item>"VIEW_ALL_SOLDIER"</item>
+        <item>"VIEW_ALL_HEAVY"</item>
+        <item>"VIEW_ALL_ENGINEER"</item>
+        <item>"VIEW_ALL_MEDIC"</item>
+        <item>"VIEW_ALL_SNIPER"</item>
+        <item>"VIEW_ALL_SPY"</item>
     </array>
     
     <array name="dashboardTitles">

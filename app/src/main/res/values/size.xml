@@ -8,4 +8,5 @@
 <dimen name="button_size_tf2itemlist">90dp</dimen>
 <dimen name="button_size_itemlist">100dp</dimen>
 <dimen name="button_size_dashboard_item">100dp</dimen>
+    <dimen name="weapon_large_image_size">200dp</dimen>
 </resources>

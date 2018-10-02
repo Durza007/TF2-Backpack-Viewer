@@ -6,23 +6,12 @@
     android:layout_height="wrap_content"
     android:background="@color/bg_color" >
 
-    <HorizontalScrollView
-        android:id="@+id/HorizontalScrollViewBackpack"
+    <com.minder.app.tf2backpack.frontend.BackpackView
+        android:id="@+id/TableLayoutBackPack"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_above="@+id/linearLayoutControls"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" >
-
-        <com.minder.app.tf2backpack.frontend.BackpackView
-            android:id="@+id/TableLayoutBackPack"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:fadeScrollbars="true" >
-        </com.minder.app.tf2backpack.frontend.BackpackView>
-    </HorizontalScrollView>
+        android:fadeScrollbars="true"></com.minder.app.tf2backpack.frontend.BackpackView>
 
     <LinearLayout
         android:id="@+id/linearLayoutControls"

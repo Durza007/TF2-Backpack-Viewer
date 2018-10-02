@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/RelativeLayoutUserId"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/bg_color" >
+    android:background="@color/bg_color">
 
     <TextView
         android:id="@+id/user_id_textView"
@@ -19,7 +20,7 @@
         android:layout_marginRight="80dp"
         android:imeOptions="actionDone"
         android:inputType="textPersonName"
-        android:lines="1" >
+        android:lines="1">
 
     </AutoCompleteTextView>
 
@@ -29,8 +30,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/EditTextSteamId"
-        android:text="@string/search" >
-    </Button>
+        android:text="@string/search"></Button>
 
     <TextView
         android:id="@+id/TextViewPoweredBySteam"
@@ -39,8 +39,7 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/buttonCommunityId"
         android:gravity="bottom|center_horizontal"
-        android:text="@string/powered_by_steam" >
-    </TextView>
+        android:text="@string/powered_by_steam"></TextView>
 
     <Button
         android:id="@+id/ButtonOk"
@@ -49,9 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/user_id_textView"
-        android:text="@android:string/ok"
-        android:width="80dp" >
-    </Button>
+        android:width="80dp"
+        android:text="@android:string/ok"></Button>
 
     <Button
         android:id="@+id/buttonCommunityId"

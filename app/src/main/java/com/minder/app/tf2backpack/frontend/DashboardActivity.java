@@ -33,7 +33,7 @@ public class DashboardActivity extends FragmentActivity {
         if (!DataManager.isGameSchemeDownloading()) {
 			if (!DataManager.isGameSchemeReady() ||
 					!DataManager.isGameSchemeUpToDate()) {
-				App.getDataManager().requestSchemaFilesOverviewDownload();
+				App.getDataManager().requestSchemaFilesDownload();
 			}
         }
     }

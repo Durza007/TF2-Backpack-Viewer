@@ -19,12 +19,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PlayerAdapter extends BaseAdapter {	
-	private class ViewHolder {
+	private class ViewHolder implements ImageLoader.ImageLoadedInterface {
 		ViewGroup container;
 		ImageView avatar;
 		ImageView state;
 		TextView text;
 		TextView text2;
+		String loadingUrl;
+
+		public void imageReady(String url, Bitmap bitmap) {
+			if (url == loadingUrl) {
+				avatar.setImageBitmap(bitmap);
+			}
+		}
 	}
 	
 	private Activity activity;
@@ -125,11 +132,8 @@ public class PlayerAdapter extends BaseAdapter {
         	
 	        // set player avatar
 	        if (player.avatarUrl != null && player.avatarUrl.length() > 0) {
-	    		Bitmap b = imageLoader.displayImage(player.avatarUrl, new ImageLoader.ImageLoadedInterface() {
-					public void imageReady(Bitmap bitmap) {
-						holder.avatar.setImageBitmap(bitmap);
-					}
-				}, imageSize,false);
+				holder.loadingUrl = player.avatarUrl;
+	    		Bitmap b = imageLoader.displayImage(player.avatarUrl, holder, imageSize,false);
 	    		if (b != null)
 	    			holder.avatar.setImageBitmap(b);
 	    		else
