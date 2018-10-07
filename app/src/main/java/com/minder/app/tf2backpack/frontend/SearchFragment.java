@@ -1,6 +1,7 @@
 package com.minder.app.tf2backpack.frontend;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import com.minder.app.tf2backpack.PlayerAdapter;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.backend.AsyncTaskListener;
+import com.minder.app.tf2backpack.backend.DataManager;
 import com.minder.app.tf2backpack.backend.ProgressUpdate;
 import com.minder.app.tf2backpack.backend.DataManager.Request;
 import com.minder.app.tf2backpack.frontend.PlayerListFragment.byPersonaState;
@@ -122,7 +124,7 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 
 		progressContainer = view.findViewById(R.id.progressContainer);
 
-		playerList = (ListView) view.findViewById(android.R.id.list);
+		playerList = view.findViewById(android.R.id.list);
 		final View root = view.findViewById(R.id.frameLayoutRoot);
 		root.setBackgroundResource(R.color.bg_color);
 
@@ -220,6 +222,7 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 	public void onStop() {
 		super.onStop();
 		adapter.stopBackgroundLoading();
+		getActivity().getActionBar().setTitle(R.string.app_name);
 		Log.d("PlayerList", "stop");
 	}
 
@@ -318,7 +321,10 @@ public class SearchFragment extends Fragment implements OnScrollListener {
 		public void onPostExecute(Request request) {
 			final Object data = request.getData();
 			if (data != null) {
-				final List<SteamUser> list = (List<SteamUser>) data;
+				final DataManager.SearchUserResult result = (DataManager.SearchUserResult) data;
+
+				getActivity().getActionBar().setTitle(getResources().getQuantityString(R.plurals.found_users, result.totalResults, result.totalResults));
+				ArrayList<SteamUser> list = result.users;
 
 				progressContainer.setVisibility(View.GONE);
 				playerList.setVisibility(View.VISIBLE);

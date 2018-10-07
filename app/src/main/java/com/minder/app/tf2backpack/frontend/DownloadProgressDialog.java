@@ -3,7 +3,6 @@ package com.minder.app.tf2backpack.frontend;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
@@ -14,14 +13,14 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.minder.app.tf2backpack.GameSchemeDownloaderService;
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.backend.DataManager;
-import com.minder.app.tf2backpack.backend.DownloadSchemaOverviewTask;
+import com.minder.app.tf2backpack.backend.DownloadSchemaTask;
 
 import java.util.Date;
 
-public class DownloadProgressDialog extends DialogFragment implements DownloadSchemaOverviewTask.ProgressListener {
+public class DownloadProgressDialog extends DialogFragment implements DownloadSchemaTask.ProgressListener {
 	public interface ClosedListener {
 		void onClosed(boolean dismissed);
 	}
@@ -59,12 +58,28 @@ public class DownloadProgressDialog extends DialogFragment implements DownloadSc
 		}
 	}
 
-	public void onComplete(Date dataLastModified) {
+	public void onComplete(long dataLastModified) {
 		getDialog().dismiss();
 	}
 
 	public void onError(Exception error) {
-
+		getDialog().dismiss();
+		final FragmentManager fm = getActivity().getSupportFragmentManager();
+		GenericDialogHC.newInstance(
+				getResources().getString(R.string.failed_download),
+				getResources().getString(R.string.download_gamescheme_error_message) + " " + error.getLocalizedMessage())
+				.setPositiveButtonText(R.string.try_again)
+				.setNegativeButtonText(R.string.dismiss)
+				.setClickListener(new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialogInterface, int which) {
+						dialogInterface.dismiss();
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							App.getDataManager().requestSchemaFilesDownload(false);
+							DownloadProgressDialog.show(fm, (DownloadProgressDialog.ClosedListener) null);
+						}
+					}
+				})
+				.show(getActivity().getFragmentManager(), "errorDialog");
 	}
 	
     @Override

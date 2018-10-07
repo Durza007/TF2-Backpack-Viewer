@@ -261,8 +261,9 @@ public class ItemGridViewerFragment extends Fragment {
 		@Override
 		protected void onProgressUpdate(Item... item) {
 			itemAdapter.addItem(item[0]);
-			
-			title = "Viewing " + itemAdapter.getCount() + " items";
+
+			final int count = itemAdapter.getCount();
+			title = getResources().getQuantityString(R.plurals.viewing_items, count, count);
 			getActivity().setTitle(title);
 		}
     }

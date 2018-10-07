@@ -10,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,9 +30,9 @@ import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.Util;
 
 public class HttpConnection {
-	public static interface DownloadProgressListener {
-		public void totalSize(long totalSize);
-		public void progressUpdate(long currentSize);
+	public interface DownloadProgressListener {
+		void totalSize(long totalSize);
+		void progressUpdate(long currentSize);
 	}
 	public final static long MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS = 400;
 	
@@ -85,6 +87,8 @@ public class HttpConnection {
 	private HttpClient httpClient;
 	private Exception exception;
 	private URL url;
+	private long ifModifiedSince;
+	private HttpURLConnection connection;
 	private boolean isBitmap = false;
 	
 	/**
@@ -103,7 +107,7 @@ public class HttpConnection {
 	public static HttpConnection string(String url) throws MalformedURLException {
 		return new HttpConnection(url);
 	}
-	
+
 	/**
 	 * Constructs a http connection for downloading a bitmap
 	 * @param url
@@ -118,19 +122,25 @@ public class HttpConnection {
 	private HttpConnection(String url) throws MalformedURLException {
 		this.url = new URL(url);
 		this.exception = null;
+		this.ifModifiedSince = -1;
 		
 		httpClient = new DefaultHttpClient();
 		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 15000);
 	}
+
+	public void setIfModifiedSince(long timestamp) {
+        this.ifModifiedSince = timestamp;
+    }
 	
 	public InputStream executeStream(DownloadProgressListener listener) {
 		InputStream stream = null;
 		try {
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
+			if (ifModifiedSince > 0) {
+			    connection.setIfModifiedSince(ifModifiedSince);
+            }
 			connection.connect();
-
-			Log.d(Util.GetTag(), "HttpConnection: contentLength: " + connection.getContentLength());
 
 			if (listener != null)
 				listener.totalSize(connection.getContentLength());
@@ -158,10 +168,18 @@ public class HttpConnection {
 		else
 			return null;
 	}
-	
+
+    public HttpURLConnection getConnection() {
+        return connection;
+    }
+
+    public void close() {
+	    this.connection.disconnect();
+    }
+
 	/**
 	 * Executes the http request
-	 * 
+	 *
 	 * @return The data - null if it failed
 	 */
 	public Object execute(DownloadProgressListener listener) {
@@ -205,7 +223,7 @@ public class HttpConnection {
 				exception = e;
 			}
 		}
-		
+
 		httpClient.getConnectionManager().shutdown();
 		return result;
 	}
@@ -213,15 +231,15 @@ public class HttpConnection {
 	private String processEntity(HttpEntity entity, DownloadProgressListener listener) throws IllegalStateException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(entity
 				.getContent()));
-		
-		StringBuilder result = null;
+
+		StringBuilder result;
 		if (entity.getContentLength() < 0)
 			result = new StringBuilder();
 		else
 			result = new StringBuilder((int)entity.getContentLength() + 150);
-		
+
 		String line;
-		
+
 		if (listener != null)
 			listener.totalSize(entity.getContentLength());
 
@@ -232,7 +250,7 @@ public class HttpConnection {
 				// add 1 to account for missing line endings
 				//currentByteCount += (line.getBytes().length) + 1;
 				currentByteCount += (line.length()) + 1;
-					
+
 				if (System.currentTimeMillis() > lastUpdate + MIN_TIME_BETWEEN_PROGRESS_UPDATES_MS) {
 					lastUpdate = System.currentTimeMillis();
 					listener.progressUpdate(currentByteCount);
@@ -240,10 +258,10 @@ public class HttpConnection {
 			}
 		    result.append(line);
 		}
-		
+
 		return result.toString();
 	}
-	
+
 	private Bitmap processBitmapEntity(HttpEntity entity) throws IOException {
 		BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
 		return BitmapFactory.decodeStream(bufHttpEntity.getContent());

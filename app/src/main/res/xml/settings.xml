@@ -54,9 +54,8 @@
     <PreferenceCategory android:title="Advanced" >
         <Preference
             android:key="refreshfiles"
-            android:summary="Will redownload all the tf2 game files for all the items"
-            android:title="Refresh TF2 Game Files" >
-        </Preference>
+            android:summary="Will redownload the item list"
+            android:title="Refresh TF2 Game Files"></Preference>
         <Preference
             android:key="clearcache"
             android:summary="Clears the file cache"

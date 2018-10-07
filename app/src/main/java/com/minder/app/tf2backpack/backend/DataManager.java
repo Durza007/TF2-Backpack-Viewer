@@ -3,7 +3,6 @@ package com.minder.app.tf2backpack.backend;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -23,6 +22,10 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -73,16 +76,29 @@ public class DataManager {
 		}
 	}
 
+	public static class SearchUserResult {
+		public final int totalResults;
+		public final ArrayList<SteamUser> users;
+
+		public SearchUserResult(int totalResults, ArrayList<SteamUser> users) {
+			this.totalResults = totalResults;
+			this.users = users;
+		}
+	}
+
 
 	public static final String PREF_NAME = "gamefiles";
 	public static final String PREF_DOWNLOAD_VERSION = "download_version";
-	public static final String PREF_DOWNLOAD_HIGHRES = "download_highres";
+	public static final String PREF_DOWNLOAD_MODIFIED_DATE = "download_modified_date";
+	public static final String PREF_DOWNLOAD_CHECKED_DATE = "download_checked_date";
+
+	public static final long TIME_BETWEEN_GAMESCHEME_CHECKS_MS = 1000 * 60 * 60 * 12;
 	
 	public final static int PROGRESS_DOWNLOADING_SCHEMA_UPDATE = 1;
 	public final static int PROGRESS_PARSING_SCHEMA = 2;
 	public final static int PROGRESS_DOWNLOADING_IMAGES_UPDATE = 3;
 	
-	public final static int CURRENT_GAMESCHEMA_VERSION = 2;
+	public final static int CURRENT_GAMESCHEMA_VERSION = 3;
 	
 	// Members
 	private final static int TYPE_FRIEND_LIST = 7;
@@ -98,8 +114,9 @@ public class DataManager {
 	private static boolean gameSchemeUpToDate = false;
 	private static boolean downloadingGameScheme = false;
 	private static float   gameSchemeDownloadProgress = 0.0f;
-	private static ArrayList<DownloadSchemaOverviewTask.ProgressListener> gameSchemeDownloadListeners
-			= new ArrayList<DownloadSchemaOverviewTask.ProgressListener>();
+	private static Exception gameSchemeDownloadError = null;
+	private static ArrayList<DownloadSchemaTask.ProgressListener> gameSchemeDownloadListeners
+			= new ArrayList<DownloadSchemaTask.ProgressListener>();
 
 	private static int currentGameSchemeVersion;
 	
@@ -145,18 +162,29 @@ public class DataManager {
 		return gameSchemeUpToDate;
 	}
 
+	public static boolean shouldGameSchemeBeChecked() {
+		SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+		return (new Date().getTime() - gamePrefs.getLong(PREF_DOWNLOAD_CHECKED_DATE, -1)) > TIME_BETWEEN_GAMESCHEME_CHECKS_MS;
+	}
+
 	public static boolean isGameSchemeDownloading() {
 		return downloadingGameScheme;
 	}
 
-	public static void addGameSchemeDownloadListener(DownloadSchemaOverviewTask.ProgressListener listener) {
+	public static Exception getPendingGameSchemeException() {
+		Exception error = gameSchemeDownloadError;
+		gameSchemeDownloadError = null;
+		return error;
+	}
+
+	public static void addGameSchemeDownloadListener(DownloadSchemaTask.ProgressListener listener) {
 		gameSchemeDownloadListeners.add(listener);
 		if (downloadingGameScheme) {
 			listener.onProgress(gameSchemeDownloadProgress);
 		}
 	}
 
-	public static void removeGameSchemeDownloadListener(DownloadSchemaOverviewTask.ProgressListener listener) {
+	public static void removeGameSchemeDownloadListener(DownloadSchemaTask.ProgressListener listener) {
 		gameSchemeDownloadListeners.remove(listener);
 	}
 
@@ -165,11 +193,13 @@ public class DataManager {
 		currentGameSchemeVersion = gamePrefs.getInt(PREF_DOWNLOAD_VERSION, -1);
 	}
 
-	public static void saveGameSchemeDownloaded(Date dataLastModified) {
+	public static void saveGameSchemeDownloaded(long dataLastModified) {
 		SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
 		SharedPreferences.Editor editor = gamePrefs.edit();
 		editor.putInt(PREF_DOWNLOAD_VERSION, DataManager.CURRENT_GAMESCHEMA_VERSION);
+		editor.putLong(PREF_DOWNLOAD_MODIFIED_DATE, dataLastModified);
+		editor.putLong(PREF_DOWNLOAD_CHECKED_DATE, new Date().getTime());
 		editor.commit();
 
 		downloadingGameScheme = false;
@@ -189,7 +219,7 @@ public class DataManager {
 	
 	public Request requestPlayerItemList(AsyncTaskListener listener, SteamUser player) {
 		Request request = new Request(TYPE_PLAYER_ITEM_LIST);
-		GetPlayerItems asyncTask = new GetPlayerItems(listener, request);
+		GetPlayerItems asyncTask = new GetPlayerItems(this.context, listener, request);
 		
 		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, player);
 		
@@ -204,8 +234,7 @@ public class DataManager {
 		
 		return request;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public Request requestSteamUserInfo(AsyncTaskListener listener, List<SteamUser> players) {
 		Request request = new Request(TYPE_PLAYER_INFO);
 		GetPlayerInfo asyncTask = new GetPlayerInfo(listener, request);
@@ -215,18 +244,24 @@ public class DataManager {
 		return request;
 	}
 
-	public Request requestSchemaFilesDownload() {
+	public Request requestSchemaFilesDownload(boolean onlyIfChanged) {
 		Request request = new Request(TYPE_SCHEMA_OVERVIEW);
-		DownloadSchemaOverviewTask asyncTask = new DownloadSchemaOverviewTask(context, new DownloadSchemaOverviewTask.ProgressListener() {
+		long lastModifiedTimestamp = -1;
+		if (onlyIfChanged) {
+			SharedPreferences gamePrefs = App.getAppContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+			lastModifiedTimestamp = gamePrefs.getLong(PREF_DOWNLOAD_MODIFIED_DATE, -1);
+		}
+
+		DownloadSchemaTask asyncTask = new DownloadSchemaTask(context, lastModifiedTimestamp, new DownloadSchemaTask.ProgressListener() {
 			public void onProgress(float t) {
 				DataManager.gameSchemeDownloadProgress = t;
-				for (DownloadSchemaOverviewTask.ProgressListener l : gameSchemeDownloadListeners) {
+				for (DownloadSchemaTask.ProgressListener l : gameSchemeDownloadListeners) {
 					l.onProgress(t);
 				}
 			}
-			public void onComplete(Date dataLastModified) {
+			public void onComplete(long dataLastModified) {
 				DataManager.saveGameSchemeDownloaded(dataLastModified);
-				for (DownloadSchemaOverviewTask.ProgressListener l : gameSchemeDownloadListeners) {
+				for (DownloadSchemaTask.ProgressListener l : gameSchemeDownloadListeners) {
 					l.onComplete(dataLastModified);
 				}
 				gameSchemeDownloadListeners.clear();
@@ -235,8 +270,13 @@ public class DataManager {
 				DataManager.downloadingGameScheme = false;
 				DataManager.gameSchemeReady = false;
 				Log.e(Util.GetTag(), "Error while trying to download scheme files: " + error);
-				for (DownloadSchemaOverviewTask.ProgressListener l : gameSchemeDownloadListeners) {
-					l.onError(error);
+				if (gameSchemeDownloadListeners.size() == 0) {
+					DataManager.gameSchemeDownloadError = error;
+				}
+				else {
+					for (DownloadSchemaTask.ProgressListener l : gameSchemeDownloadListeners) {
+						l.onError(error);
+					}
 				}
 				gameSchemeDownloadListeners.clear();
 			}
@@ -248,15 +288,6 @@ public class DataManager {
 
 		return request;
 	}
-	
-	/*public Request requestSchemaFilesDownload(AsyncTaskListener listener, boolean refreshImages, boolean downloadHighresImages) {
-		Request request = new Request(TYPE_SCHEMA_FILES);
-		DownloadSchemaFilesTask asyncTask = new DownloadSchemaFilesTask(context, listener, request, refreshImages, downloadHighresImages);
-		
-		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		
-		return request;
-	}*/
 	
 	public Request requestSteamUserSearch(AsyncTaskListener listener, String searchTerm, int pageNumber) {
 		Request request = new Request(TYPE_PLAYER_SEARCH);
@@ -326,10 +357,12 @@ public class DataManager {
 	private class GetPlayerItems extends AsyncTask<SteamUser, Void, PlayerItemListParser> {
 		private final AsyncTaskListener listener;
 		private final Request request;
+		private final String cacheDir;
 		
-		public GetPlayerItems(AsyncTaskListener listener, Request request) {
+		public GetPlayerItems(Context context, AsyncTaskListener listener, Request request) {
 			this.listener = listener;
 			this.request = request;
+			this.cacheDir = context.getCacheDir() + "/player_items/";
 		}
 		
 		@Override
@@ -345,6 +378,9 @@ public class DataManager {
 			// try to fetch online first
 			String url = "http://api.steampowered.com/IEconItems_440/GetPlayerItems/v1/?key=" +
 					ApiKey.get() + "&SteamID=" + steamId64;
+			
+			File tempCacheFile = new File(this.cacheDir + "temp");
+			File cacheFile = new File(this.cacheDir + steamId64);
 
 			if (BuildConfig.DEBUG) {
 				Log.d("PlayerItemListParser", "GetPlayerInfo - " + url);
@@ -358,24 +394,54 @@ public class DataManager {
 				request.exception = e;
 				return null;
 			}
-			
+
 			InputStream inputStream = connection.executeStream(null);
 			
 			if (inputStream == null) {
 				request.exception = connection.getException();
-				return null;
+				PlayerItemListParser parser = null;
+				try {
+					parser = new PlayerItemListParser(new FileInputStream(cacheFile));
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				}
+				return parser;
 			}
-			
-			PlayerItemListParser parser = null;
+
 			try {
-				parser = new PlayerItemListParser(inputStream);
+				tempCacheFile.getParentFile().mkdirs();
+				FileOutputStream out = new FileOutputStream(tempCacheFile);
+				Util.CopyStream(inputStream, out);
+				out.flush();
+				out.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
 			} catch (IOException e) {
-				request.exception = e;
+				e.printStackTrace();
+			}
+
+			PlayerItemListParser parser = null;
+			boolean couldParseNewData = true;
+			try {
+				parser = new PlayerItemListParser(new FileInputStream(tempCacheFile));
+			} catch (IOException e1) {
+				couldParseNewData = false;
+				try {
+					parser = new PlayerItemListParser(new FileInputStream(cacheFile));
+				} catch (IOException e2) {
+					e2.printStackTrace();
+					request.exception = e1;
+				}
 			} finally {
 				try {
 					if (inputStream != null)
 						inputStream.close();
-				} catch (IOException e) {
+				} catch (IOException e) {}
+			}
+
+			if (couldParseNewData) {
+				if (!tempCacheFile.renameTo(cacheFile)) {
+					Log.e(Util.GetTag(), "Could not mv temp cached player items file");
 				}
 			}
 			
@@ -689,7 +755,7 @@ public class DataManager {
 		}
     }
     
-    private class DownloadSearchListTask extends AsyncTask<String, Void, ArrayList<SteamUser>> {
+    private class DownloadSearchListTask extends AsyncTask<String, Void, SearchUserResult> {
 		private class SearchResult {
 			public int success;
 			public String search_text;
@@ -715,7 +781,7 @@ public class DataManager {
 		}
 
 		@Override
-		protected ArrayList<SteamUser> doInBackground(String... params) {
+		protected SearchUserResult doInBackground(String... params) {
 			ArrayList<SteamUser> players = new ArrayList<SteamUser>();
 
 			String sessionId = getSessionId();
@@ -723,11 +789,10 @@ public class DataManager {
 			String data = downloadText("https://steamcommunity.com/search/SearchCommunityAjax?text="
 					+ params[0] + "&filter=users&sessionid=" + sessionId + "&page=" + pageNumber, "sessionid=" + sessionId + ";");
 
-			Log.d(Util.GetTag(), "Search result: " + data);
 			Gson gson = new Gson();
 			SearchResult result = gson.fromJson(data, SearchResult.class);
 			if (result == null || result.search_result_count == 0) {
-				return players;
+				return new SearchUserResult(0, players);
 			}
 
 			final String id64Pattern = ".*/profiles/[\\d]*$";
@@ -764,15 +829,15 @@ public class DataManager {
 					}
 				}
 
-				Log.d(Util.GetTag(), "Found player: " + newPlayer.steamName + ", avatar: " + newPlayer.avatarUrl);
+				// Log.d(Util.GetTag(), "Found player: " + newPlayer.steamName + ", avatar: " + newPlayer.avatarUrl);
 				players.add(newPlayer);
 			}
 
-			return players;
+			return new SearchUserResult(result.search_result_count, players);
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<SteamUser> result) {
+		protected void onPostExecute(SearchUserResult result) {
 			if (result != null) {
 				/*
 				 * currentRequest = App.getDataManager().requestSteamUserInfo(

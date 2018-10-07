@@ -13,6 +13,8 @@ public class GenericDialogHC extends DialogFragment {
 	private int titleId = -1;
 	private int messageId = -1;
 	private int iconId = -1;
+	private String titleString = null;
+	private String messageString = null;
 	private DialogInterface.OnClickListener clickListener;
 	private int positiveButtonTextId = -1;
 	private int neutralButtonTextId = -1;
@@ -25,6 +27,13 @@ public class GenericDialogHC extends DialogFragment {
     	dialog.messageId = messageId;
         return dialog;
     }
+
+	public static GenericDialogHC newInstance(String title, String message) {
+		GenericDialogHC dialog = new GenericDialogHC();
+		dialog.titleString = title;
+		dialog.messageString = message;
+		return dialog;
+	}
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,28 +42,33 @@ public class GenericDialogHC extends DialogFragment {
     	this.setRetainInstance(true);
     }
     
-    public void setClickListener(DialogInterface.OnClickListener listener) {
+    public GenericDialogHC setClickListener(DialogInterface.OnClickListener listener) {
     	this.clickListener = listener;
+    	return this;
     }
     
-    public void setPositiveButtonText(int textId) {
+    public GenericDialogHC setPositiveButtonText(int textId) {
     	this.positiveButtonTextId = textId;
+    	return this;
     }
     
-    public void setNeutralButtonText(int textId) {
+    public GenericDialogHC setNeutralButtonText(int textId) {
     	this.neutralButtonTextId = textId;
+    	return this;
     }
     
-    public void setNegativeButtonText(int textId) {
+    public GenericDialogHC setNegativeButtonText(int textId) {
     	this.negativeButtonTextId = textId;
+    	return this;
     }
     
     public void setShowProgress(boolean showProgress) {
     	this.showProgress = showProgress;
     }
     
-    public void setIcon(int iconId) {
+    public GenericDialogHC setIcon(int iconId) {
     	this.iconId = iconId;
+    	return this;
     }
 
     @Override
@@ -63,9 +77,13 @@ public class GenericDialogHC extends DialogFragment {
     	
     	if (titleId != -1)
     		builder.setTitle(titleId);
+    	else if (titleString != null)
+    		builder.setTitle(titleString);
     	
     	if (messageId != -1)
     		builder.setMessage(messageId);
+    	else if (messageString != null)
+    		builder.setMessage(messageString);
     	
     	if (iconId != -1)
     		builder.setIcon(iconId);

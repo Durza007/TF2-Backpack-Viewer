@@ -32,6 +32,9 @@ public class BackpackActivity extends FragmentActivity {
     	boolean scaleByWidth = false;
     	
     	SteamUser user = getIntent().getParcelableExtra("com.minder.app.tf2backpack.SteamUser");
+    	if (user.steamName != null) {
+    		setTitle(user.steamName);
+		}
     	
         final FragmentManager fragmentManager = this.getSupportFragmentManager();     
         if (savedInstanceState != null) {

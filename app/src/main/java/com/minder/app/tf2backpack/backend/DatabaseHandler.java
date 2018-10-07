@@ -78,9 +78,10 @@ public class DatabaseHandler implements Runnable {
             if (query != null)
             {
             	final Query finalQuery = query;
-				DataBaseHelper.runWithWritableDb(context, new DataBaseHelper.RunWithWritableDb() {
-					public void run(SQLiteDatabase db) {
+				DataBaseHelper.runWithWritableDb(context, new DataBaseHelper.RunWithWritableDb<Void>() {
+					public Void run(SQLiteDatabase db) {
 						db.execSQL(finalQuery.sql, finalQuery.args);
+						return null;
 					}
 				});
             }

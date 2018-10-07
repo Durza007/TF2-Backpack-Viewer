@@ -1,7 +1,9 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,30 +47,52 @@ public class DashboardFragment extends Fragment {
         
         return view;
     }
+
+    void ensureGameSchemeReady(final Intent intent) {
+		if (DataManager.isGameSchemeReady()) {
+			startActivity(intent);
+		} else {
+			Exception error = DataManager.getPendingGameSchemeException();
+			if (error != null) {
+				GenericDialogHC.newInstance(
+						getResources().getString(R.string.failed_download),
+						getResources().getString(R.string.download_gamescheme_error_message) + " " + error.getLocalizedMessage())
+						.setPositiveButtonText(R.string.try_again)
+						.setNegativeButtonText(R.string.dismiss)
+						.setClickListener(new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialogInterface, int which) {
+								dialogInterface.dismiss();
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									App.getDataManager().requestSchemaFilesDownload(false);
+									DownloadProgressDialog.show(getActivity().getSupportFragmentManager(), (DownloadProgressDialog.ClosedListener) null);
+								}
+							}
+						})
+						.show(getActivity().getFragmentManager(), "errorDialog");
+			} else {
+				if (!DataManager.isGameSchemeDownloading()) {
+					App.getDataManager().requestSchemaFilesDownload(false);
+				}
+
+				DownloadProgressDialog.show(getActivity().getSupportFragmentManager(), new DownloadProgressDialog.ClosedListener() {
+					public void onClosed(boolean dismissed) {
+						if (!dismissed && DataManager.isGameSchemeReady()) {
+							startActivity(intent);
+						}
+					}
+				});
+			}
+		}
+	}
     
     OnItemSelectedListener itemSelectedListener = new OnItemSelectedListener() {	
 		public void onSelect(String string) {
 			if (string.equals("VIEW_BACKPACK")) {
-				backpackIntent.putExtra("id", playerId);
-				startActivity(backpackIntent);
+				ensureGameSchemeReady(backpackIntent);
 			} else if (string.equals("VIEW_FRIENDS")) {
 				startActivity(new Intent(getActivity(), PlayerListActivity.class).setAction("com.minder.app.tf2backpack.VIEW_FRIENDS"));
 			} else if (string.equals("VIEW_ITEM_LISTS")) {
-		    	if (DataManager.isGameSchemeReady()) {
-					startActivity(new Intent(getActivity(), CatalogActivity.class));
-		    	} else {
-		    		if (!DataManager.isGameSchemeDownloading()) {
-						App.getDataManager().requestSchemaFilesDownload();
-					}
-
-					DownloadProgressDialog.show(getActivity().getSupportFragmentManager(), new DownloadProgressDialog.ClosedListener() {
-						public void onClosed(boolean dismissed) {
-							if (!dismissed && DataManager.isGameSchemeReady()) {
-								startActivity(new Intent(getActivity(), CatalogActivity.class));
-							}
-						}
-					});
-		    	}
+				ensureGameSchemeReady(new Intent(getActivity(), CatalogActivity.class));
 			} else if (string.equals("VIEW_SETTINGS")) {
 				startActivity(settingsIntent);
 			}

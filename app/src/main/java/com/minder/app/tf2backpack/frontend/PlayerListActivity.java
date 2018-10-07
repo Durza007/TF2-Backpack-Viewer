@@ -134,7 +134,7 @@ public class PlayerListActivity extends FragmentActivity {
 			}
     	} else {
 			if (!DataManager.isGameSchemeDownloading()) {
-				App.getDataManager().requestSchemaFilesDownload();
+				App.getDataManager().requestSchemaFilesDownload(false);
 			}
 
 			DownloadProgressDialog.show(getSupportFragmentManager(), new DownloadProgressDialog.ClosedListener() {

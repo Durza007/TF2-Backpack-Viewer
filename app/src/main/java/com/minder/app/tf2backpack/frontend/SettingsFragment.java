@@ -14,6 +14,7 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.backend.DataManager;
 
 @TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
@@ -26,7 +27,7 @@ public class SettingsFragment extends PreferenceFragment {
         // Load the preferences from an XML resource
         this.addPreferencesFromResource(R.xml.settings);
         
-        Preference community = (Preference)findPreference("communityId");
+        Preference community = findPreference("communityId");
         community.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
             	GenericDialogHC dialog = GenericDialogHC.newInstance(R.string.community_id, R.string.tutorial_how_to_set_community_id);
@@ -43,9 +44,13 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
         
-        Preference refresh = (Preference)findPreference("refreshfiles");
+        Preference refresh = findPreference("refreshfiles");
         refresh.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
+				if (!DataManager.isGameSchemeDownloading()) {
+					App.getDataManager().requestSchemaFilesDownload(false);
+				}
+
 				Intent intent = new Intent(getActivity(), DashboardActivity.class);
 				intent.setAction("download_gamescheme");
 				startActivity(intent);
@@ -53,7 +58,7 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
         
-        Preference clearCache = (Preference)findPreference("clearcache");
+        Preference clearCache = findPreference("clearcache");
         clearCache.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
             	GenericDialogHC dialog = GenericDialogHC.newInstance(R.string.alert_dialog_clear_cache, R.string.alert_dialog_are_you_sure);
@@ -79,7 +84,7 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
         
-        Preference clearHistory = (Preference)findPreference("clearhistory");
+        Preference clearHistory = findPreference("clearhistory");
         clearHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
             	GenericDialogHC dialog = GenericDialogHC.newInstance(R.string.alert_dialog_clear_history, R.string.alert_dialog_are_you_sure);
@@ -103,7 +108,7 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
         	
-		Preference donate = (Preference) findPreference("donate");
+		Preference donate = findPreference("donate");
 		donate.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
 				startActivity(
@@ -115,7 +120,7 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
         
-        Preference aboutCreator = (Preference)findPreference("aboutcreator");
+        Preference aboutCreator = findPreference("aboutcreator");
         aboutCreator.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
             	SteamUser user = new SteamUser();

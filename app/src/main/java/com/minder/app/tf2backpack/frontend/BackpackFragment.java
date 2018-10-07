@@ -33,8 +33,8 @@ import com.minder.app.tf2backpack.frontend.BackpackView.OnLayoutReadyListener;
 import com.minder.app.tf2backpack.frontend.PageSelectDialog.OnPageSelectedListener;
 
 public class BackpackFragment extends Fragment {
-	public static interface OnFullscreenClickListener {
-		public void onFullscreenButtonClicked();
+	public interface OnFullscreenClickListener {
+		void onFullscreenButtonClicked();
 	}
 	
 	private final static int DEFAULT_NUMBER_OF_PAGES = 6;
@@ -159,7 +159,7 @@ public class BackpackFragment extends Fragment {
 		final boolean coloredCells = sp.getBoolean("backpackrarity", true);
 
 		// Create the backpack grid
-		backpackView = (BackpackView) view.findViewById(R.id.TableLayoutBackPack);
+		backpackView = view.findViewById(R.id.TableLayoutBackPack);
 		backpackView.setOnClickListener(onButtonBackpackClick);
 		backpackView.setOnReadyListener(onLayoutReadyListener);
 		backpackView.setColoredCells(coloredCells);
@@ -169,22 +169,22 @@ public class BackpackFragment extends Fragment {
 			backpackView.setFixedWidth(fixedWidth);
 
 		// Init buttons
-		final Button nextButton = (Button) view.findViewById(R.id.ButtonNext);
+		final Button nextButton = view.findViewById(R.id.ButtonNext);
 		nextButton.setOnClickListener(onButtonBackpackClick);
 
-		final Button previousButton = (Button) view.findViewById(R.id.ButtonPrevious);
+		final Button previousButton = view.findViewById(R.id.ButtonPrevious);
 		previousButton.setOnClickListener(onButtonBackpackClick);
 
-		newButton = (Button) view.findViewById(R.id.buttonNew);
+		newButton = view.findViewById(R.id.buttonNew);
 		newButton.setOnClickListener(onButtonBackpackClick);
 		
-		fullscreenButton = (Button) view.findViewById(R.id.buttonFullscreen);
+		fullscreenButton = view.findViewById(R.id.buttonFullscreen);
 		fullscreenButton.setOnClickListener(onFullscreenClickListener);
 		if (listener.get() == null)
 			fullscreenButton.setVisibility(View.GONE);
 
 		// Page-number text
-		pageNumberButton = (Button) view.findViewById(R.id.ButtonPageNumber);
+		pageNumberButton = view.findViewById(R.id.ButtonPageNumber);
 		pageNumberButton.setTypeface(Typeface.createFromAsset(getActivity()
 				.getAssets(), "fonts/TF2Build.ttf"), 0);
 		pageNumberButton.setText(onPageNumber + "/" + numberOfPages);

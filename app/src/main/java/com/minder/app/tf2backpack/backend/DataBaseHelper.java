@@ -135,18 +135,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public interface RunWithWritableDb {
-    	void run(SQLiteDatabase db);
+	public interface  RunWithWritableDb<T> {
+    	T run(SQLiteDatabase db);
 	}
 
 	static Object mLock = new Object();
-	public static void runWithWritableDb(Context context, RunWithWritableDb runner) {
+	public static <T> T runWithWritableDb(Context context, RunWithWritableDb<T> runner) {
     	synchronized (mLock) {
 			DataBaseHelper db = new DataBaseHelper(context);
 			SQLiteDatabase sqlDb = db.getWritableDatabase();
 
 			try {
-				runner.run(sqlDb);
+				return runner.run(sqlDb);
 			}
 			finally {
 				sqlDb.close();

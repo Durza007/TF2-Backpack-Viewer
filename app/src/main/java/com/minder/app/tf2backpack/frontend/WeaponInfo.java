@@ -162,6 +162,7 @@ public class WeaponInfo extends Activity {
 			boolean skip = false;
 	        boolean crateAttrib = false;
 	        boolean hireAttrib = false;
+	        long craftOrder = 0;
 	        
 	        StrangeQuality[] strangeQualities = new StrangeQuality[StrangeQuality.MAX_NUM_STRANGE_PARTS];
 	        for (int i = 0; i < strangeQualities.length; i++) {
@@ -346,7 +347,6 @@ public class WeaponInfo extends Activity {
 	        			/**
 	        			 * Craft order attribute
 	        			 */
-	        			String name = (String) tvName.getText();
 	        			double value = 1337;
 	        			
 	        			if (!isPlayerItem)
@@ -354,20 +354,14 @@ public class WeaponInfo extends Activity {
 	        			
 	        			// set correct value for unique attributes
 	        	        for (ItemAttribute ia : itemAttributeList){
-	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)){    
-	        	        		
-	        	        		if (ia.getFloatValue() == 0){
-	        	        			value = ia.getValue();
-	        	        		} else {
-	        	        			value = ia.getFloatValue();
-	        	        		}
+	        	        	if (ia.getAttributeDefIndex() == cAttribute.getInt(defIndexColumn)){
+	        	        		value = ia.getValue();
 	        	        		break;
 	        	        	}
 	        	        }
 	        	        
-	        	        if (value <= 100 || !hideLargeCraftOrder) {      			
-		        			name += " #" + (int)value;
-		        			tvName.setText(name);
+	        	        if (value <= 100 || !hideLargeCraftOrder) {
+                            craftOrder = (long)value;
 	        	        }
 	        		}
 	        	}
@@ -445,11 +439,16 @@ public class WeaponInfo extends Activity {
 		        
 		        quality.close();
 	        }
+
+	        String nameSuffix = "";
+	        if (craftOrder != 0) {
+	            nameSuffix = " #" + craftOrder;
+            }
 	     
 	        if (item.getCustomName() != null){
 	        	tvName.setText("\"" + item.getCustomName() + "\"");
 	        } else {
-	        	tvName.setText(namePrefix + c.getString(c.getColumnIndex("name")));
+	        	tvName.setText(namePrefix + c.getString(c.getColumnIndex("name")) + nameSuffix);
 	        }
         } else {
         	tvName.setText(getResources().getString(R.string.unknown_item) + item.getDefIndex());
