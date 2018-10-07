@@ -150,7 +150,7 @@ public class GameSchemeDownloaderService extends Service {
 			.setOngoing(false)
             .setContentTitle(getResources().getText(notificationTitle))
             .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.icon)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setAutoCancel(true);	
 			
 			Notification notification = builder.build();
