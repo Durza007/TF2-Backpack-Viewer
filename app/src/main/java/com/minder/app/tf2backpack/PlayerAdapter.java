@@ -105,11 +105,11 @@ public class PlayerAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
-            holder.container = (ViewGroup)convertView.findViewById(R.id.RelativeLayoutItem);
-            holder.avatar = (ImageView)convertView.findViewById(R.id.imageViewAvatar);
-            holder.state = (ImageView)convertView.findViewById(R.id.imageViewState);
-            holder.text = (TextView)convertView.findViewById(R.id.text1);
-            holder.text2 = (TextView)convertView.findViewById(R.id.text2);
+            holder.container = convertView.findViewById(R.id.RelativeLayoutItem);
+            holder.avatar = convertView.findViewById(R.id.imageViewAvatar);
+            holder.state = convertView.findViewById(R.id.imageViewState);
+            holder.text = convertView.findViewById(R.id.text1);
+            holder.text2 = convertView.findViewById(R.id.text2);
 
             convertView.setTag(holder);
         } else {
@@ -118,10 +118,10 @@ public class PlayerAdapter extends BaseAdapter {
         
         if (position == selectedIndex) {
         	holder.container.setBackgroundResource(R.color.button_color);
-        	holder.text.setTextAppearance(activity, android.R.style.TextAppearance_DeviceDefault_Large_Inverse);
+        	holder.text.setTextAppearance(activity, R.style.TextLargeInverse);
         } else {
         	holder.container.setBackgroundResource(0);
-        	holder.text.setTextAppearance(activity, android.R.style.TextAppearance_DeviceDefault_Large);
+        	holder.text.setTextAppearance(activity, R.style.TextLarge);
         }
         
         SteamUser player = playerList.get(position);

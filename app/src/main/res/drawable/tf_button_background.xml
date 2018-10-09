@@ -6,4 +6,7 @@
     <item 
     	android:state_enabled="true"
         android:drawable="@drawable/tf_button2" />
+	<item
+		android:state_enabled="false"
+		android:drawable="@drawable/tf_button_disabled" />
 </selector>

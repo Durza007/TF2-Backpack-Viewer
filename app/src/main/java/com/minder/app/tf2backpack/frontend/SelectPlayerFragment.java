@@ -272,13 +272,13 @@ public class SelectPlayerFragment extends Fragment {
 			}
 		});
 
-        Button buttonOk = (Button) view.findViewById(R.id.ButtonOk);
+        Button buttonOk = view.findViewById(R.id.ButtonOk);
 		buttonOk.setOnClickListener(onButtonOkClick);
 
-		Button buttonSearch = (Button) view.findViewById(R.id.buttonSearch);
+		Button buttonSearch = view.findViewById(R.id.buttonSearch);
 		buttonSearch.setOnClickListener(onButtonSearchClick);
 		
-		final Button buttonCommunity = (Button)view.findViewById(R.id.buttonCommunityId);
+		final Button buttonCommunity = view.findViewById(R.id.buttonCommunityId);
 		buttonCommunity.setOnClickListener(onButtonCommunityClick);
 
 		return null;

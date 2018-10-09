@@ -16,10 +16,12 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -129,12 +131,9 @@ public class NewsFragment extends Fragment {
             if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.news_item, null);
 	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView
-	            .findViewById(R.id.textTitle);
-	            holder.date = (TextView) convertView
-	            .findViewById(R.id.textDate);
-	            holder.content = (TextView) convertView
-	            .findViewById(R.id.textContent);
+	            holder.title = convertView.findViewById(R.id.textTitle);
+	            holder.date = convertView.findViewById(R.id.textDate);
+	            holder.content = convertView.findViewById(R.id.textContent);
 	
 	            convertView.setTag(holder);
             } else {
@@ -182,7 +181,7 @@ public class NewsFragment extends Fragment {
 		View view = inflater.inflate(R.layout.list_content, container, false);
         
 		progressContainer = view.findViewById(R.id.progressContainer);        
-        newsList = (ListView)view.findViewById(android.R.id.list);
+        newsList = view.findViewById(android.R.id.list);
         
         // Set up our adapter
         if (adapter == null)
@@ -191,6 +190,7 @@ public class NewsFragment extends Fragment {
         final TextView header = new TextView(getActivity());
         header.setText(R.string.recent_news);
         header.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+        header.setTextColor(Color.rgb(255, 255, 255));
         newsList.addHeaderView(header);
         
         newsList.setAdapter(adapter);

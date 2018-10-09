@@ -11,9 +11,11 @@
         android:layout_toLeftOf="@+id/text2"
         android:layout_toRightOf="@+id/imageViewAvatar"
         android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
         android:paddingLeft="6dip"
         android:text="@string/loading"
-        android:textAppearance="?android:attr/textAppearanceLarge" android:minHeight="?android:attr/listPreferredItemHeight">
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/darker_gray">
 
     </TextView>
 
@@ -34,8 +36,8 @@
         android:layout_alignParentRight="true"
         android:gravity="center_vertical"
         android:paddingLeft="6dip"
-        android:textAppearance="?android:attr/textAppearanceLarge" >
-    </TextView>
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/darker_gray"></TextView>
 
     <ImageView
         android:id="@+id/imageViewState"

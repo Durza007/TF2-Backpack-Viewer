@@ -127,7 +127,7 @@ public class PlayerListFragment extends Fragment {
 		
 		progressContainer = view.findViewById(R.id.progressContainer);
 
-		playerList = (ListView) view.findViewById(android.R.id.list);
+		playerList = view.findViewById(android.R.id.list);
 		setListItemSelectable(choiceModeEnabled);
 
 		// Set up our adapter

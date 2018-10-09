@@ -354,7 +354,8 @@ public class DataManager {
 	 * DATA FETCHING METHODS
 	 * 
 	 ****************************/
-	private class GetPlayerItems extends AsyncTask<SteamUser, Void, PlayerItemListParser> {
+	private class GetPlayerItems extends AsyncTask<SteamUser, Integer, PlayerItemListParser> {
+		private final static int MAX_TRIES = 20;
 		private final AsyncTaskListener listener;
 		private final Request request;
 		private final String cacheDir;
@@ -378,7 +379,7 @@ public class DataManager {
 			// try to fetch online first
 			String url = "http://api.steampowered.com/IEconItems_440/GetPlayerItems/v1/?key=" +
 					ApiKey.get() + "&SteamID=" + steamId64;
-			
+
 			File tempCacheFile = new File(this.cacheDir + "temp");
 			File cacheFile = new File(this.cacheDir + steamId64);
 
@@ -396,14 +397,20 @@ public class DataManager {
 			}
 
 			InputStream inputStream = connection.executeStream(null);
-			
-			if (inputStream == null) {
+			int iter = 0;
+			while (inputStream == null) {
+				iter++;
+				if (iter > 20) return null;
 				request.exception = connection.getException();
-				PlayerItemListParser parser = null;
+				PlayerItemListParser parser;
 				try {
 					parser = new PlayerItemListParser(new FileInputStream(cacheFile));
 				} catch (IOException e2) {
 					e2.printStackTrace();
+					connection.close();
+					publishProgress(iter);
+					inputStream = connection.executeStream(null);
+					continue;
 				}
 				return parser;
 			}
@@ -437,6 +444,7 @@ public class DataManager {
 					if (inputStream != null)
 						inputStream.close();
 				} catch (IOException e) {}
+				connection.close();
 			}
 
 			if (couldParseNewData) {
@@ -444,8 +452,13 @@ public class DataManager {
 					Log.e(Util.GetTag(), "Could not mv temp cached player items file");
 				}
 			}
-			
+
 			return parser;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			listener.onProgressUpdate(new ProgressUpdate(0, MAX_TRIES,  progress[0]));
 		}
 		
 		@Override
@@ -619,7 +632,10 @@ public class DataManager {
 		        try {
 		        	//String xml = (String) new HttpConnection().getDirect("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + ApiKey.get() + "&steamids=" + player.steamdId64 + "&format=xml", 0);
 		        	URL url = new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + ApiKey.get() + "&format=xml&steamids=" + sb.toString());
-	
+
+		        	if (BuildConfig.DEBUG) {
+		        		Log.d(Util.GetTag(), "GetPlayerSummaries: " + url.toString());
+					}
 		            InputStream fis = url.openStream();
 	
 		            parser.setInput(fis, null);

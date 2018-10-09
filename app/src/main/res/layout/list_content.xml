@@ -41,7 +41,8 @@
             android:paddingTop="4dip"
             android:singleLine="true"
             android:text="@string/loading"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
     <ListView

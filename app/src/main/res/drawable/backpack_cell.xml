@@ -6,4 +6,7 @@
     <item 
     	android:state_enabled="true"
         android:drawable="@drawable/cell_button" />
+	<item
+		android:state_enabled="false"
+		android:drawable="@drawable/cell_button_white" />
 </selector>

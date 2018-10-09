@@ -10,17 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -83,8 +72,7 @@ public class HttpConnection {
 			return read;
 		}
 	}
-	
-	private HttpClient httpClient;
+
 	private Exception exception;
 	private URL url;
 	private long ifModifiedSince;
@@ -123,9 +111,6 @@ public class HttpConnection {
 		this.url = new URL(url);
 		this.exception = null;
 		this.ifModifiedSince = -1;
-		
-		httpClient = new DefaultHttpClient();
-		HttpConnectionParams.setSoTimeout(httpClient.getParams(), 15000);
 	}
 
 	public void setIfModifiedSince(long timestamp) {
@@ -146,11 +131,6 @@ public class HttpConnection {
 				listener.totalSize(connection.getContentLength());
 
 			stream = connection.getInputStream();
-		} catch (ClientProtocolException e) {
-			if (BuildConfig.DEBUG) {
-				e.printStackTrace();
-			}
-			exception = e;
 		} catch (FileNotFoundException e) {
 			if (BuildConfig.DEBUG) {
 				e.printStackTrace();
@@ -182,7 +162,7 @@ public class HttpConnection {
 	 *
 	 * @return The data - null if it failed
 	 */
-	public Object execute(DownloadProgressListener listener) {
+	/*public Object execute(DownloadProgressListener listener) {
 		HttpResponse response = null;
 		try {
 			response = httpClient.execute(new HttpGet(url.toURI()));
@@ -265,5 +245,5 @@ public class HttpConnection {
 	private Bitmap processBitmapEntity(HttpEntity entity) throws IOException {
 		BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
 		return BitmapFactory.decodeStream(bufHttpEntity.getContent());
-	}
+	}*/
 }

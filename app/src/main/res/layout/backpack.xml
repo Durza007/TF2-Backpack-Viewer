@@ -54,23 +54,22 @@
             style="@style/Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="&lt;"
             android:width="50dp"
-            tools:ignore="HardcodedText" >
-        </Button>
+            android:text="&lt;"
+            tools:ignore="HardcodedText"></Button>
 
         <Button
             android:id="@+id/ButtonPageNumber"
             style="@style/dash_board_button_style"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
+            android:width="110dp"
             android:gravity="center"
             android:padding="0dp"
             android:text="1/6"
             android:textColor="@color/backpack_text"
             android:textSize="34sp"
-            android:width="110dp"
-            tools:ignore="HardcodedText" >
+            tools:ignore="HardcodedText">
 
         </Button>
 
@@ -84,6 +83,34 @@
             tools:ignore="HardcodedText" >
 
         </Button>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/progressContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/bg_color"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingTop="4dip"
+            android:singleLine="false"
+            android:text="@string/loading"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
 </RelativeLayout>

@@ -23,7 +23,7 @@ public class FileCache {
         
     }
     
-    public void clear(){
+    public void clear() {
         File[] files = cacheDir.listFiles();
         for(File f : files)
             f.delete();

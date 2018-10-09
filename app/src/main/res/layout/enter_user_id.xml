@@ -10,7 +10,8 @@
         android:id="@+id/user_id_textView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/user_id" />
+        android:text="@string/user_id"
+        android:textColor="@android:color/darker_gray" />
 
     <AutoCompleteTextView
         android:id="@+id/EditTextSteamId"
@@ -20,7 +21,8 @@
         android:layout_marginRight="80dp"
         android:imeOptions="actionDone"
         android:inputType="textPersonName"
-        android:lines="1">
+        android:lines="1"
+        android:textColor="@android:color/white">
 
     </AutoCompleteTextView>
 
@@ -39,7 +41,8 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/buttonCommunityId"
         android:gravity="bottom|center_horizontal"
-        android:text="@string/powered_by_steam"></TextView>
+        android:text="@string/powered_by_steam"
+        android:textColor="@android:color/darker_gray"></TextView>
 
     <Button
         android:id="@+id/ButtonOk"

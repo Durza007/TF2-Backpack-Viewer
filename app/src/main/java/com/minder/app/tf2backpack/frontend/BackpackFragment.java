@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -18,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.minder.app.tf2backpack.App;
@@ -41,7 +41,9 @@ public class BackpackFragment extends Fragment {
 	private final static String PAGE_SELECT_DIALOG_TAG = "pageSelectDialog";
 
 	private WeakReference<OnFullscreenClickListener> listener;
+	private Request downloadRequest = null;
 	private boolean retainInstance;
+    private View progressContainer;
 	private BackpackView backpackView;
 	private SteamUser currentSteamUser;
 	private boolean addPlayerDataToView;
@@ -50,8 +52,9 @@ public class BackpackFragment extends Fragment {
 	private int onPageNumber;
 	private int numberOfPages;
 	private boolean checkUngivenItems;
+    private Button prevPageButton;
+    private Button nextPageButton;
 	private Button pageNumberButton;
-	private ProgressDialog myProgressDialog;
 	private boolean dataDownloaded;
 	private ArrayList<Item> playerItemList;
 	private ArrayList<Item> ungivenList;
@@ -148,6 +151,16 @@ public class BackpackFragment extends Fragment {
 		
 		this.setRetainInstance(retainInstance);
 	}
+
+	@Override
+	public void onPause() {
+    	super.onPause();
+
+    	if (downloadRequest != null) {
+			App.getDataManager().cancelRequest(downloadRequest);
+            downloadRequest = null;
+		}
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -157,6 +170,8 @@ public class BackpackFragment extends Fragment {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this.getActivity());
 		final boolean coloredCells = sp.getBoolean("backpackrarity", true);
+
+        progressContainer = view.findViewById(R.id.progressContainer);
 
 		// Create the backpack grid
 		backpackView = view.findViewById(R.id.TableLayoutBackPack);
@@ -169,11 +184,11 @@ public class BackpackFragment extends Fragment {
 			backpackView.setFixedWidth(fixedWidth);
 
 		// Init buttons
-		final Button nextButton = view.findViewById(R.id.ButtonNext);
-		nextButton.setOnClickListener(onButtonBackpackClick);
+		prevPageButton = view.findViewById(R.id.ButtonNext);
+        prevPageButton.setOnClickListener(onButtonBackpackClick);
 
-		final Button previousButton = view.findViewById(R.id.ButtonPrevious);
-		previousButton.setOnClickListener(onButtonBackpackClick);
+		nextPageButton = view.findViewById(R.id.ButtonPrevious);
+        nextPageButton.setOnClickListener(onButtonBackpackClick);
 
 		newButton = view.findViewById(R.id.buttonNew);
 		newButton.setOnClickListener(onButtonBackpackClick);
@@ -192,10 +207,12 @@ public class BackpackFragment extends Fragment {
 		
 		// Handle item data
 		currentSteamUser = getArguments().getParcelable("user");
-		if (!dataDownloaded)
-			downloadPlayerData();
-		else
-			addPlayerDataToView();
+		if (!dataDownloaded) {
+            downloadPlayerData();
+        }
+		else {
+            addPlayerDataToView();
+        }
 
 		return view;
 	}
@@ -220,18 +237,18 @@ public class BackpackFragment extends Fragment {
 
 	AsyncTaskListener asyncTasklistener = new AsyncTaskListener() {
 		public void onPreExecute() {
-			myProgressDialog = null;
-			myProgressDialog = ProgressDialog.show(
-					BackpackFragment.this.getActivity(), "Please wait...",
-					"Downloading player data...", true);
+			TextView text = progressContainer.findViewById(R.id.progressText);
+			text.setText(R.string.loading);
+            progressContainer.setVisibility(View.VISIBLE);
 		}
 
 		public void onProgressUpdate(ProgressUpdate object) {
-			// nothing
+            TextView text = progressContainer.findViewById(R.id.progressText);
+            text.setText(getResources().getString(R.string.loading_backpack_503, object.count));
 		}
 
-
 		public void onPostExecute(Request request) {
+			downloadRequest = null;
 			Object object = request.getData();
 			
 			dataDownloaded = true;
@@ -278,8 +295,6 @@ public class BackpackFragment extends Fragment {
 
 				Util.handleNetworkException(e, getActivity());
 			}
-
-			myProgressDialog.dismiss();
 		}
 	};
 
@@ -328,6 +343,15 @@ public class BackpackFragment extends Fragment {
 			setPage(selectedPage);
 		}
 	};
+
+    private void setButtonsEnabled(boolean enabled) {
+        prevPageButton.setEnabled(enabled);
+        nextPageButton.setEnabled(enabled);
+        pageNumberButton.setEnabled(enabled);
+        fullscreenButton.setEnabled(enabled);
+        newButton.setEnabled(enabled);
+
+    }
 	
 	private void showPageSelectDialog() {
 		PageSelectDialog p = PageSelectDialog.newInstance(pageSelectedListener, numberOfPages);
@@ -364,8 +388,10 @@ public class BackpackFragment extends Fragment {
     	pageNumberButton.setText(onPageNumber + "/" + numberOfPages);
     }
     
-    public void downloadPlayerData(){ 	
-    	App.getDataManager().requestPlayerItemList(asyncTasklistener, getSteamUser());
+    public void downloadPlayerData() {
+        setButtonsEnabled(false);
+		newButton.setVisibility(View.GONE);
+		downloadRequest = App.getDataManager().requestPlayerItemList(asyncTasklistener, getSteamUser());
     }
     
     public void addPlayerDataToView(){
@@ -380,9 +406,14 @@ public class BackpackFragment extends Fragment {
                 // if the item has been found but not yet given
                 if (backpackPos == -1) {
                     ungivenList.add(playerItem);
-                    newButton.setVisibility(View.VISIBLE);
                 }
             }
+            if (ungivenList.isEmpty()) {
+				newButton.setVisibility(View.GONE);
+			}
+			else {
+				newButton.setVisibility(View.VISIBLE);
+			}
     	}
     	
     	if (!backpackView.isTableCreated()) {
@@ -414,6 +445,8 @@ public class BackpackFragment extends Fragment {
     		backpackView.setItems(playerItemList.subList(startIndex, endIndex + 1), (onPageNumber - 1) * 50);
     	}
 
+        setButtonsEnabled(true);
+		progressContainer.setVisibility(View.GONE);
     	Log.i(Util.GetTag(), "Add data to view: " + (System.currentTimeMillis() - start) + " ms");
     }
     
