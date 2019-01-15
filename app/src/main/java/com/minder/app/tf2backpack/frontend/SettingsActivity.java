@@ -19,6 +19,7 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
+import com.minder.app.tf2backpack.backend.DataManager;
 
 public class SettingsActivity extends PreferenceActivity {
 	private final static int COMMUNITY_ID_TUTORIAL = 1;
@@ -61,6 +62,10 @@ public class SettingsActivity extends PreferenceActivity {
         Preference refresh = (Preference)findPreference("refreshfiles");
         refresh.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference preference) {
+				if (!DataManager.isGameSchemeDownloading()) {
+					App.getDataManager().requestSchemaFilesDownload(false);
+				}
+				
 				Intent intent = new Intent(SettingsActivity.this, DashboardActivity.class);
 				intent.setAction("download_gamescheme");
 				startActivity(intent);

@@ -182,7 +182,7 @@ public class DownloadSchemaTask extends AsyncTask<Void, Float, DownloadSchemaTas
 
             Exception error = DataBaseHelper.runWithWritableDb(context, new DataBaseHelper.RunWithWritableDb<Exception>() {
                 public Exception run(SQLiteDatabase sqlDb) {
-                    sqlDb.beginTransaction();
+                    sqlDb.beginTransactionNonExclusive();
                     try {
                         // Cleanup old data from db
                         {

@@ -205,7 +205,21 @@ public class NewsFragment extends Fragment {
 					notifyHeaderListeners();
 				} else {
 					NewsItem item = (NewsItem)adapter.getItem(index - 1);
-					startActivity(new Intent().setData(Uri.parse(item.getUrl())).setAction("android.intent.action.VIEW"));
+					Uri uri = Uri.parse(item.getUrl());
+					if (uri.getScheme() == null || uri.getScheme().compareTo("") == 0) {
+						uri = uri.buildUpon().scheme("http").build();
+					}
+					final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+					if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
+						Toast.makeText(
+								getContext(),
+								getResources().getString(R.string.could_not_open_url, item.getUrl()),
+								Toast.LENGTH_LONG
+						).show();
+					}
+					else {
+						startActivity(intent);
+					}
 				}
 			}
 		});

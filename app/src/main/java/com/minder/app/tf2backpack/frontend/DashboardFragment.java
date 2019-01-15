@@ -31,7 +31,7 @@ public class DashboardFragment extends Fragment {
         backpackIntent = new Intent(getActivity(), SelectBackpack.class);
         settingsIntent = new Intent(getActivity(), SettingsActivity.class);
         
-        final GridView gridView = (GridView)view.findViewById(R.id.itemListSelectGridView);
+        final GridView gridView = view.findViewById(R.id.itemListSelectGridView);
         
         final int columnWidth = getResources().getDimensionPixelSize(R.dimen.button_size_dashboard_item);
         adapter = new ItemListSelectAdapter(getActivity(), 

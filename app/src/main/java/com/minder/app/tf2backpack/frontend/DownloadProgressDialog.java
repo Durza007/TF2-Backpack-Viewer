@@ -1,5 +1,6 @@
 package com.minder.app.tf2backpack.frontend;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,7 +64,10 @@ public class DownloadProgressDialog extends DialogFragment implements DownloadSc
 	}
 
 	public void onError(Exception error) {
-		getDialog().dismiss();
+		Dialog d = getDialog();
+		if (d != null) {
+			d.dismiss();
+		}
 		final FragmentManager fm = getActivity().getSupportFragmentManager();
 		GenericDialogHC.newInstance(
 				getResources().getString(R.string.failed_download),

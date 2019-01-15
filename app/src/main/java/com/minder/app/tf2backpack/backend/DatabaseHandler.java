@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.Util;
 
 public class DatabaseHandler implements Runnable {
@@ -32,7 +33,7 @@ public class DatabaseHandler implements Runnable {
 	
 	public DatabaseHandler(Context context){
 		this.context = context;
-		this.db = new DataBaseHelper(context);
+		this.db = App.getDatabaseHelper();
 		sqlQueryQueue = new LinkedList<Query>();
 		mLock = new Object();
 		mRunning = true;
@@ -53,7 +54,7 @@ public class DatabaseHandler implements Runnable {
 	}
 	
 	public SQLiteDatabase getReadableDatabase(){
-		return db.getReadableDatabase();
+		return db.getDatabase();
 	}
 	
 	public void run() {

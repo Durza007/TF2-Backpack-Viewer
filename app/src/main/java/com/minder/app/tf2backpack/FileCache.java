@@ -2,6 +2,7 @@ package com.minder.app.tf2backpack;
 
 import java.io.File;
 import android.content.Context;
+import android.util.Log;
 
 public class FileCache {  
     private File cacheDir;
@@ -12,8 +13,16 @@ public class FileCache {
             cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TF2BackpackViewer/Cache");
         else
             cacheDir = context.getCacheDir();
-        if(!cacheDir.exists())
-            cacheDir.mkdirs();
+        if(!cacheDir.exists()) {
+            if (!cacheDir.mkdirs()) {
+                cacheDir = context.getCacheDir();
+                if (!cacheDir.exists()) {
+                    if (!cacheDir.mkdirs()) {
+                        Log.e(Util.GetTag(), "Failed to create cache dir: " + cacheDir);
+                    }
+                }
+            }
+        }
     }
     
     public File getFile(String url){

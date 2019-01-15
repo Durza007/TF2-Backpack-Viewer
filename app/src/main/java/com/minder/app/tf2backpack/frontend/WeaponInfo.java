@@ -25,6 +25,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.Attribute;
 import com.minder.app.tf2backpack.Attribute.StrangeQuality;
 import com.minder.app.tf2backpack.ImageLoader;
@@ -58,9 +59,8 @@ public class WeaponInfo extends Activity {
         hideLargeCraftOrder = sp.getBoolean("hidelargecraftnumber", false);
         
         Item item = getIntent().getParcelableExtra("com.minder.app.tf2backpack.PlayerItemParser.Item");
-        
-        DataBaseHelper db = new DataBaseHelper(this.getApplicationContext());
-        SQLiteDatabase sqlDb = db.getReadableDatabase();
+
+        SQLiteDatabase sqlDb = App.getDatabaseHelper().getDatabase();
         
         Cursor c = sqlDb.rawQuery("SELECT name, type_name, description, image_url, image_url_large FROM items WHERE defindex = "
         		+ item.getDefIndex(), null);
@@ -458,7 +458,6 @@ public class WeaponInfo extends Activity {
         
         cAttribute.close();
         c.close();
-        sqlDb.close();
     }
     
     private String getParticleName(SQLiteDatabase sqlDb, int index) {

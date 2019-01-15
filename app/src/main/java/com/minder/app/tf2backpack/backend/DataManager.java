@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.minder.app.tf2backpack.ApiKey;
@@ -11,6 +12,7 @@ import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.BuildConfig;
 import com.minder.app.tf2backpack.PersonaState;
+import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.SteamUser;
 import com.minder.app.tf2backpack.Util;
 
@@ -261,9 +263,15 @@ public class DataManager {
 			}
 			public void onComplete(long dataLastModified) {
 				DataManager.saveGameSchemeDownloaded(dataLastModified);
-				for (DownloadSchemaTask.ProgressListener l : gameSchemeDownloadListeners) {
-					l.onComplete(dataLastModified);
+				if (gameSchemeDownloadListeners.size() == 0) {
+					Toast.makeText(context, R.string.download_gamescheme_success_toast, Toast.LENGTH_SHORT).show();
 				}
+				else {
+					for (DownloadSchemaTask.ProgressListener l : gameSchemeDownloadListeners) {
+						l.onComplete(dataLastModified);
+					}
+				}
+
 				gameSchemeDownloadListeners.clear();
 			}
 			public void onError(Exception error) {
@@ -272,6 +280,11 @@ public class DataManager {
 				Log.e(Util.GetTag(), "Error while trying to download scheme files: " + error);
 				if (gameSchemeDownloadListeners.size() == 0) {
 					DataManager.gameSchemeDownloadError = error;
+					Toast.makeText(
+							context,
+							context.getString(R.string.download_gamescheme_error_toast, error != null ? error.getLocalizedMessage() : context.getString(R.string.unknown_error)),
+							Toast.LENGTH_LONG
+					).show();
 				}
 				else {
 					for (DownloadSchemaTask.ProgressListener l : gameSchemeDownloadListeners) {

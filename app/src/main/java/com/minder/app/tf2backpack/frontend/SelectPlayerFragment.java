@@ -381,9 +381,14 @@ public class SelectPlayerFragment extends Fragment {
 				DataManager.addPlayerNameToHistory(editTextPlayer.getText().toString());
 			} else {
 				// handle error
-				Exception e = request.getException();
 				if (Internet.isOnline(getActivity())) {
-					if (e instanceof UnknownHostException) {
+					Exception e = request.getException();
+					if (e == null) {
+						// unknown exception
+						Toast.makeText(getActivity(),
+								R.string.unknown_error, Toast.LENGTH_LONG)
+								.show();
+					} else if (e instanceof UnknownHostException) {
 						Toast.makeText(getActivity(),
 								R.string.no_steam_api, Toast.LENGTH_LONG)
 								.show();
@@ -404,27 +409,4 @@ public class SelectPlayerFragment extends Fragment {
 			}
 		}
 	};
-
-	private static class SaveNameToDb implements Runnable {
-		private DataBaseHelper db;
-		private SQLiteDatabase sqlDb;
-		private String name;
-
-		public SaveNameToDb(Context context, String name) {
-			this.db = new DataBaseHelper(context);
-			this.sqlDb = db.getReadableDatabase();
-			this.name = name;
-		}
-
-		public void run() {
-			Cursor c = sqlDb.rawQuery("SELECT * FROM name_history WHERE name='"
-					+ name + "'", null);
-			if (c == null || c.getCount() < 1) {
-				sqlDb.execSQL("INSERT INTO name_history (name) VALUES ('"
-						+ name + "')");
-			}
-			sqlDb.close();
-			db.close();
-		}
-	}
 }

@@ -3,6 +3,7 @@ package com.minder.app.tf2backpack.frontend;
 import java.util.Collections;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.AsyncTask;
 import com.minder.app.tf2backpack.ItemAdapter;
 import com.minder.app.tf2backpack.R;
@@ -81,7 +83,7 @@ public class ItemGridViewerFragment extends Fragment {
 		// TODO find out why false is needed here and not anywhere else
 		View view = inflater.inflate(R.layout.item_grid, container, false);
 		
-		final GridView grid = (GridView)view.findViewById(R.id.gridViewItems);
+		final GridView grid = view.findViewById(R.id.gridViewItems);
 		itemAdapter = new ItemAdapter(getActivity(), true);
 		itemAdapter.setOnClickListener(clickListener);
 		
@@ -167,8 +169,7 @@ public class ItemGridViewerFragment extends Fragment {
 		@Override
 		protected Void doInBackground(Integer... params) {
 			final int filter = params[0];
-	        DataBaseHelper db = new DataBaseHelper(getActivity());
-	        SQLiteDatabase sqlDb = db.getReadableDatabase();
+	        SQLiteDatabase sqlDb = App.getDatabaseHelper().getDatabase();
 	        
 	        String where;
 	        switch (filter) {
@@ -254,17 +255,19 @@ public class ItemGridViewerFragment extends Fragment {
 	        	
 		        c.close();
 	        }
-	        sqlDb.close();
 			return null;
 		}
 		
 		@Override
 		protected void onProgressUpdate(Item... item) {
-			itemAdapter.addItem(item[0]);
+			Activity activity = getActivity();
+			if (activity != null) {
+				itemAdapter.addItem(item[0]);
 
-			final int count = itemAdapter.getCount();
-			title = getResources().getQuantityString(R.plurals.viewing_items, count, count);
-			getActivity().setTitle(title);
+				final int count = itemAdapter.getCount();
+				title = getResources().getQuantityString(R.plurals.viewing_items, count, count);
+				activity.setTitle(title);
+			}
 		}
     }
 }

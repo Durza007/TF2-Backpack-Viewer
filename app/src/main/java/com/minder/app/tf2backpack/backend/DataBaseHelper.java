@@ -17,8 +17,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static String DB_NAME = "items";
 
-    private SQLiteDatabase myDataBase; 
-    private final Context myContext;
+    private SQLiteDatabase database;
     
     private static final String DICTIONARY_TABLE_CREATE_ITEMS = "CREATE TABLE items (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, item_slot TEXT, quality NUMERIC, type_name TEXT, description TEXT, proper_name NUMERIC, used_by_classes INTEGER, image_url TEXT, image_url_large TEXT);";
     private static final String DICTIONARY_TABLE_CREATE_ATTRIBUTES = "CREATE TABLE attributes (_id INTEGER PRIMARY KEY, name TEXT, defindex NUMERIC, description_string TEXT, description_format NUMERIC, effect_type NUMERIC, hidden NUMERIC);";
@@ -37,8 +36,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      */
     public DataBaseHelper(Context context) {
     	super(context, DB_NAME, null, DB_VERSION);
-        this.myContext = context;
-    }	
+    }
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
@@ -110,6 +108,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		}
 	}
 
+	public SQLiteDatabase getDatabase() {
+    	if (database == null) {
+    		database = this.getWritableDatabase();
+    		database.enableWriteAheadLogging();
+		}
+		return database;
+	}
+
 	public static String getSteamUserName(SQLiteDatabase db, long steamId) {
         Cursor c = db.rawQuery("SELECT * FROM steamid_cache WHERE steamid=?", new String[] { String.valueOf(steamId) });
         String name = "";
@@ -142,16 +148,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	static Object mLock = new Object();
 	public static <T> T runWithWritableDb(Context context, RunWithWritableDb<T> runner) {
     	synchronized (mLock) {
-			DataBaseHelper db = new DataBaseHelper(context);
-			SQLiteDatabase sqlDb = db.getWritableDatabase();
-
-			try {
-				return runner.run(sqlDb);
-			}
-			finally {
-				sqlDb.close();
-				db.close();
-			}
+    		return runner.run(App.getDatabaseHelper().getDatabase());
 		}
 	}
 }

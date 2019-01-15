@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 14
@@ -14,6 +14,9 @@ android {
 
         testApplicationId "com.minder.app.tf2backpack.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
+
+        // Enabling multidex support.
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -29,6 +32,7 @@ dependencies {
     implementation 'com.android.support:support-v4:+'
     implementation 'com.google.code.gson:gson:2.2.4'
     implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'com.android.support:multidex:1.0.0'
     androidTestImplementation 'com.jayway.android.robotium:robotium-solo:3.4.1'
 }
 

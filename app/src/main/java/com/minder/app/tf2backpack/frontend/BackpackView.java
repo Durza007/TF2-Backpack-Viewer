@@ -27,6 +27,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.minder.app.tf2backpack.App;
 import com.minder.app.tf2backpack.ImageLoader;
 import com.minder.app.tf2backpack.R;
 import com.minder.app.tf2backpack.Util;
@@ -35,7 +36,7 @@ import com.minder.app.tf2backpack.backend.Item;
 
 public class BackpackView extends TableLayout {
 	public interface OnLayoutReadyListener {
-		public abstract void onReady();
+		void onReady();
 	}
 	
 	private static class Holder implements ImageLoader.ImageLoadedInterface {
@@ -73,7 +74,8 @@ public class BackpackView extends TableLayout {
 			this.color2 = color2;
 		}
 	}
-	
+
+	private final static String TAG = BackpackView.class.getSimpleName();
 	private final static int BACKPACK_CELL_COUNT = 50;
 	
 	private Context context;
@@ -181,7 +183,7 @@ public class BackpackView extends TableLayout {
 	}
 	
 	private void createTable() {
-		Log.d("BackpackView", "createTable");
+		Log.d(TAG, "createTable");
         LayoutInflater mInflater = (LayoutInflater)this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         buttonList = new View[BACKPACK_CELL_COUNT];
         buttonsChanged = new boolean[BACKPACK_CELL_COUNT];
@@ -216,7 +218,7 @@ public class BackpackView extends TableLayout {
 	
 	@Override
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {      
-        Log.d("BackpackView", "onSizeChanged w = " + w + " h = " + h);
+        Log.d(TAG, "onSizeChanged w = " + w + " h = " + h);
         
         if (fixedWidth != 0) {
         	backpackCellSize = fixedWidth / 10;
@@ -269,8 +271,7 @@ public class BackpackView extends TableLayout {
     public boolean setItems(List<Item> itemList, int cellIndexOffset) {
     	boolean allItemsWereKnown = true;
 
-		DataBaseHelper db = new DataBaseHelper(getContext());
-		SQLiteDatabase sqlDb = db.getReadableDatabase();
+		SQLiteDatabase sqlDb = App.getDatabaseHelper().getDatabase();
 
 		try {
 			for (Item item : itemList) {
@@ -286,7 +287,6 @@ public class BackpackView extends TableLayout {
 				// give an pointer to the item object to the cell
 				holder.imageButton.setTag(item);
 				Cursor c = sqlDb.rawQuery("SELECT image_url FROM items WHERE defindex=?", new String[] { Integer.toString(item.getDefIndex()) });
-
 				String url = null;
 				if (c != null) {
 					try {
@@ -361,7 +361,6 @@ public class BackpackView extends TableLayout {
 				}
 			}
 		} finally {
-			sqlDb.close();
 		}
     	
     	// reset anything we haven't changed
